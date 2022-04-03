@@ -1,3 +1,5 @@
+mod play;
+
 use serenity::async_trait;
 use serenity::client::{Client, Context, EventHandler};
 use serenity::model::channel::Message;
@@ -13,7 +15,7 @@ use std::env;
 use dotenv::dotenv;
 
 #[group]
-#[commands(ping, help)]
+#[commands(ping, help, play, p)]
 struct General;
 
 struct Handler;
@@ -56,4 +58,18 @@ async fn help(ctx: &Context, msg: &Message) -> CommandResult {
     msg.reply(ctx, "I want to help you too.").await?;
 
     Ok(())
+}
+
+#[command]
+async fn play(ctx: &Context, msg: &Message) -> CommandResult {
+    play::play();
+
+    Ok(());
+}
+
+#[command]
+async fn p(ctx: &Context, msg: &Message) -> CommandResult {
+    play::play();
+
+    Ok(());
 }
