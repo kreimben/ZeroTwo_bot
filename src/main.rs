@@ -13,7 +13,7 @@ use std::env;
 use dotenv::dotenv;
 
 #[group]
-#[commands(ping)]
+#[commands(ping, help)]
 struct General;
 
 struct Handler;
@@ -47,6 +47,13 @@ async fn main() {
 #[command]
 async fn ping(ctx: &Context, msg: &Message) -> CommandResult {
     msg.reply(ctx, "Pong!").await?;
+
+    Ok(())
+}
+
+#[command]
+async fn help(ctx: &Context, msg: &Message) -> CommandResult {
+    msg.reply(ctx, "I want to help you too.").await?;
 
     Ok(())
 }

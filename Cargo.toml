@@ -19,6 +19,9 @@ features = [ "builder",
     "model",
     "standard_framework",
     "utils",
+    "voice",
+    "voice-model",
+    "tokio",
     "rustls_backend"
 ]
 version = "0.10"
