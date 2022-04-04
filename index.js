@@ -30,7 +30,6 @@ require('dotenv').config();
     const slashFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'))
     for (const file of slashFiles) {
         const slashcmd = require(`./commands/${file}`)
-        console.log(file)
         client.slashcommands.set(slashcmd.data.name, slashcmd)
         commands.push(slashcmd.data.toJSON())
     }
@@ -56,8 +55,7 @@ require('dotenv').config();
         if (!interaction.isCommand()) return;
 
         const slashcmd = client.slashcommands.get(interaction.commandName)
-        console.log(`slash commands: ${slashcmd}`)
-        if (!slashcmd) interaction.reply('Not a valid command')
+        if (!slashcmd) interaction.reply(`Command not found.`)
 
         await interaction.deferReply()
         await slashcmd.run({client, interaction})
