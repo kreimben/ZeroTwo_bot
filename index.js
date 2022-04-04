@@ -34,6 +34,10 @@ require('dotenv').config();
         commands.push(slashcmd.data.toJSON())
     }
 
+    commands.forEach((v, i, a) => {
+        console.log(`command: ${JSON.stringify(v)}`)
+    })
+
     const rest = new REST({ version: '9' }).setToken(process.env.DISCORD_TOKEN)
 
     try {
@@ -62,6 +66,4 @@ require('dotenv').config();
     })
 
     await client.login(process.env.DISCORD_TOKEN)
-
-    client.voice
 })();
