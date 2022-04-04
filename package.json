@@ -1,0 +1,25 @@
+{
+  "name": "zerotwo_bot",
+  "version": "1.0.0",
+  "description": "ZeroTwo Discord Music Bot",
+  "scripts": {
+    "dev": "node index.js"
+  },
+  "type": "commonjs",
+  "dependencies": {
+    "@discordjs/builders": "^0.12.0",
+    "@discordjs/opus": "^0.5.3",
+    "@discordjs/rest": "^0.3.0",
+    "@discordjs/voice": "^0.8.0",
+    "bufferutil": "^4.0.6",
+    "discord-api-types": "^0.30.0",
+    "discord-player": "^5.2.2",
+    "discord.js": "^13.6.0",
+    "dotenv": "^16.0.0",
+    "erlpack": "github:discord/erlpack",
+    "utf-8-validate": "^5.0.9",
+    "yt-search": "^2.10.3",
+    "ytdl-core": "^4.11.0",
+    "zlib-sync": "^0.1.7"
+  }
+}
