@@ -1,6 +1,6 @@
 # ZeroTwo Discord Music Bot
 
-![](https://tenor.com/9YMQ.gif)
+![zerotwo_dance](https://tenor.com/9YMQ.gif)
 
 ## Open Source Discord Music Bot
 
