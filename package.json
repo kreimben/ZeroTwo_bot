@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "description": "ZeroTwo Discord Music Bot",
   "scripts": {
-    "dev": "node index.js"
+    "dev": "node index.js --DEV=true",
+    "start": "node index.js"
   },
   "type": "commonjs",
   "dependencies": {
