@@ -1,9 +1,9 @@
 # ZeroTwo Discord Music Bot
 
-![zerotwo_dance](https://tenor.com/9YMQ.gif)
+![zerotwo_dance](https://i.pinimg.com/736x/a5/04/05/a504058784154e306894c82ac23a2b01.jpg)
 
 ## Open Source Discord Music Bot
 
-## [Add]() to your server!
+## [Add](https://discord.com/api/oauth2/authorize?client_id=960047470589657108&permissions=2150631424&scope=applications.commands%20bot) to your server!
 
 If any error or question, Mail to [me](mailto:aksidion@kreimben.com).
