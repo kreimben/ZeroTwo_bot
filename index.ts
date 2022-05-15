@@ -1,3 +1,4 @@
+import {Queue} from "discord-player";
 const {REST} = require('@discordjs/rest')
 const {Client} = require('discord.js')
 const Discord = require('discord.js')
@@ -20,16 +21,41 @@ require('dotenv').config();
     })
 
     client.slashcommands = new Discord.Collection()
+    /// Option: https://discord-player.js.org/docs/main/master/typedef/PlayerOptions
     client.player = new Player(client, {
+        autoRegisterExtractor: true,
+        connectionTimeout: 5 * 1000, // IMO, milliseconds.
         ytdlOptions: {
             quality: "highestaudio",
-            highWaterMark: 1 << 25
+            highWaterMark: 1 << 26, // Default 512KB (1 << 25).
+            liveBuffer: 1000 * 100 // Default = 20000 milliseconds. (20 seconds)
         }
     })
 
+    try {
+        client.player.on('error', (queue: Queue, error: Error) => {
+            console.log(`error: ${JSON.stringify(error)}`)
+            queue.destroy()
+            process.exit(-1)
+        })
+    } catch (e) {
+        console.log(`cat on error: ${e}`)
+    }
+
+
+    try {
+        client.player.on('connectionError', (queue: Queue, error: Error) => {
+            console.log(`connectionError: ${JSON.stringify(error)}`)
+            queue.destroy()
+            process.exit(-1)
+        })
+    } catch (e) {
+        console.log(`cat on connectionError: ${e}`)
+    }
+
     let commands = []
 
-    const slashFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'))
+    const slashFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.ts'))
     for (const file of slashFiles) {
         const slashcmd = require(`./commands/${file}`)
         client.slashcommands.set(slashcmd.data.name, slashcmd)
@@ -37,13 +63,19 @@ require('dotenv').config();
     }
 
     client.on('interactionCreate', async (interaction) => {
-        if (!interaction.isCommand()) return;
+        try {
+            if (!interaction.isCommand()) return;
 
-        const slashcmd = client.slashcommands.get(interaction.commandName)
-        if (!slashcmd) interaction.reply(`Command not found.`)
+            const slashcmd = client.slashcommands.get(interaction.commandName)
+            if (!slashcmd) interaction.reply(`Command not found.`)
 
-        await interaction.deferReply()
-        await slashcmd.run({client, interaction})
+            await interaction.deferReply()
+            await slashcmd.run({client, interaction})
+        } catch (e) {
+            console.log(`client.on interactionCreate Error Occurs: ${e}`)
+            await interaction.editReply(`Error Occurs: ${e}`)
+            process.exit(-1)
+        }
     })
 
     client.once('ready', () => {
@@ -72,5 +104,6 @@ require('dotenv').config();
         console.log(`Started refreshing application (/) commands.`)
     } catch (error) {
         console.error(error)
+        process.exit(-1)
     }
 })();

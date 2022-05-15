@@ -1,5 +1,5 @@
-const {SlashCommandBuilder} = require("@discordjs/builders");
-const {MessageEmbed} = require("discord.js");
+import {SlashCommandBuilder} from "@discordjs/builders";
+import {MessageEmbed} from "discord.js";
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -21,6 +21,8 @@ module.exports = {
             })
         } catch (error) {
             console.error(error)
+            await interaction.editReply(`Error Occurs in Ping Command.\nPlease Report to kreimben.`)
+            process.exit(-1)
         }
     }
 }
