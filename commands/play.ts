@@ -1,7 +1,17 @@
+<<<<<<< HEAD
 const ytdl = require('ytdl-core')
 const ytSearch = require('yt-search')
 import {SlashCommandBuilder} from "@discordjs/builders";
 import {MessageEmbed} from "discord.js";
+=======
+import {Player} from "discord-player";
+import {SlashCommandBuilder} from "@discordjs/builders";
+import {MessageEmbed} from "discord.js";
+
+const ytdl = require('ytdl-core')
+const ytSearch = require('yt-search')
+
+>>>>>>> deploy
 const {QueryType} = require("discord-player")
 
 module.exports = {
@@ -23,11 +33,33 @@ module.exports = {
                 )
         ),
     run: async ({client, interaction}) => {
+<<<<<<< HEAD
         const playQueue = await client.player.createQueue(
             interaction.guild,
             {
                 leaveOnEnd: false,
                 leaveOnEmpty: false
+=======
+        let queue = await client.player.getQueue(interaction.guild)
+        // console.log(`queue: ${queue}`)
+        if (!queue) { // Only when queue is no more exist.
+            client.player = new Player(client, {
+                autoRegisterExtractor: true,
+                connectionTimeout: 5 * 1000, // IMO, milliseconds.
+                ytdlOptions: {
+                    quality: "highestaudio",
+                    highWaterMark: 1 << 26, // Default 512KB (1 << 25).
+                    liveBuffer: 1000 * 100 // Default = 20000 milliseconds. (20 seconds)
+                }
+            })
+        }
+
+        const playQueue = await client.player.createQueue(
+            interaction.guild,
+            {
+                leaveOnEnd: true,
+                leaveOnEmpty: true
+>>>>>>> deploy
             }
         )
 
@@ -43,7 +75,7 @@ module.exports = {
                 let url = interaction.options.getString("url")
                 const result = await client.player.search(url, {
                     requestedBy: interaction.user,
-                    searchEngine: QueryType.YOUTUBE_VIDEO
+                    searchEngine: QueryType.AUTO
                 })
                 if (result.tracks.length === 0)
                     return interaction.editReply("No results")
@@ -59,7 +91,7 @@ module.exports = {
                 let url = interaction.options.getString("searchterms")
                 const result = await client.player.search(url, {
                     requestedBy: interaction.user,
-                    searchEngine: QueryType.AUTO
+                    searchEngine: QueryType.YOUTUBE_SEARCH
                 })
 
                 if (result.tracks.length === 0)
@@ -81,9 +113,11 @@ module.exports = {
             })
         } catch (e) {
             console.log(`error on play: ${e}`)
+
+            playQueue.clear()
             playQueue.destroy()
             await interaction.editReply(`Error Occurs in Play Command.\nPlease Report to kreimben.`)
-            process.exit(-1)
+            // process.exit(-1)
         }
     }
 }

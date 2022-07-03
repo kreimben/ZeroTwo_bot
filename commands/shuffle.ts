@@ -25,9 +25,11 @@ module.exports = {
             await interaction.editReply({embeds: [embed]})
         } catch (e) {
             console.log(`error on shuffle: ${e}`)
+
+            playQueue.clear()
             playQueue.destroy()
             await interaction.editReply(`Error Occurs in Shuffle Command.\nPlease Report to kreimben.`)
-            process.exit(-1)
+            // process.exit(-1)
         }
     }
 }

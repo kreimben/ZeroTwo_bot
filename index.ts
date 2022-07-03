@@ -1,10 +1,15 @@
 import {Queue} from "discord-player";
+
 const {REST} = require('@discordjs/rest')
 const {Client} = require('discord.js')
 const Discord = require('discord.js')
 const {Routes, GatewayIntentBits} = require('discord-api-types/v10')
 const {Player} = require('discord-player')
 const fs = require('fs')
+
+/*
+ * Only apply for just test.
+ */
 require('dotenv').config();
 
 (async () => {
@@ -24,7 +29,7 @@ require('dotenv').config();
     /// Option: https://discord-player.js.org/docs/main/master/typedef/PlayerOptions
     client.player = new Player(client, {
         autoRegisterExtractor: true,
-        connectionTimeout: 5 * 1000, // IMO, milliseconds.
+        connectionTimeout: 5 * 1000, // milliseconds.
         ytdlOptions: {
             quality: "highestaudio",
             highWaterMark: 1 << 26, // Default 512KB (1 << 25).
@@ -34,23 +39,27 @@ require('dotenv').config();
 
     try {
         client.player.on('error', (queue: Queue, error: Error) => {
-            console.log(`error: ${JSON.stringify(error)}`)
-            queue.destroy()
-            process.exit(-1)
+            console.error(`error: ${JSON.stringify(error)}`)
+            queue.play(queue.nowPlaying(), {})
+
+            // queue.destroy()
+            // process.exit(-1)
         })
     } catch (e) {
-        console.log(`cat on error: ${e}`)
+        console.error(`cat on error: ${e}`)
     }
 
 
     try {
         client.player.on('connectionError', (queue: Queue, error: Error) => {
-            console.log(`connectionError: ${JSON.stringify(error)}`)
+            console.error(`connectionError: ${JSON.stringify(error)}`)
+
+            queue.clear()
             queue.destroy()
-            process.exit(-1)
+            // process.exit(-1)
         })
     } catch (e) {
-        console.log(`cat on connectionError: ${e}`)
+        console.error(`cat on connectionError: ${e}`)
     }
 
     let commands = []
@@ -84,7 +93,7 @@ require('dotenv').config();
 
     await client.login(process.env.DISCORD_TOKEN)
 
-    const rest = new REST({ version: '10' }).setToken(process.env.DISCORD_TOKEN)
+    const rest = new REST({version: '10'}).setToken(process.env.DISCORD_TOKEN)
 
     let if_dev = process.env.DEV == 'true' ? true : false
     console.log(`DEV: ${if_dev}`)
@@ -106,4 +115,17 @@ require('dotenv').config();
         console.error(error)
         process.exit(-1)
     }
+
+    setInterval(() => {
+        let usage = process.memoryUsage();
+        let now = new Date();
+
+        console.log(`${now}`)
+
+        for (const [key, value] of Object.entries(usage)) {
+            console.log(`Memory usage by ${key}, ${value / 1000000}MB `)
+        }
+
+        console.log(`========================================================`)
+    }, 20 * 1000);
 })();

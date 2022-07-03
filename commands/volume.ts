@@ -26,9 +26,11 @@ module.exports = {
             await interaction.editReply(`Set volume to ${volume}`)
         } catch (e) {
             console.log(`error on volume: ${e}`)
+
+            playQueue.clear()
             playQueue.destroy()
             await interaction.editReply(`Error Occurs in Volume Command.\nPlease Report to kreimben.`)
-            process.exit(-1)
+            // process.exit(-1)
         }
     }
 }

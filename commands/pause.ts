@@ -20,9 +20,11 @@ module.exports = {
             }
         } catch (e) {
             console.log(`error on pause: ${e}`)
+
+            playQueue.clear()
             playQueue.destroy()
             await interaction.editReply(`Error Occurs in Pause Command.\nPlease Report to kreimben.`)
-            process.exit(-1)
+            // process.exit(-1)
         }
     }
 }

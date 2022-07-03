@@ -13,7 +13,7 @@ module.exports = {
 
             const queueString = playQueue.tracks
                 .map((song, i) => {
-                    return `**${i + 1}.** ${song.title} -- <@${song.requestedBy.id}> \`[${song.duration}]\``
+                    return `**${i + 1}.** [${song.title}](${song.url}) -- <@${song.requestedBy.id}> \`[${song.duration}]\``
                 })
                 .join("\n")
 
@@ -25,7 +25,8 @@ module.exports = {
                 embeds: [
                     new MessageEmbed()
                         .setDescription(`**Currently Playing**\n` +
-                            (currentSong ? `\`[${current}/${currentSong.duration}]\` ${currentSong.title} -- <@${currentSong.requestedBy.id}>` : "None") +
+                            (currentSong ? `\`[${current}/${currentSong.duration}]\` [${currentSong.title}](${currentSong.url}) -- <@${currentSong.requestedBy.id}>` : "None") +
+
                             `\n\n` +
                             `**Queue**\n` +
                             `${queueString}`
@@ -35,9 +36,11 @@ module.exports = {
             })
         } catch (e) {
             console.log(`error on queue: ${e}`)
+
+            playQueue.clear()
             playQueue.destroy()
             await interaction.editReply(`Error Occurs in Queue Command.\nPlease Report to kreimben.`)
-            process.exit(-1)
+            // process.exit(-1)
         }
     }
 }

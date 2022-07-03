@@ -29,11 +29,6 @@ module.exports = {
 
             let tracks = JSON.stringify(playQueue.tracks)
 
-            console.log(`tracks: ${tracks}`)
-            console.log(`selected is: ${tracks[number]}`)
-            console.log(`index: ${number}`)
-            console.log(`to: ${number}`)
-
             let skipped
 
             if (number == 0) {
@@ -52,9 +47,12 @@ module.exports = {
             await interaction.editReply({embeds: [embed]})
         } catch (e) {
             console.log(`error on skip: ${e}`)
+
+
+            playQueue.clear()
             playQueue.destroy()
             await interaction.editReply(`Error Occurs in Skip Command.\nPlease Report to kreimben.`)
-            process.exit(-1)
+            // process.exit(-1)
         }
     }
 }
