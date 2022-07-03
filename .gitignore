@@ -4,4 +4,4 @@ yarn.lock
 /.idea
 .env
 log.txt
-/out
+out/**
