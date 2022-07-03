@@ -1,14 +1,14 @@
-#FROM python:3.10
-#FROM node:17
-FROM ubuntu:21.04
+FROM node:18-bullseye
 
 WORKDIR /app
 ADD . .
 
 RUN apt update
-RUN apt install python3 python3-pip nodejs npm -y
 
-RUN npm install -g npm@8.6.0
-RUN npm i
+RUN apt install python3 python -y
+
+RUN python --version
+
+RUN npm install --force
 
 CMD ["npm", "run", "start"]

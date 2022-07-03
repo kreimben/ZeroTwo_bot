@@ -1,5 +1,5 @@
 package-lock.json
-node_modules
+node_modules/
 .gitignore
 test_case
 .env
