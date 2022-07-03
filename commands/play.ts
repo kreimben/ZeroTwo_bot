@@ -1,9 +1,3 @@
-<<<<<<< HEAD
-const ytdl = require('ytdl-core')
-const ytSearch = require('yt-search')
-import {SlashCommandBuilder} from "@discordjs/builders";
-import {MessageEmbed} from "discord.js";
-=======
 import {Player} from "discord-player";
 import {SlashCommandBuilder} from "@discordjs/builders";
 import {MessageEmbed} from "discord.js";
@@ -11,7 +5,6 @@ import {MessageEmbed} from "discord.js";
 const ytdl = require('ytdl-core')
 const ytSearch = require('yt-search')
 
->>>>>>> deploy
 const {QueryType} = require("discord-player")
 
 module.exports = {
@@ -33,13 +26,6 @@ module.exports = {
                 )
         ),
     run: async ({client, interaction}) => {
-<<<<<<< HEAD
-        const playQueue = await client.player.createQueue(
-            interaction.guild,
-            {
-                leaveOnEnd: false,
-                leaveOnEmpty: false
-=======
         let queue = await client.player.getQueue(interaction.guild)
         // console.log(`queue: ${queue}`)
         if (!queue) { // Only when queue is no more exist.
@@ -59,7 +45,6 @@ module.exports = {
             {
                 leaveOnEnd: true,
                 leaveOnEmpty: true
->>>>>>> deploy
             }
         )
 
