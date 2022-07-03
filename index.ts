@@ -1,16 +1,30 @@
 import {Queue} from "discord-player";
+import * as fs from "fs";
 
-const {REST} = require('@discordjs/rest')
-const {Client} = require('discord.js')
-const Discord = require('discord.js')
-const {Routes, GatewayIntentBits} = require('discord-api-types/v10')
-const {Player} = require('discord-player')
-const fs = require('fs')
+const {REST} = require('@discordjs/rest');
+const {Client} = require('discord.js');
+const Discord = require('discord.js');
+const {Routes, GatewayIntentBits} = require('discord-api-types/v10');
+const {Player} = require('discord-player');
 
-/*
- * Only apply for just test.
- */
-require('dotenv').config();
+
+(() => {
+    /*
+     * Implement Logger.
+     */
+    // const fs = require('fs');
+    const util = require('util');
+    const log_file = fs.createWriteStream(__dirname + '/log.txt', {flags: 'w'});
+    const log_stdout = process.stdout;
+
+    console.log = function (d) { //
+        log_file.write(util.format(d) + '\n');
+        log_stdout.write(util.format(d) + '\n');
+    };
+
+    console.log(`Success to logging in file.`);
+})();
+
 
 (async () => {
 
