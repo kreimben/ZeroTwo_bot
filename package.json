@@ -4,7 +4,7 @@
   "description": "ZeroTwo Discord Music Bot",
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only index.ts",
-    "build": "tsc",
+    "build": "tsc -p .",
     "start": "node index.js"
   },
   "type": "commonjs",
