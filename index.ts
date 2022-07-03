@@ -1,18 +1,16 @@
-import {Queue} from "discord-player";
-import * as fs from "fs";
-
+const {Queue} = require('discord-player');
 const {REST} = require('@discordjs/rest');
 const {Client} = require('discord.js');
 const Discord = require('discord.js');
 const {Routes, GatewayIntentBits} = require('discord-api-types/v10');
 const {Player} = require('discord-player');
+const fs = require('fs');
 
 
 (() => {
     /*
      * Implement Logger.
      */
-    // const fs = require('fs');
     const util = require('util');
     const log_file = fs.createWriteStream(__dirname + '/log.txt', {flags: 'w'});
     const log_stdout = process.stdout;
@@ -113,17 +111,10 @@ const {Player} = require('discord-player');
     console.log(`DEV: ${if_dev}`)
 
     try {
-        if (if_dev) {
-            await rest.put(
-                Routes.applicationGuildCommands(process.env.CLIENT_ID, process.env.GUILD_ID),
-                {body: commands}
-            )
-        } else {
-            await rest.put(
-                Routes.applicationCommands(process.env.CLIENT_ID),
-                {body: commands}
-            )
-        }
+        await rest.put(
+            Routes.applicationCommands(process.env.CLIENT_ID),
+            {body: commands}
+        )
         console.log(`Started refreshing application (/) commands.`)
     } catch (error) {
         console.error(error)
