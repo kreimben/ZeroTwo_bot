@@ -12,4 +12,4 @@ RUN yarn install
 RUN yarn run clean
 RUN yarn run build
 
-CMD ["yarn", "run", "start"]
+CMD ["yarn", "run", "dev"]
