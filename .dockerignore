@@ -1,6 +1,4 @@
-package-lock.json
 node_modules/
 .gitignore
-test_case
-.env
 **/*.js
+log.txt

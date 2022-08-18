@@ -1,18 +1,15 @@
-import {Queue} from "discord-player";
-import * as fs from "fs";
-
 const {REST} = require('@discordjs/rest');
 const {Client} = require('discord.js');
 const Discord = require('discord.js');
 const {Routes, GatewayIntentBits} = require('discord-api-types/v10');
 const {Player} = require('discord-player');
+const fs = require('fs');
 
 
 (() => {
     /*
      * Implement Logger.
      */
-    // const fs = require('fs');
     const util = require('util');
     const log_file = fs.createWriteStream(__dirname + '/log.txt', {flags: 'w'});
     const log_stdout = process.stdout;
@@ -27,6 +24,7 @@ const {Player} = require('discord-player');
 
 
 (async () => {
+    require("dotenv").config();
 
     const intents = [
         GatewayIntentBits.Guilds,
@@ -52,7 +50,7 @@ const {Player} = require('discord-player');
     })
 
     try {
-        client.player.on('error', (queue: Queue, error: Error) => {
+        client.player.on('error', (queue: any, error: Error) => {
             console.error(`error: ${JSON.stringify(error)}`)
             queue.play(queue.nowPlaying(), {})
 
@@ -65,7 +63,7 @@ const {Player} = require('discord-player');
 
 
     try {
-        client.player.on('connectionError', (queue: Queue, error: Error) => {
+        client.player.on('connectionError', (queue: any, error: Error) => {
             console.error(`connectionError: ${JSON.stringify(error)}`)
 
             queue.clear()
@@ -90,7 +88,7 @@ const {Player} = require('discord-player');
             if (!interaction.isCommand()) return;
 
             const slashcmd = client.slashcommands.get(interaction.commandName)
-            if (!slashcmd) interaction.reply(`Command not found.`)
+            if (!slashcmd) await interaction.reply(`Command not found.`)
 
             await interaction.deferReply()
             await slashcmd.run({client, interaction})
@@ -109,37 +107,17 @@ const {Player} = require('discord-player');
 
     const rest = new REST({version: '10'}).setToken(process.env.DISCORD_TOKEN)
 
-    let if_dev = process.env.DEV == 'true' ? true : false
+    let if_dev = process.env.DEV == 'true'
     console.log(`DEV: ${if_dev}`)
 
     try {
-        if (if_dev) {
-            await rest.put(
-                Routes.applicationGuildCommands(process.env.CLIENT_ID, process.env.GUILD_ID),
-                {body: commands}
-            )
-        } else {
-            await rest.put(
-                Routes.applicationCommands(process.env.CLIENT_ID),
-                {body: commands}
-            )
-        }
+        await rest.put(
+            Routes.applicationCommands(process.env.CLIENT_ID),
+            {body: commands}
+        )
         console.log(`Started refreshing application (/) commands.`)
     } catch (error) {
         console.error(error)
         process.exit(-1)
     }
-
-    setInterval(() => {
-        let usage = process.memoryUsage();
-        let now = new Date();
-
-        console.log(`${now}`)
-
-        for (const [key, value] of Object.entries(usage)) {
-            console.log(`Memory usage by ${key}, ${value / 1000000}MB `)
-        }
-
-        console.log(`========================================================`)
-    }, 20 * 1000);
 })();
