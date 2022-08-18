@@ -1,0 +1,2 @@
+py-cord[voice]
+python-dotenv
