@@ -1,15 +1,9 @@
-FROM node:18-bullseye
+FROM python:3.10.6-bullseye
 
 WORKDIR /app
 ADD . .
 
-RUN apt update
+RUN apt update && apt install ffmpeg -y
+RUN pip install -r requirements.txt
 
-RUN apt install python3 python -y
-
-
-RUN yarn install
-RUN yarn run clean
-RUN yarn run build
-
-CMD ["yarn", "run", "dev"]
+CMD ["python", "main.py"]
