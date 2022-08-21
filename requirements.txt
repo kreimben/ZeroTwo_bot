@@ -1,0 +1,6 @@
+py-cord[voice]
+python-dotenv
+youtube_dl
+ujson
+asyncio
+pydantic
