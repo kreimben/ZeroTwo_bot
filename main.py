@@ -1,7 +1,7 @@
 import asyncio
 import os
 import threading
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 import discord
 import youtube_dl
@@ -366,6 +366,8 @@ async def version(context: discord.ApplicationContext):
     content += '2. Use multi-threading.\n'
     content += '3. Remove weather and pollution features.\n'
     content += '4. Remove sound filter features.\n'
+    content += '5. Fix ping command.\n'
+    content += '6. Add `force_quit` command to restart process.\n'
 
     embed.add_field(name='Features', value=content)
 
