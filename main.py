@@ -315,6 +315,15 @@ async def stop(context: discord.ApplicationContext):
     return await context.respond("Okay, Bye.")
 
 
+@bot.slash_command(name='force_quit', description='this require password')
+async def force_quit(context: discord.ApplicationContext, password: str):
+    if password == os.getenv('ZEROTWO_FORCE_RESTART_PWD', ''):
+        await context.respond('ZeroTwo_bot restarting')
+        return exit(-1)
+    else:
+        return await context.respond('password is not matched.')
+
+
 @bot.slash_command(name='version', description='Check new features!')
 async def version(context: discord.ApplicationContext):
     embed = discord.Embed(
