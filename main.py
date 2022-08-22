@@ -119,24 +119,24 @@ class Player:
 
         # print('before while True')
         while True:
-            # if not context.voice_client:
-            #     raise CommonException('voice_client is not ready')
-            # if not hasattr(context.voice_client, 'is_playing'):
-            #     raise CommonException('is_playing is not ready')
+            self._lock.acquire()
+
             if not context.voice_client or not hasattr(context.voice_client, 'is_playing'):
                 continue
 
-            # print(f'.', end='')
-            self._lock.acquire()
-            # print(f'is_playing: {context.voice_client.is_playing()} | _is_paused: {self._is_paused}')
-            if not context.voice_client.is_playing() and not self._is_paused:
+            if context.voice_client and \
+                    hasattr(context.voice_client, 'is_playing') and \
+                    not context.voice_client.is_playing() and \
+                    not self._is_paused:
                 self._lock.release()
                 if self._queue[context.guild_id]:
                     await self._play(context)
             else:  # Because release timing is not fitted to `self._play(context)`
                 self._lock.release()
 
-            if not context.voice_client.is_playing() and not self._queue:
+            if context.voice_client and \
+                    hasattr(context.voice_client, 'is_playing') and \
+                    not context.voice_client.is_playing() and not self._queue:
                 print(f'not playing and queue is even empty.')
                 break
 
