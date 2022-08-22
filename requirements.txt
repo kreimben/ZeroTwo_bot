@@ -3,3 +3,4 @@ python-dotenv
 youtube_dl
 ujson
 asyncio
+ffmpeg
