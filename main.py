@@ -11,6 +11,11 @@ from dotenv import load_dotenv
 load_dotenv()
 
 
+class CommonException(Exception):
+    def __init__(self, msg: str):
+        self.detail = msg
+
+
 class MyAudio(discord.FFmpegOpusAudio):
     played = 0
 
@@ -20,8 +25,9 @@ class MyAudio(discord.FFmpegOpusAudio):
 
 
 class Song:
-    def __init__(self, url: str, applicant: any, title: str, thumbnail_url: str, duration: int):
-        self.url: str = url
+    def __init__(self, webpage_url: str, audio_url: str, applicant: any, title: str, thumbnail_url: str, duration: int):
+        self.webpage_url: str = webpage_url
+        self.audio_url: str = audio_url
         self.applicant: any = applicant
         self.title: str = title
         self.thumbnail_url: str = thumbnail_url
@@ -68,7 +74,8 @@ class Player:
         with youtube_dl.YoutubeDL(ydl_options) as ydl:
             info = ydl.extract_info(f'ytsearch:{arg}', download=False)
             # print(f'info: {ujson.dumps(info["entries"][0], indent=4)}')
-            song = Song(url=info['entries'][0]['url'],
+            song = Song(webpage_url=info['entries'][0]['webpage_url'],
+                        audio_url=info['entries'][0]['url'],
                         title=info['entries'][0]['title'],
                         thumbnail_url=info['entries'][0]['thumbnail'],
                         applicant=context.author.id,
@@ -82,8 +89,11 @@ class Player:
         ffmpeg_options = {'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5',
                           'options': '-vn'}
         # await discord.FFmpegOpusAudio.from_probe(song.url, **ffmpeg_options)
-        source = await MyAudio.from_probe(song.url, **ffmpeg_options)
-        return source
+        source = await MyAudio.from_probe(song.audio_url, **ffmpeg_options)
+        if source:
+            return source
+        else:
+            raise CommonException("Source is not ready.")
 
     async def _play(self, context: discord.ApplicationContext) -> None:
         """
@@ -92,21 +102,27 @@ class Player:
         if self._queue:
             next_song: Song = self._queue[context.guild_id].pop(0)
             source = await self._get_source(next_song)
-            context.voice_client.play(source)
-            self._current_playing[context.guild_id] = next_song
+            if context.voice_client and hasattr(context.voice_client, 'play'):
+                context.voice_client.play(source)
+                self._current_playing[context.guild_id] = next_song
+            else:
+                raise CommonException(f'voice_client is not ready\n'
+                                      f'vc: {context.voice_client}\n'
+                                      f'play: {hasattr(context.voice_client, "play")}')
 
     async def _loop(self, context: discord.ApplicationContext) -> None:
         # print(f'enter loop!')
 
-        if context.voice_client.is_playing():
+        if context.voice_client and context.voice_client.is_playing():
             print('currently playing in voice channel.')
             return
 
         # print('before while True')
         while True:
             if not context.voice_client:
-                print('bot is not in voice channel.')
-                break
+                raise CommonException('voice_client is not ready')
+            elif not hasattr(context.voice_client, 'is_playing'):
+                raise CommonException('is_playing is not ready')
 
             # print(f'.', end='')
             self._lock.acquire()
@@ -224,13 +240,18 @@ async def play(context: discord.ApplicationContext, url_or_keyword: str):
         await context.voice_client.move_to(channel=voice_channel)
 
     # Play the song!
-    song = await Player.instance().play(context, url_or_keyword)
+    try:
+        song = await Player.instance().play(context, url_or_keyword)
+        if not song:
+            return await context.respond('cannot fetch song.')
 
-    embed = discord.Embed()
-    embed.add_field(name='Now playing 🎧', value=f"[{song.title}]({song.url}) - {song.duration}")
-    embed.set_image(url=song.thumbnail_url)
-    embed.set_footer(text=datetime.now())
-    return await context.respond(embed=embed)
+        embed = discord.Embed()
+        embed.add_field(name='Now playing 🎧', value=f"[{song.title}]({song.webpage_url}) - {song.duration}")
+        embed.set_image(url=song.thumbnail_url)
+        embed.set_footer(text=datetime.now())
+        return await context.respond(embed=embed)
+    except CommonException as e:
+        return await context.respond(e.detail)
 
 
 @bot.slash_command(name='pause', description='Pause the music')
@@ -259,24 +280,28 @@ async def queue(context: discord.ApplicationContext):
     if not context.voice_client:
         return await context.respond('You have to play something!.')
 
-    current_song, queue = await Player.instance().queue(context)
-    print(f'queue in queue command: {queue}')
+    try:
+        current_song, queue = await Player.instance().queue(context)
+        if not current_song:
+            return await context.respond('cannot fetch current song.')
 
-    source: MyAudio = context.voice_client.source
-    played = timedelta(seconds=source.played // 1000) if hasattr(source, 'played') else 0
+        source: MyAudio = context.voice_client.source
+        played = timedelta(seconds=source.played // 1000) if hasattr(source, 'played') else 0
 
-    embed = discord.Embed(title='Queue', description='')
-    v = f"{current_song.title} <@{current_song.applicant}> {played}/{current_song.duration}"
-    embed.add_field(name='Now Playing 🎧', value=v)
+        embed = discord.Embed(title='Queue', description='')
+        v = f"[{current_song.title}]({current_song.webpage_url}) <@{current_song.applicant}> {played}/{current_song.duration}"
+        embed.add_field(name='Now Playing 🎧', value=v)
 
-    if not queue:
-        embed.add_field(name='Queue', value='empty!')
-    else:
-        content = ''
-        for i in range(len(queue)):
-            content += f"{i + 1}. **[{queue[i].title}] <@{queue[i].applicant}>** {queue[i].duration}\n"
-        embed.add_field(name='Queue', value=content)
-    return await context.respond(embed=embed)
+        if not queue:
+            embed.add_field(name='Queue', value='empty!')
+        else:
+            content = ''
+            for i in range(len(queue)):
+                content += f"{i + 1}. **[{queue[i].title}]({queue[i].webpage_url}) <@{queue[i].applicant}>** {queue[i].duration}\n"
+            embed.add_field(name='Queue', value=content)
+        return await context.respond(embed=embed)
+    except CommonException as e:
+        return await context.respond(e.detail)
 
 
 @bot.slash_command(name='skip', description='Skip away!')
