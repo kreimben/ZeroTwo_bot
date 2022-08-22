@@ -220,11 +220,19 @@ async def dance(ctx):
 async def ping(context: discord.ApplicationContext):
     await context.defer()
 
-    embed = discord.Embed(title='Ping Pong 무한 Repeat! 🏓', description='')
-    embed.add_field(name=f'Websocket Latency', value=f' `{round(bot.latency, 1)}`ms')
-    embed.set_footer(text=datetime.now())
+    embed = discord.Embed(title='Ping Pong 무한 Repeat! 🏓')
 
-    await context.respond(embed=embed)
+    if context.voice_client and hasattr(context.voice_client, 'latency') and hasattr(context.voice_client,
+                                                                                     'average_latency'):
+        content = f'`now: {round(context.voice_client.latency, 3)}`ms\n'
+        content += f'`average: {round(context.voice_client.average_latency, 3)}`ms'
+        embed.add_field(name=f'Websocket Latency', value=content)
+
+        return await context.respond(embed=embed)
+    else:
+        embed.add_field(name='Error', value='I cannot get a valid latency :(')
+
+        return await context.respond(embed=embed)
 
 
 @bot.slash_command(name='play', aliases=['p', 'ㅔ'], description='Search keyword or Use URL.')
