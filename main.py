@@ -256,7 +256,7 @@ async def play(context: discord.ApplicationContext, url_or_keyword: str):
         embed = discord.Embed()
         embed.add_field(name='Now playing 🎧', value=f"[{song.title}]({song.webpage_url}) - {song.duration}")
         embed.set_image(url=song.thumbnail_url)
-        embed.set_footer(text=datetime.now())
+
         return await context.respond(embed=embed)
     except CommonException as e:
         return await context.respond(e.detail)
@@ -371,8 +371,6 @@ async def version(context: discord.ApplicationContext):
 
     embed.add_field(name='Thanks a lot!', value='[by kreimben](https://kreimben.com)')
 
-    embed.set_footer(text=datetime.now())
-
     return await context.respond(embed=embed)
 
 
@@ -388,8 +386,6 @@ async def help(context: discord.ApplicationContext):
     embed.add_field(name='Contact to Kreimben#7005', value=content)
 
     embed.add_field(name='Report to', value='[github](https://github.com/kreimben/ZeroTwo_bot/issues)')
-
-    embed.set_footer(text=datetime.now())
 
     return await context.respond(embed=embed)
 
