@@ -119,10 +119,12 @@ class Player:
 
         # print('before while True')
         while True:
-            if not context.voice_client:
-                raise CommonException('voice_client is not ready')
-            elif not hasattr(context.voice_client, 'is_playing'):
-                raise CommonException('is_playing is not ready')
+            # if not context.voice_client:
+            #     raise CommonException('voice_client is not ready')
+            # if not hasattr(context.voice_client, 'is_playing'):
+            #     raise CommonException('is_playing is not ready')
+            if not context.voice_client or not hasattr(context.voice_client, 'is_playing'):
+                continue
 
             # print(f'.', end='')
             self._lock.acquire()
