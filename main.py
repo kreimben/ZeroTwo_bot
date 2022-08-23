@@ -109,9 +109,15 @@ class Player:
         while True:
             self._event.clear()
 
-            if not self._context.voice_client.is_playing() and not self._is_paused:
+            # print(f'in the loop!')
+
+            if not self._context.voice_client.is_playing() and not self._is_paused and self._queue:
                 if self._queue:
                     await self._play(self._play_next_song)
+            elif not self._is_paused and not self._queue:
+                # print(f'not paused and nothing in queue')
+                players[self._context.guild_id] = None
+                return await self._context.voice_client.disconnect(force=True)
 
             await self._event.wait()
 
@@ -124,9 +130,6 @@ class Player:
     async def play(self, arg: str) -> Song:
         # Add song to queue
         song = self._add_song(arg)
-        # No more threading, No more manually worked loop.
-        # threading.Thread(target=asyncio.run, args=[self._loop(context)]).start()
-        # await self._loop(context)
         return song
 
     async def queue(self) -> (Song | None, [Song]):
@@ -174,7 +177,7 @@ class Player:
 
 
 bot = commands.Bot()
-players: dict[int, Player] = {}
+players: dict[int, Player | None] = {}
 
 
 @bot.event
@@ -345,6 +348,7 @@ async def stop(context: discord.ApplicationContext):
 
     await context.voice_client.disconnect(force=True)
     players[context.guild_id].clear()
+    players[context.guild_id] = None
     return await context.respond("Okay, Bye.")
 
 
