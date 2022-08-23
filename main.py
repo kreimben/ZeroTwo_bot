@@ -34,10 +34,20 @@ class Song:
         self.duration: timedelta = timedelta(seconds=duration)
 
 
+async def _get_source(song: Song) -> discord.FFmpegOpusAudio:
+    ffmpeg_options = {'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5',
+                      'options': '-vn'}
+    source = await MyAudio.from_probe(song.audio_url, **ffmpeg_options)
+    if source:
+        return source
+    else:
+        raise CommonException("Source is not ready.")
+
+
 class Player:
 
     def __init__(self, context: discord.ApplicationContext):
-        self._queue: list = []
+        self.play_queue: list = []
         self._instance = None
         self._is_loop_running = False
         self._current_playing: Song | None = None
@@ -58,7 +68,7 @@ class Player:
             'nocheckcertificate': True,
             'ignoreerrors': False,
             'logtostderr': True,
-            'quiet': True,
+            'quiet': False,
             'no_warnings': False,
             'default_search': 'auto',
             'force-ipv4': True,
@@ -76,25 +86,16 @@ class Player:
                         applicant=self._context.author.id,
                         duration=info["entries"][0]['duration'])
 
-            self._queue.append(song)
+            self.play_queue.append(song)
             return song
-
-    async def _get_source(self, song: Song) -> discord.FFmpegOpusAudio:
-        ffmpeg_options = {'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5',
-                          'options': '-vn'}
-        source = await MyAudio.from_probe(song.audio_url, **ffmpeg_options)
-        if source:
-            return source
-        else:
-            raise CommonException("Source is not ready.")
 
     async def _play(self, after) -> None:
         """
         Play next song from `self.queue`.
         """
-        if self._queue:
-            next_song: Song = self._queue.pop(0)
-            source = await self._get_source(next_song)
+        if self.play_queue:
+            next_song: Song = self.play_queue.pop(0)
+            source = await _get_source(next_song)
             if self._context.voice_client and hasattr(self._context.voice_client, 'play'):
                 self._context.voice_client.play(source, after=after)
 
@@ -111,13 +112,10 @@ class Player:
         while True:
             self._event.clear()
 
-            # print(f'in the loop!')
-
-            if not self._context.voice_client.is_playing() and not self._is_paused and self._queue:
-                if self._queue:
+            if not self._context.voice_client.is_playing() and not self._is_paused and self.play_queue:
+                if self.play_queue:
                     await self._play(self._play_next_song)
-            elif not self._is_paused and not self._queue:
-                # print(f'not paused and nothing in queue')
+            elif not self._is_paused and not self.play_queue:
                 players[self._context.guild_id] = None
                 return await self._context.voice_client.disconnect(force=True)
 
@@ -126,6 +124,7 @@ class Player:
     def _play_next_song(self, error=None):
         if error:
             print(str(error))
+            self._task.cancel(str(error))
             raise CommonException(str(error))
 
         self._event.set()
@@ -135,8 +134,8 @@ class Player:
         song = self._add_song(arg)
         return song
 
-    async def queue(self) -> (Song | None, [Song]):
-        return self._current_playing, [song for song in self._queue]
+    async def get_queue(self) -> (Song | None, [Song]):
+        return self._current_playing, [song for song in self.play_queue]
 
     def paused(self, context: discord.ApplicationContext):
         self._is_paused = True
@@ -148,8 +147,8 @@ class Player:
         # threading.Thread(target=asyncio.run, args=[self._loop(context)]).start()
 
     def _check_index(self, index: int) -> bool:
-        length = len(self._queue)
-        if 0 <= index and index < length and length != 0:
+        length = len(self.play_queue)
+        if 0 <= index < length != 0:
             return True
         else:
             return False
@@ -162,20 +161,20 @@ class Player:
         if not self._check_index(index):
             return None
 
-        queue = self._queue
-        self._queue = queue[index:]
+        player_queue = self.play_queue
+        self.play_queue = player_queue[index:]
         self._context.voice_client.stop()
-        return queue[index]
+        return player_queue[index]
         # and next loop should play next song automatically.
 
     def remove(self, index: int) -> Song | None:
         if not self._check_index(index):
             return None
         else:
-            return self._queue.pop(index)
+            return self.play_queue.pop(index)
 
     def clear(self):
-        self._queue = []
+        self.play_queue = []
         self._current_playing = None
 
 
@@ -231,7 +230,7 @@ async def play(context: discord.ApplicationContext, url_or_keyword: str):
 
     # Play the song!
     try:
-        if not players.get(context.guild_id):
+        if not players.get(context.guild_id) or players.get(context.guild_id).play_queue:
             players[context.guild_id] = Player(context)
 
         song = await players[context.guild_id].play(url_or_keyword)
@@ -274,7 +273,7 @@ async def queue(context: discord.ApplicationContext):
         return await context.respond('You have to play something!')
 
     try:
-        current_song, queue = await players[context.guild_id].queue()
+        current_song, play_queue = await players[context.guild_id].get_queue()
         if not current_song and hasattr(context.voice_client, 'is_playing'):
             return await context.respond('cannot fetch current song.')
         elif not current_song and not hasattr(context.voice_client, 'is_playing'):
@@ -287,17 +286,18 @@ async def queue(context: discord.ApplicationContext):
             return await context.respond('Player is having deadlock. Please report to kreimben.')
 
         embed = discord.Embed(title='Queue', description='')
-        v = f"[{current_song.title}]({current_song.webpage_url}) <@{current_song.applicant}> {played}/{current_song.duration}"
+        v = f"[{current_song.title}]({current_song.webpage_url}) <@{current_song.applicant}> "
+        v += f"{played}/{current_song.duration}"
         embed.add_field(name='Now Playing 🎧', value=v)
 
-        if not queue:
+        if not play_queue:
             embed.add_field(name='Queue', value='empty!')
         else:
             contents = []
             content = ''
-            for i in range(len(queue)):
-                contents.append(
-                    f"{i + 1}. **[{queue[i].title}]({queue[i].webpage_url}) <@{queue[i].applicant}>** {queue[i].duration}\n")
+            for i in range(len(play_queue)):
+                contents.append(f"{i + 1}. **[{play_queue[i].title}]({play_queue[i].webpage_url}) ")
+                contents.append(f"<@{play_queue[i].applicant}>** {play_queue[i].duration}\n")
 
             for i in range(len(contents)):
                 if i + 1 < len(contents) and len(content) + len(contents[i + 1]) >= 1000:
@@ -305,7 +305,7 @@ async def queue(context: discord.ApplicationContext):
                 else:
                     content += contents[i]
 
-            content += f'total: `{len(queue)} songs.`'
+            content += f'total: `{len(play_queue)} songs.`'
             embed.add_field(name='Queue', value=content)
         return await context.respond(embed=embed)
     except CommonException as e:
@@ -384,7 +384,7 @@ async def version(context: discord.ApplicationContext):
 
 
 @bot.slash_command(name='help')
-async def help(context: discord.ApplicationContext):
+async def _help(context: discord.ApplicationContext):
     embed = discord.Embed(title='Help', description='to help you')
 
     content = 'aksidion@kreimben.com\n'
