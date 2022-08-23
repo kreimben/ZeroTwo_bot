@@ -57,11 +57,13 @@ class Player:
             'noplaylist': True,
             'nocheckcertificate': True,
             'ignoreerrors': False,
-            'logtostderr': False,
+            'logtostderr': True,
             'quiet': True,
-            'no_warnings': True,
+            'no_warnings': False,
             'default_search': 'auto',
+            'force-ipv4': True,
             'forceduration': True,
+            'cachedir': False
         }
         with youtube_dl.YoutubeDL(ydl_options) as ydl:
             info = ydl.extract_info(f'ytsearch:{arg}', download=False)
@@ -123,6 +125,7 @@ class Player:
 
     def _play_next_song(self, error=None):
         if error:
+            print(str(error))
             raise CommonException(str(error))
 
         self._event.set()
