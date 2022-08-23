@@ -1,6 +1,6 @@
 import asyncio
 import os
-import threading
+from copy import copy
 from datetime import timedelta
 
 import discord
@@ -35,27 +35,19 @@ class Song:
 
 
 class Player:
-    __instance = None
 
-    def __init__(self):
-        self._queue: dict = {}
+    def __init__(self, context: discord.ApplicationContext):
+        self._queue: list = []
         self._instance = None
         self._is_loop_running = False
-        self._current_playing: dict = {}
+        self._current_playing: Song | None = None
         self._is_paused = False
-        self._lock = threading.Lock()
+        self._event = asyncio.Event()
 
-    @classmethod
-    def __getInstance(cls):
-        return cls.__instance
+        self._context = copy(context)
+        self._task = bot.loop.create_task(self._loop())
 
-    @classmethod
-    def instance(cls, *args, **kargs):
-        cls.__instance = cls(*args, **kargs)
-        cls.instance = cls.__getInstance
-        return cls.__instance
-
-    def _add_song(self, context: discord.ApplicationContext, arg: str) -> Song:
+    def _add_song(self, arg: str) -> Song:
         """
         Add song to `self.queue`.
         """
@@ -74,88 +66,74 @@ class Player:
         with youtube_dl.YoutubeDL(ydl_options) as ydl:
             info = ydl.extract_info(f'ytsearch:{arg}', download=False)
             # print(f'info: {ujson.dumps(info["entries"][0], indent=4)}')
+
             song = Song(webpage_url=info['entries'][0]['webpage_url'],
                         audio_url=info['entries'][0]['url'],
                         title=info['entries'][0]['title'],
                         thumbnail_url=info['entries'][0]['thumbnail'],
-                        applicant=context.author.id,
+                        applicant=self._context.author.id,
                         duration=info["entries"][0]['duration'])
-            self._queue[context.guild_id].append(song)
-            # print(f'queue after append song: {[song.title for song in self._queue[context.guild_id]]}', end=' ')
-            # print(f'queue length: {len(self._queue)}')
+
+            self._queue.append(song)
             return song
 
     async def _get_source(self, song: Song) -> discord.FFmpegOpusAudio:
         ffmpeg_options = {'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5',
                           'options': '-vn'}
-        # await discord.FFmpegOpusAudio.from_probe(song.url, **ffmpeg_options)
         source = await MyAudio.from_probe(song.audio_url, **ffmpeg_options)
         if source:
             return source
         else:
             raise CommonException("Source is not ready.")
 
-    async def _play(self, context: discord.ApplicationContext) -> None:
+    async def _play(self, after) -> None:
         """
         Play next song from `self.queue`.
         """
         if self._queue:
-            next_song: Song = self._queue[context.guild_id].pop(0)
+            next_song: Song = self._queue.pop(0)
             source = await self._get_source(next_song)
-            if context.voice_client and hasattr(context.voice_client, 'play'):
-                context.voice_client.play(source)
-                self._current_playing[context.guild_id] = next_song
+            if self._context.voice_client and hasattr(self._context.voice_client, 'play'):
+                self._context.voice_client.play(source, after=after)
+
+                if self._context.voice_client.is_playing():
+                    self._current_playing = next_song
+                else:
+                    raise CommonException('vc is not playing now.')
             else:
                 raise CommonException(f'voice_client is not ready\n'
-                                      f'vc: {context.voice_client}\n'
-                                      f'play: {hasattr(context.voice_client, "play")}')
+                                      f'vc: {self._context.voice_client}\n'
+                                      f'play: {hasattr(self._context.voice_client, "play")}')
 
-    async def _loop(self, context: discord.ApplicationContext) -> None:
-        # print(f'enter loop!')
-
-        if context.voice_client and context.voice_client.is_playing():
-            print('currently playing in voice channel.')
-            return
-
-        # print('before while True')
+    async def _loop(self) -> None:
         while True:
-            self._lock.acquire()
+            self._event.clear()
 
-            if not context.voice_client or not hasattr(context.voice_client, 'is_playing'):
-                continue
+            # print(f'in the loop!')
 
-            if context.voice_client and \
-                    hasattr(context.voice_client, 'is_playing') and \
-                    not context.voice_client.is_playing() and \
-                    not self._is_paused:
-                self._lock.release()
-                if self._queue[context.guild_id]:
-                    await self._play(context)
-            else:  # Because release timing is not fitted to `self._play(context)`
-                self._lock.release()
+            if not self._context.voice_client.is_playing() and not self._is_paused and self._queue:
+                if self._queue:
+                    await self._play(self._play_next_song)
+            elif not self._is_paused and not self._queue:
+                # print(f'not paused and nothing in queue')
+                players[self._context.guild_id] = None
+                return await self._context.voice_client.disconnect(force=True)
 
-            if context.voice_client and \
-                    hasattr(context.voice_client, 'is_playing') and \
-                    not context.voice_client.is_playing() and not self._queue:
-                print(f'not playing and queue is even empty.')
-                break
+            await self._event.wait()
 
-        print('end loop!')
+    def _play_next_song(self, error=None):
+        if error:
+            raise CommonException(str(error))
 
-    async def play(self, context: discord.ApplicationContext, arg: str):
-        # First, look at queue whether it's empty.
-        # print(f'queue: {self._queue}')
-        if self._queue.get(context.guild_id) == None:
-            self._queue[context.guild_id] = list()
+        self._event.set()
 
+    async def play(self, arg: str) -> Song:
         # Add song to queue
-        song = self._add_song(context, arg)
-        threading.Thread(target=asyncio.run, args=[self._loop(context)]).start()
-        # await self._loop(context)
+        song = self._add_song(arg)
         return song
 
-    async def queue(self, context: discord.ApplicationContext) -> (Song, Song):
-        return self._current_playing[context.guild_id], [song for song in self._queue[context.guild_id]]
+    async def queue(self) -> (Song | None, [Song]):
+        return self._current_playing, [song for song in self._queue]
 
     def paused(self, context: discord.ApplicationContext):
         self._is_paused = True
@@ -164,43 +142,42 @@ class Player:
     def resumed(self, context: discord.ApplicationContext):
         self._is_paused = False
         context.voice_client.resume()
-        threading.Thread(target=asyncio.run, args=[self._loop(context)]).start()
+        # threading.Thread(target=asyncio.run, args=[self._loop(context)]).start()
 
-    def _check_index(self, context: discord.ApplicationContext, index: int) -> bool:
-        length = len(self._queue[context.guild_id])
+    def _check_index(self, index: int) -> bool:
+        length = len(self._queue)
         if 0 <= index and index < length and length != 0:
             return True
         else:
             return False
 
-    def skip(self, context: discord.ApplicationContext, index: int) -> Song | None:
-        if not self._check_index(context, index):
+    def skip(self, index: int) -> Song | None:
+        vc = self._context.voice_client
+        if hasattr(vc, 'is_paused') and vc.is_paused():
+            raise CommonException('You have to `/resume` first to skip this song!')
+
+        if not self._check_index(index):
             return None
 
-        queue = self._queue[context.guild_id]
-        # print(f'row queue: {queue}')
-        # print(f'new queue: {queue[index:]}')
-        self._queue[context.guild_id] = queue[index:]
-        context.voice_client.stop()
+        queue = self._queue
+        self._queue = queue[index:]
+        self._context.voice_client.stop()
         return queue[index]
         # and next loop should play next song automatically.
 
-    def remove(self, context: discord.ApplicationContext, index: int) -> Song | None:
-        if not self._check_index(context, index):
+    def remove(self, index: int) -> Song | None:
+        if not self._check_index(index):
             return None
         else:
-            return self._queue[context.guild_id].pop(index)
+            return self._queue.pop(index)
 
-    def clear(self, context: discord.ApplicationContext):
-        # print(f'before: {self._queue[context.guild_id]}')
-        # print(f'before: {self._current_playing[context.guild_id]}')
-        self._queue[context.guild_id] = []
-        self._current_playing[context.guild_id] = None
-        # print(f'after: {self._queue[context.guild_id]}')
-        # print(f'after: {self._current_playing[context.guild_id]}')
+    def clear(self):
+        self._queue = []
+        self._current_playing = None
 
 
 bot = commands.Bot()
+players: dict[int, Player | None] = {}
 
 
 @bot.event
@@ -251,7 +228,10 @@ async def play(context: discord.ApplicationContext, url_or_keyword: str):
 
     # Play the song!
     try:
-        song = await Player.instance().play(context, url_or_keyword)
+        if not players.get(context.guild_id):
+            players[context.guild_id] = Player(context)
+
+        song = await players[context.guild_id].play(url_or_keyword)
         if not song:
             return await context.respond('cannot fetch song.')
 
@@ -268,8 +248,8 @@ async def play(context: discord.ApplicationContext, url_or_keyword: str):
 async def pause(context: discord.ApplicationContext):
     await context.defer()
     if not context.author.voice:
-        return await context.respond('You have to join VC first!')
-    Player.instance().paused(context)
+        return await context.respond('You have to join voice channel first!')
+    players[context.guild_id].paused(context)
     return await context.respond('paused.')
 
 
@@ -279,7 +259,7 @@ async def resume(context: discord.ApplicationContext):
     author = context.author
     if not author.voice:
         return await context.respond('You have to join VC first!')
-    Player.instance().resumed(context)
+    players[context.guild_id].resumed(context)
     return await context.respond(f'resume')
 
 
@@ -288,15 +268,20 @@ async def queue(context: discord.ApplicationContext):
     await context.defer()
 
     if not context.voice_client:
-        return await context.respond('You have to play something!.')
+        return await context.respond('You have to play something!')
 
     try:
-        current_song, queue = await Player.instance().queue(context)
-        if not current_song:
+        current_song, queue = await players[context.guild_id].queue()
+        if not current_song and hasattr(context.voice_client, 'is_playing'):
             return await context.respond('cannot fetch current song.')
+        elif not current_song and not hasattr(context.voice_client, 'is_playing'):
+            return await context.respond('not playing now! But if you see this message, something is going to wrong!')
 
         source: MyAudio = context.voice_client.source
-        played = timedelta(seconds=source.played // 1000) if hasattr(source, 'played') else 0
+        if hasattr(source, 'played'):
+            played = timedelta(seconds=source.played // 1000)
+        else:
+            return await context.respond('Player is having deadlock. Please report to kreimben.')
 
         embed = discord.Embed(title='Queue', description='')
         v = f"[{current_song.title}]({current_song.webpage_url}) <@{current_song.applicant}> {played}/{current_song.duration}"
@@ -305,30 +290,46 @@ async def queue(context: discord.ApplicationContext):
         if not queue:
             embed.add_field(name='Queue', value='empty!')
         else:
+            contents = []
             content = ''
             for i in range(len(queue)):
-                content += f"{i + 1}. **[{queue[i].title}]({queue[i].webpage_url}) <@{queue[i].applicant}>** {queue[i].duration}\n"
+                contents.append(
+                    f"{i + 1}. **[{queue[i].title}]({queue[i].webpage_url}) <@{queue[i].applicant}>** {queue[i].duration}\n")
+
+            for i in range(len(contents)):
+                if i + 1 < len(contents) and len(content) + len(contents[i + 1]) >= 1000:
+                    break
+                else:
+                    content += contents[i]
+
+            content += f'total: `{len(queue)} songs.`'
             embed.add_field(name='Queue', value=content)
         return await context.respond(embed=embed)
     except CommonException as e:
         return await context.respond(e.detail)
+    except discord.errors.HTTPException as e:
+        return await context.respond(e.text)
 
 
 @bot.slash_command(name='skip', description='Skip away!')
 async def skip(context: discord.ApplicationContext, index: int = 1):
     await context.defer()
-    skipped_song = Player.instance().skip(context, index - 1)
-    if skipped_song:
-        return await context.respond(
-            f'Skipped to `{skipped_song.title}`({skipped_song.duration}) <@{skipped_song.applicant}>!')
-    else:
-        return await context.respond('Nothing to skip!')
+    try:
+        skipped_song = players[context.guild_id].skip(index - 1)
+
+        if skipped_song:
+            return await context.respond(
+                f'Skipped to `{skipped_song.title}`({skipped_song.duration}) <@{skipped_song.applicant}>!')
+        else:
+            return await context.respond('Nothing to skip!')
+    except CommonException as e:
+        return await context.respond(e.detail)
 
 
 @bot.slash_command(name='remove', description='Remove some song on the queue.')
 async def remove(context: discord.ApplicationContext, index: int = 1):
     await context.defer()
-    removed_song = Player.instance().remove(context, index - 1)
+    removed_song = players[context.guild_id].remove(index - 1)
     if removed_song:
         return await context.respond(
             f'`{removed_song.title}`({removed_song.duration}) <@{removed_song.applicant}> removed!')
@@ -346,7 +347,8 @@ async def stop(context: discord.ApplicationContext):
         return await context.respond('Already not joined voice channel.')
 
     await context.voice_client.disconnect(force=True)
-    Player.instance().clear(context)
+    players[context.guild_id].clear()
+    players[context.guild_id] = None
     return await context.respond("Okay, Bye.")
 
 
