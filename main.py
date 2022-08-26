@@ -204,9 +204,9 @@ async def on_ready():
     print('on_ready zerotwo!')
 
 
-# @bot.event
-# async def on_message(message):
-#     print(f'on_message: {message}')
+@bot.event
+async def on_message(message: discord.Message):
+    print(f'on_message: {message.guild} / {message.channel}')
 
 
 @bot.slash_command(name='dance', description='Dance zerotwo.')
