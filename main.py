@@ -94,12 +94,14 @@ class Player:
             if 'entries' in info:
                 info = info['entries'][0]
 
-            song = Song(webpage_url=info['entries'][0]['webpage_url'],
-                        audio_url=info['entries'][0]['url'],
-                        title=info['entries'][0]['title'],
-                        thumbnail_url=info['entries'][0]['thumbnail'],
+            # print(f'info: {ujson.dumps(info, indent=4)}')
+
+            song = Song(webpage_url=info['webpage_url'],
+                        audio_url=info['url'],
+                        title=info['title'],
+                        thumbnail_url=info['thumbnail'],
                         applicant=self._context.author.id,
-                        duration=info["entries"][0]['duration'])
+                        duration=info['duration'])
 
             self.play_queue.append(song)
             return song
