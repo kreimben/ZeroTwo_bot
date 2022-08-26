@@ -76,8 +76,22 @@ class Player:
             'cachedir': False
         }
         with youtube_dl.YoutubeDL(ydl_options) as ydl:
-            info = ydl.extract_info(f'ytsearch:{arg}', download=False)
-            # print(f'info: {ujson.dumps(info["entries"][0], indent=4)}')
+            def is_url(url):
+                try:
+                    result = urlparse(url)
+                    return all([result.scheme, result.netloc])
+                except ValueError:
+                    return False
+
+            if is_url(arg):
+                ready = f'{arg}'
+            else:
+                ready = f'ytsearch:{arg}'
+
+            info = ydl.extract_info(ready, download=False)
+
+            if 'entries' in info:
+                info = info['entries'][0]
 
             song = Song(webpage_url=info['entries'][0]['webpage_url'],
                         audio_url=info['entries'][0]['url'],
