@@ -210,12 +210,19 @@ async def on_message(message: discord.Message):
 
 
 @bot.slash_command(name='dance', description='Dance zerotwo.')
-async def dance(ctx):
-    await ctx.respond('https://tenor.com/bU2jx.gif')
+async def dance(context: discord.ApplicationContext):
+    # For logging.
+    print('Command: dance')
+    print(f'who: {context.author.name}')
+    await context.respond('https://tenor.com/bU2jx.gif')
 
 
 @bot.slash_command(name='ping', description='Ping Pong 무한 Repeat!')
 async def ping(context: discord.ApplicationContext):
+    # For logging.
+    print('Command: ping')
+    print(f'who: {context.author.name}')
+
     await context.defer()
 
     embed = discord.Embed(title='Ping Pong 무한 Repeat! 🏓')
@@ -235,6 +242,11 @@ async def ping(context: discord.ApplicationContext):
 
 @bot.slash_command(name='play', aliases=['p', 'ㅔ'], description='Search keyword or Use URL.')
 async def play(context: discord.ApplicationContext, url_or_keyword: str):
+    # For logging.
+    print('Command: play')
+    print(f'who: {context.author.name}')
+    print(f'message: {url_or_keyword}')
+
     await context.defer()
     if not context.author.voice:
         return await context.respond('You have to join VC first!')
@@ -267,6 +279,10 @@ async def play(context: discord.ApplicationContext, url_or_keyword: str):
 
 @bot.slash_command(name='pause', description='Pause the music')
 async def pause(context: discord.ApplicationContext):
+    # For logging.
+    print('Command: pause')
+    print(f'who: {context.author.name}')
+
     await context.defer()
     if not context.author.voice:
         return await context.respond('You have to join voice channel first!')
@@ -276,6 +292,10 @@ async def pause(context: discord.ApplicationContext):
 
 @bot.slash_command(name='resume', aliases=['r', 'ㄱ'], description='Resume the music')
 async def resume(context: discord.ApplicationContext):
+    # For logging.
+    print('Command: resume')
+    print(f'who: {context.author.name}')
+
     await context.defer()
     author = context.author
     if not author.voice:
@@ -286,6 +306,10 @@ async def resume(context: discord.ApplicationContext):
 
 @bot.slash_command(name='queue', description='Get songs in queue.')
 async def queue(context: discord.ApplicationContext):
+    # For logging.
+    print('Command: queue')
+    print(f'who: {context.author.name}')
+
     await context.defer()
 
     if not context.voice_client:
@@ -342,9 +366,14 @@ async def queue(context: discord.ApplicationContext):
 
 @bot.slash_command(name='skip', description='Skip away!')
 async def skip(context: discord.ApplicationContext, index: int = 1):
+    # For logging.
+    print('Command: skip')
+    print(f'who: {context.author.name}')
+
     await context.defer()
     try:
         skipped_song = players[context.guild_id].skip(index - 1)
+        print(f'skipped song: {skipped_song.title} / {skipped_song.webpage_url}')
 
         if skipped_song:
             return await context.respond(
@@ -357,6 +386,10 @@ async def skip(context: discord.ApplicationContext, index: int = 1):
 
 @bot.slash_command(name='remove', description='Remove some song on the queue.')
 async def remove(context: discord.ApplicationContext, index: int = 1):
+    # For logging.
+    print('Command: remove')
+    print(f'who: {context.author.name}')
+
     await context.defer()
     removed_song = players[context.guild_id].remove(index - 1)
     if removed_song:
@@ -368,6 +401,10 @@ async def remove(context: discord.ApplicationContext, index: int = 1):
 
 @bot.slash_command(name='stop', aliases=['s'], description='Make zerotwo_bot stop.')
 async def stop(context: discord.ApplicationContext):
+    # For logging.
+    print('Command: stop')
+    print(f'who: {context.author.name}')
+
     await context.defer()
     if not context.author.voice:
         return await context.respond('You have to join VC first!')
@@ -383,6 +420,11 @@ async def stop(context: discord.ApplicationContext):
 
 @bot.slash_command(name='force_quit', description='this require password')
 async def force_quit(context: discord.ApplicationContext, password: str):
+    # For logging.
+    print('Command: force_quit')
+    print(f'who: {context.author.name}')
+    print(f'password: {password}')
+
     if password == os.getenv('ZEROTWO_FORCE_RESTART_PWD', ''):
         await context.respond('ZeroTwo_bot restarting')
         return exit(-1)
@@ -392,6 +434,10 @@ async def force_quit(context: discord.ApplicationContext, password: str):
 
 @bot.slash_command(name='version', description='Check new features!')
 async def version(context: discord.ApplicationContext):
+    # For logging.
+    print('Command: version')
+    print(f'who: {context.author.name}')
+
     embed = discord.Embed(
         title=f'Welcome to [ZeroTwo_bot](https://github.com/kreimben/ZeroTwo_bot) {os.getenv("ZEROTWO_VERSION")}!')
 
@@ -411,6 +457,10 @@ async def version(context: discord.ApplicationContext):
 
 @bot.slash_command(name='help')
 async def _help(context: discord.ApplicationContext):
+    # For logging.
+    print('Command: help')
+    print(f'who: {context.author.name}')
+
     embed = discord.Embed(title='Help', description='to help you')
 
     content = 'aksidion@kreimben.com\n'
