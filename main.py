@@ -162,7 +162,6 @@ class Player:
     def resumed(self, context: discord.ApplicationContext):
         self._is_paused = False
         context.voice_client.resume()
-        # threading.Thread(target=asyncio.run, args=[self._loop(context)]).start()
 
     def _check_index(self, index: int) -> bool:
         length = len(self.play_queue)
