@@ -64,7 +64,7 @@ class Player:
         ydl_options = {
             'format': 'bestaudio/best',
             'restrictfilenames': True,
-            'noplaylist': True,
+            'no-playlist': True,
             'nocheckcertificate': True,
             'ignoreerrors': False,
             'logtostderr': True,
