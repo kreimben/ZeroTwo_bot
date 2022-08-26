@@ -2,6 +2,7 @@ import asyncio
 import os
 from copy import copy
 from datetime import timedelta
+from urllib.parse import urlparse
 
 import discord
 import youtube_dl
