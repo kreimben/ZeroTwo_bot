@@ -133,8 +133,9 @@ class Player:
                 if self.play_queue:
                     await self._play(self._play_next_song)
             elif not self._is_paused and not self.play_queue:
+                await self._context.voice_client.disconnect(force=True)
+                del players[self._context.guild_id]
                 players[self._context.guild_id] = None
-                return await self._context.voice_client.disconnect(force=True)
 
             await self._event.wait()
 
@@ -247,7 +248,9 @@ async def play(context: discord.ApplicationContext, url_or_keyword: str):
 
     # Play the song!
     try:
-        if not players.get(context.guild_id) or players.get(context.guild_id).play_queue:
+        p = players.get(context.guild_id)
+        if not p and not hasattr(p, 'play_queue'):
+            print(f'creating player in players!')
             players[context.guild_id] = Player(context)
 
         song = await players[context.guild_id].play(url_or_keyword)
@@ -290,10 +293,17 @@ async def queue(context: discord.ApplicationContext):
         return await context.respond('You have to play something!')
 
     try:
+        # print(f'players: {players}')
         current_song, play_queue = await players[context.guild_id].get_queue()
-        if not current_song and hasattr(context.voice_client, 'is_playing'):
+        is_playing = hasattr(context.voice_client, 'is_playing')
+
+        # print(f'current song: {current_song}')
+        # print(f'play queue: {play_queue}')
+        # print(f'has attr: {is_playing}')
+
+        if not current_song and is_playing:
             return await context.respond('cannot fetch current song.')
-        elif not current_song and not hasattr(context.voice_client, 'is_playing'):
+        elif not current_song and not is_playing:
             return await context.respond('not playing now! But if you see this message, something is going to wrong!')
 
         source: MyAudio = context.voice_client.source
@@ -367,7 +377,7 @@ async def stop(context: discord.ApplicationContext):
         return await context.respond('Already not joined voice channel.')
 
     await context.voice_client.disconnect(force=True)
-    players[context.guild_id].clear()
+    del players[context.guild_id]
     players[context.guild_id] = None
     return await context.respond("Okay, Bye.")
 
