@@ -2,6 +2,7 @@ import asyncio
 import os
 from copy import copy
 from datetime import timedelta
+from urllib.parse import urlparse
 
 import discord
 import youtube_dl
@@ -64,7 +65,7 @@ class Player:
         ydl_options = {
             'format': 'bestaudio/best',
             'restrictfilenames': True,
-            'noplaylist': True,
+            'no-playlist': True,
             'nocheckcertificate': True,
             'ignoreerrors': False,
             'logtostderr': True,
@@ -76,15 +77,31 @@ class Player:
             'cachedir': False
         }
         with youtube_dl.YoutubeDL(ydl_options) as ydl:
-            info = ydl.extract_info(f'ytsearch:{arg}', download=False)
-            # print(f'info: {ujson.dumps(info["entries"][0], indent=4)}')
+            def is_url(url):
+                try:
+                    result = urlparse(url)
+                    return all([result.scheme, result.netloc])
+                except ValueError:
+                    return False
 
-            song = Song(webpage_url=info['entries'][0]['webpage_url'],
-                        audio_url=info['entries'][0]['url'],
-                        title=info['entries'][0]['title'],
-                        thumbnail_url=info['entries'][0]['thumbnail'],
+            if is_url(arg):
+                ready = f'{arg}'
+            else:
+                ready = f'ytsearch:{arg}'
+
+            info = ydl.extract_info(ready, download=False)
+
+            if 'entries' in info:
+                info = info['entries'][0]
+
+            # print(f'info: {ujson.dumps(info, indent=4)}')
+
+            song = Song(webpage_url=info['webpage_url'],
+                        audio_url=info['url'],
+                        title=info['title'],
+                        thumbnail_url=info['thumbnail'],
                         applicant=self._context.author.id,
-                        duration=info["entries"][0]['duration'])
+                        duration=info['duration'])
 
             self.play_queue.append(song)
             return song
@@ -116,8 +133,9 @@ class Player:
                 if self.play_queue:
                     await self._play(self._play_next_song)
             elif not self._is_paused and not self.play_queue:
+                await self._context.voice_client.disconnect(force=True)
+                del players[self._context.guild_id]
                 players[self._context.guild_id] = None
-                return await self._context.voice_client.disconnect(force=True)
 
             await self._event.wait()
 
@@ -144,7 +162,6 @@ class Player:
     def resumed(self, context: discord.ApplicationContext):
         self._is_paused = False
         context.voice_client.resume()
-        # threading.Thread(target=asyncio.run, args=[self._loop(context)]).start()
 
     def _check_index(self, index: int) -> bool:
         length = len(self.play_queue)
@@ -187,18 +204,25 @@ async def on_ready():
     print('on_ready zerotwo!')
 
 
-# @bot.event
-# async def on_message(message):
-#     print(f'on_message: {message}')
+@bot.event
+async def on_message(message: discord.Message):
+    print(f'on_message: {message.guild} / {message.channel}')
 
 
 @bot.slash_command(name='dance', description='Dance zerotwo.')
-async def dance(ctx):
-    await ctx.respond('https://tenor.com/bU2jx.gif')
+async def dance(context: discord.ApplicationContext):
+    # For logging.
+    print('Command: dance')
+    print(f'who: {context.author.name}')
+    await context.respond('https://tenor.com/bU2jx.gif')
 
 
 @bot.slash_command(name='ping', description='Ping Pong 무한 Repeat!')
 async def ping(context: discord.ApplicationContext):
+    # For logging.
+    print('Command: ping')
+    print(f'who: {context.author.name}')
+
     await context.defer()
 
     embed = discord.Embed(title='Ping Pong 무한 Repeat! 🏓')
@@ -218,6 +242,11 @@ async def ping(context: discord.ApplicationContext):
 
 @bot.slash_command(name='play', aliases=['p', 'ㅔ'], description='Search keyword or Use URL.')
 async def play(context: discord.ApplicationContext, url_or_keyword: str):
+    # For logging.
+    print('Command: play')
+    print(f'who: {context.author.name}')
+    print(f'message: {url_or_keyword}')
+
     await context.defer()
     if not context.author.voice:
         return await context.respond('You have to join VC first!')
@@ -230,7 +259,9 @@ async def play(context: discord.ApplicationContext, url_or_keyword: str):
 
     # Play the song!
     try:
-        if not players.get(context.guild_id) or players.get(context.guild_id).play_queue:
+        p = players.get(context.guild_id)
+        if not p and not hasattr(p, 'play_queue'):
+            print(f'creating player in players!')
             players[context.guild_id] = Player(context)
 
         song = await players[context.guild_id].play(url_or_keyword)
@@ -248,6 +279,10 @@ async def play(context: discord.ApplicationContext, url_or_keyword: str):
 
 @bot.slash_command(name='pause', description='Pause the music')
 async def pause(context: discord.ApplicationContext):
+    # For logging.
+    print('Command: pause')
+    print(f'who: {context.author.name}')
+
     await context.defer()
     if not context.author.voice:
         return await context.respond('You have to join voice channel first!')
@@ -257,6 +292,10 @@ async def pause(context: discord.ApplicationContext):
 
 @bot.slash_command(name='resume', aliases=['r', 'ㄱ'], description='Resume the music')
 async def resume(context: discord.ApplicationContext):
+    # For logging.
+    print('Command: resume')
+    print(f'who: {context.author.name}')
+
     await context.defer()
     author = context.author
     if not author.voice:
@@ -267,16 +306,27 @@ async def resume(context: discord.ApplicationContext):
 
 @bot.slash_command(name='queue', description='Get songs in queue.')
 async def queue(context: discord.ApplicationContext):
+    # For logging.
+    print('Command: queue')
+    print(f'who: {context.author.name}')
+
     await context.defer()
 
     if not context.voice_client:
         return await context.respond('You have to play something!')
 
     try:
+        # print(f'players: {players}')
         current_song, play_queue = await players[context.guild_id].get_queue()
-        if not current_song and hasattr(context.voice_client, 'is_playing'):
+        is_playing = hasattr(context.voice_client, 'is_playing')
+
+        # print(f'current song: {current_song}')
+        # print(f'play queue: {play_queue}')
+        # print(f'has attr: {is_playing}')
+
+        if not current_song and is_playing:
             return await context.respond('cannot fetch current song.')
-        elif not current_song and not hasattr(context.voice_client, 'is_playing'):
+        elif not current_song and not is_playing:
             return await context.respond('not playing now! But if you see this message, something is going to wrong!')
 
         source: MyAudio = context.voice_client.source
@@ -316,9 +366,14 @@ async def queue(context: discord.ApplicationContext):
 
 @bot.slash_command(name='skip', description='Skip away!')
 async def skip(context: discord.ApplicationContext, index: int = 1):
+    # For logging.
+    print('Command: skip')
+    print(f'who: {context.author.name}')
+
     await context.defer()
     try:
         skipped_song = players[context.guild_id].skip(index - 1)
+        print(f'skipped song: {skipped_song.title} / {skipped_song.webpage_url}')
 
         if skipped_song:
             return await context.respond(
@@ -331,6 +386,10 @@ async def skip(context: discord.ApplicationContext, index: int = 1):
 
 @bot.slash_command(name='remove', description='Remove some song on the queue.')
 async def remove(context: discord.ApplicationContext, index: int = 1):
+    # For logging.
+    print('Command: remove')
+    print(f'who: {context.author.name}')
+
     await context.defer()
     removed_song = players[context.guild_id].remove(index - 1)
     if removed_song:
@@ -342,6 +401,10 @@ async def remove(context: discord.ApplicationContext, index: int = 1):
 
 @bot.slash_command(name='stop', aliases=['s'], description='Make zerotwo_bot stop.')
 async def stop(context: discord.ApplicationContext):
+    # For logging.
+    print('Command: stop')
+    print(f'who: {context.author.name}')
+
     await context.defer()
     if not context.author.voice:
         return await context.respond('You have to join VC first!')
@@ -350,13 +413,18 @@ async def stop(context: discord.ApplicationContext):
         return await context.respond('Already not joined voice channel.')
 
     await context.voice_client.disconnect(force=True)
-    players[context.guild_id].clear()
+    del players[context.guild_id]
     players[context.guild_id] = None
     return await context.respond("Okay, Bye.")
 
 
 @bot.slash_command(name='force_quit', description='this require password')
 async def force_quit(context: discord.ApplicationContext, password: str):
+    # For logging.
+    print('Command: force_quit')
+    print(f'who: {context.author.name}')
+    print(f'password: {password}')
+
     if password == os.getenv('ZEROTWO_FORCE_RESTART_PWD', ''):
         await context.respond('ZeroTwo_bot restarting')
         return exit(-1)
@@ -366,6 +434,10 @@ async def force_quit(context: discord.ApplicationContext, password: str):
 
 @bot.slash_command(name='version', description='Check new features!')
 async def version(context: discord.ApplicationContext):
+    # For logging.
+    print('Command: version')
+    print(f'who: {context.author.name}')
+
     embed = discord.Embed(
         title=f'Welcome to [ZeroTwo_bot](https://github.com/kreimben/ZeroTwo_bot) {os.getenv("ZEROTWO_VERSION")}!')
 
@@ -385,6 +457,10 @@ async def version(context: discord.ApplicationContext):
 
 @bot.slash_command(name='help')
 async def _help(context: discord.ApplicationContext):
+    # For logging.
+    print('Command: help')
+    print(f'who: {context.author.name}')
+
     embed = discord.Embed(title='Help', description='to help you')
 
     content = 'aksidion@kreimben.com\n'
