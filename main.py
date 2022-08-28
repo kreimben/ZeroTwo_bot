@@ -58,7 +58,7 @@ class Player:
         self._context = copy(context)
         self._task = bot.loop.create_task(self._loop())
 
-    def _add_song(self, arg: str) -> Song:
+    def _add_song(self, arg: str, applicant: any) -> Song:
         """
         Add song to `self.queue`.
         """
@@ -100,7 +100,7 @@ class Player:
                         audio_url=info['url'],
                         title=info['title'],
                         thumbnail_url=info['thumbnail'],
-                        applicant=self._context.author.id,
+                        applicant=applicant,
                         duration=info['duration'])
 
             self.play_queue.append(song)
@@ -147,9 +147,9 @@ class Player:
 
         self._event.set()
 
-    async def play(self, arg: str) -> Song:
+    async def play(self, arg: str, applicant: any) -> Song:
         # Add song to queue
-        song = self._add_song(arg)
+        song = self._add_song(arg, applicant)
         return song
 
     async def get_queue(self) -> (Song | None, [Song]):
@@ -264,7 +264,7 @@ async def play(context: discord.ApplicationContext, url_or_keyword: str):
             print(f'creating player in players!')
             players[context.guild_id] = Player(context)
 
-        song = await players[context.guild_id].play(url_or_keyword)
+        song = await players[context.guild_id].play(url_or_keyword, context.author.name)
         if not song:
             return await context.respond('cannot fetch song.')
 
