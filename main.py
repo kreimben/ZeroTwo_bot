@@ -264,7 +264,7 @@ async def play(context: discord.ApplicationContext, url_or_keyword: str):
             print(f'creating player in players!')
             players[context.guild_id] = Player(context)
 
-        song = await players[context.guild_id].play(url_or_keyword, context.author.name)
+        song = await players[context.guild_id].play(url_or_keyword, context.author.id)
         if not song:
             return await context.respond('cannot fetch song.')
 
