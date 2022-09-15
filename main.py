@@ -373,7 +373,6 @@ async def skip(context: discord.ApplicationContext, index: int = 1):
     await context.defer()
     try:
         skipped_song = players[context.guild_id].skip(index - 1)
-        print(f'skipped song: {skipped_song.title} / {skipped_song.webpage_url}')
 
         if skipped_song:
             return await context.respond(
@@ -382,9 +381,11 @@ async def skip(context: discord.ApplicationContext, index: int = 1):
             return await context.respond('Nothing to skip!')
     except CommonException as e:
         return await context.respond(e.detail)
+    except AttributeError as e:
+        return await context.respond(e.detail)
 
 
-@bot.slash_command(name='remove', description='Remove some song on the queue.')
+@bot.slash_command(name='remove', aliases=['rm'], description='Remove some song on the queue.')
 async def remove(context: discord.ApplicationContext, index: int = 1):
     # For logging.
     print('Command: remove')
