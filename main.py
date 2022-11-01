@@ -6,10 +6,16 @@ from urllib.parse import urlparse
 
 import discord
 import youtube_dl
+from discord import FFmpegOpusAudio, FFmpegPCMAudio
 from discord.ext import commands
 from dotenv import load_dotenv
 
 load_dotenv()
+
+
+def p(a: any):
+    if os.getenv('ZEROTWO_VERSION') == 'develop':
+        print(a)
 
 
 class CommonException(Exception):
@@ -34,11 +40,20 @@ class Song:
         self.thumbnail_url: str = thumbnail_url
         self.duration: timedelta = timedelta(seconds=duration)
 
+    def __repr__(self):
+        return f'{self.title} ({self.duration}, {self.webpage_url}, {self.applicant})'
 
-async def _get_source(song: Song) -> discord.FFmpegOpusAudio:
+
+async def _get_source(song: Song) -> MyAudio:
     ffmpeg_options = {'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5',
                       'options': '-vn'}
-    source = await MyAudio.from_probe(song.audio_url, **ffmpeg_options)
+    p(f'{ffmpeg_options=}')
+    p(f'{song.audio_url=}')
+    try:
+        source = await MyAudio.from_probe(song.audio_url, method='fallback', **ffmpeg_options)
+    except Exception as e:
+        print(e)
+    p(f'{source=}')
     if source:
         return source
     else:
@@ -65,7 +80,7 @@ class Player:
         ydl_options = {
             'format': 'bestaudio/best',
             'restrictfilenames': True,
-            'no-playlist': True,
+            'noplaylist': True,
             'nocheckcertificate': True,
             'ignoreerrors': False,
             'logtostderr': True,
@@ -103,6 +118,8 @@ class Player:
                         applicant=applicant,
                         duration=info['duration'])
 
+            p(f'{song=}')
+
             self.play_queue.append(song)
             return song
 
@@ -111,12 +128,16 @@ class Player:
         Play next song from `self.queue`.
         """
         if self.play_queue:
+            p(f'if self.play_queue')
             next_song: Song = self.play_queue.pop(0)
             source = await _get_source(next_song)
+            p(f'{source=}')
             if self._context.voice_client and hasattr(self._context.voice_client, 'play'):
                 self._context.voice_client.play(source, after=after)
+                p('vc play')
 
                 if self._context.voice_client.is_playing():
+                    p('is_playing')
                     self._current_playing = next_song
                 else:
                     raise CommonException('vc is not playing now.')
@@ -195,7 +216,9 @@ class Player:
         self._current_playing = None
 
 
-bot = commands.Bot()
+intents = discord.Intents.all()
+
+bot = commands.Bot(intents=intents)
 players: dict[int, Player | None] = {}
 
 
@@ -204,9 +227,9 @@ async def on_ready():
     print('on_ready zerotwo!')
 
 
-@bot.event
-async def on_message(message: discord.Message):
-    print(f'on_message: {message.guild} / {message.channel}')
+# @bot.event
+# async def on_message(message: discord.Message):
+#     print(f'on_message: {message.guild} / {message.channel}')
 
 
 @bot.slash_command(name='dance', description='Dance zerotwo.')
