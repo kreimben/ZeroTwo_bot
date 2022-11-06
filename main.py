@@ -87,8 +87,9 @@ class Player:
             'quiet': False,
             'no_warnings': False,
             'default_search': 'auto',
-            'force-ipv4': True,
             'forceduration': True,
+            'source_address': '0.0.0.0',
+            'force-ipv4': True,
             'cachedir': False
         }
         with youtube_dl.YoutubeDL(ydl_options) as ydl:
