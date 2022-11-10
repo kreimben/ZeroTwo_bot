@@ -11,6 +11,9 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+class NoSongException(Exception):
+    ...
+
 
 def p(a: any):
     if os.getenv('ZEROTWO_VERSION') == 'develop':
@@ -47,6 +50,10 @@ async def _get_source(song: Song) -> MyAudio:
     ffmpeg_options = {'before_options': '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5',
                       'options': '-vn'}
     p(f'{ffmpeg_options=}')
+    p(f'_get_source {song=}')
+    if song is None:
+        p('raise')
+        raise NoSongException()
     p(f'{song.audio_url=}')
     try:
         source = await MyAudio.from_probe(song.audio_url, method='fallback', **ffmpeg_options)
@@ -60,7 +67,6 @@ async def _get_source(song: Song) -> MyAudio:
 
 
 class Player:
-
     def __init__(self, context: discord.ApplicationContext):
         self.play_queue: list = []
         self._instance = None
@@ -120,7 +126,7 @@ class Player:
                         applicant=applicant,
                         duration=info['duration'])
 
-            p(f'{song=}')
+            p(f'add_song {song=}')
 
             self.play_queue.append(song)
             return song
@@ -131,12 +137,19 @@ class Player:
         """
         if self.play_queue:
             p(f'if self.play_queue')
-            if self._is_repeating:
+            if not self._is_repeating:
                 next_song: Song = self.play_queue.pop(0)
             else:
                 p(f'repeating mode is on and i will play current song again.')
                 next_song: Song = self.get_current_playing_song()
-            source = await _get_source(next_song)
+            p(f'{next_song=}')
+
+            try:
+                source = await _get_source(next_song)
+            except NoSongException as e:
+                p('caught in exception')
+                p(e)
+                exit(-1)
             p(f'{source=}')
             if self._context.voice_client and hasattr(self._context.voice_client, 'play'):
                 self._context.voice_client.play(source, after=after)
