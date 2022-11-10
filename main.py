@@ -432,7 +432,7 @@ async def repeat_this_song(context: discord.ApplicationContext, value: bool):
 
         if result:
             embed.title = f'Repeat on **{current_song.title}**'
-            embed.set_image(current_song.thumbnail_url)  # https only.
+            embed.set_thumbnail(url=current_song.thumbnail_url)  # https only.
         else:
             embed.title = 'Turn off repeat.'
 
