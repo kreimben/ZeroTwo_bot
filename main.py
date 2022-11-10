@@ -78,7 +78,7 @@ class Player:
         self._context = copy(context)
         self._task = bot.loop.create_task(self._loop())
 
-        self._is_repeating = False
+        self.is_repeating = False
 
     def _add_song(self, arg: str, applicant: any) -> Song:
         """
@@ -137,7 +137,7 @@ class Player:
         """
         if self.play_queue:
             p(f'if self.play_queue')
-            if not self._is_repeating:
+            if not self.is_repeating:
                 next_song: Song = self.play_queue.pop(0)
             else:
                 p(f'repeating mode is on and i will play current song again.')
@@ -172,7 +172,7 @@ class Player:
             if not self._context.voice_client.is_playing() and not self._is_paused and self.play_queue:
                 if self.play_queue:
                     await self._play(self._play_next_song)
-            elif not self._is_paused and not self.play_queue:
+            elif not self.is_repeating and not self._is_paused and not self.play_queue:
                 await self._context.voice_client.disconnect(force=True)
                 del players[self._context.guild_id]
                 players[self._context.guild_id] = None
@@ -202,8 +202,8 @@ class Player:
         return self._current_playing
 
     def repeat_this_song(self, is_repeating: bool) -> bool:
-        self._is_repeating = is_repeating
-        return self._is_repeating
+        self.is_repeating = is_repeating
+        return self.is_repeating
 
     def paused(self, context: discord.ApplicationContext):
         self._is_paused = True
@@ -363,13 +363,13 @@ async def queue(context: discord.ApplicationContext):
         return await context.respond('You have to play something!')
 
     try:
-        # print(f'players: {players}')
+        p(f'players: {players}')
         current_song, play_queue = await players[context.guild_id].get_queue()
         is_playing = hasattr(context.voice_client, 'is_playing')
 
-        # print(f'current song: {current_song}')
-        # print(f'play queue: {play_queue}')
-        # print(f'has attr: {is_playing}')
+        p(f'current song: {current_song}')
+        p(f'play queue: {play_queue}')
+        p(f'has attr: {is_playing}')
 
         if not current_song and is_playing:
             return await context.respond('cannot fetch current song.')
@@ -385,6 +385,8 @@ async def queue(context: discord.ApplicationContext):
         embed = discord.Embed(title='Queue', description='')
         v = f"[{current_song.title}]({current_song.webpage_url}) <@{current_song.applicant}> "
         v += f"{played}/{current_song.duration}"
+        if players[context.guild_id].is_repeating:
+            v += f' (repeating)'
         embed.add_field(name='Now Playing 🎧', value=v)
 
         if not play_queue:
@@ -430,7 +432,7 @@ async def repeat_this_song(context: discord.ApplicationContext, value: bool):
 
         if result:
             embed.title = f'Repeat on **{current_song.title}**'
-            embed.set_image(current_song.thumbnail_url)  # https only.
+            embed.set_image(url=current_song.thumbnail_url)  # https only.
         else:
             embed.title = 'Turn off repeat.'
 

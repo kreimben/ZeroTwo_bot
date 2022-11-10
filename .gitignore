@@ -5,3 +5,4 @@ yarn.lock
 .env
 log.txt
 out/**
+develop_to_deploy.sh
