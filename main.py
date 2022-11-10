@@ -11,6 +11,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+
 class NoSongException(Exception):
     ...
 
@@ -79,6 +80,7 @@ class Player:
         self._task = bot.loop.create_task(self._loop())
 
         self.is_repeating = False
+        self.previous_song: Song | None = None
 
     def _add_song(self, arg: str, applicant: any) -> Song:
         """
@@ -139,9 +141,9 @@ class Player:
             p(f'if self.play_queue')
             if not self.is_repeating:
                 next_song: Song = self.play_queue.pop(0)
-            else:
+            elif self.previous_song is not None:
                 p(f'repeating mode is on and i will play current song again.')
-                next_song: Song = self.get_current_playing_song()
+                next_song: Song = self.previous_song
             p(f'{next_song=}')
 
             try:
@@ -169,15 +171,14 @@ class Player:
         while True:
             self._event.clear()
 
-            if not self._context.voice_client.is_playing() and not self._is_paused and self.play_queue:
-                if self.play_queue:
-                    await self._play(self._play_next_song)
-            elif not self.is_repeating and not self._is_paused and not self.play_queue:
+            if not self._context.voice_client.is_playing() and not self._is_paused:
+                await self._play(self._play_next_song)
+            elif not self._is_paused and not self.play_queue:
                 await self._context.voice_client.disconnect(force=True)
                 del players[self._context.guild_id]
                 players[self._context.guild_id] = None
 
-            await self._event.wait()
+                await self._event.wait()
 
     def _play_next_song(self, error=None):
         if error:
