@@ -172,7 +172,7 @@ class Player:
             if not self._context.voice_client.is_playing() and not self._is_paused and self.play_queue:
                 if self.play_queue:
                     await self._play(self._play_next_song)
-            elif not self._is_paused and not self.play_queue:
+            elif not self.is_repeating and not self._is_paused and not self.play_queue:
                 await self._context.voice_client.disconnect(force=True)
                 del players[self._context.guild_id]
                 players[self._context.guild_id] = None
