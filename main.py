@@ -58,13 +58,13 @@ async def _get_source(song: Song) -> MyAudio:
     p(f'{song.audio_url=}')
     try:
         source = await MyAudio.from_probe(song.audio_url, method='fallback', **ffmpeg_options)
+        p(f'{source=}')
+        if source:
+            return source
+        else:
+            raise CommonException("Source is not ready.")
     except Exception as e:
         print(e)
-    p(f'{source=}')
-    if source:
-        return source
-    else:
-        raise CommonException("Source is not ready.")
 
 
 class Player:
@@ -137,51 +137,54 @@ class Player:
         """
         Play next song from `self.queue`.
         """
-        if self.play_queue:
-            p(f'if self.play_queue')
-            if not self.is_repeating:
-                next_song: Song = self.play_queue.pop(0)
-            elif self.previous_song is not None:
-                p(f'repeating mode is on and i will play current song again.')
-                next_song: Song = self.previous_song
-            p(f'{next_song=}')
+        # if self.play_queue:
+        p(f'_play')
+        if not self.is_repeating:
+            next_song: Song = self.play_queue.pop(0) if self.play_queue else None
+        else:
+            p(f'repeating mode is on and i will play current song again.')
+            next_song: Song = self.previous_song
+        p(f'{next_song=}')
 
-            try:
-                source = await _get_source(next_song)
-            except NoSongException as e:
-                p('caught in exception')
-                p(e)
-                exit(-1)
-            p(f'{source=}')
-            if self._context.voice_client and hasattr(self._context.voice_client, 'play'):
-                self._context.voice_client.play(source, after=after)
-                p('vc play')
+        source = await _get_source(next_song)
+        p(f'{source=}')
 
-                if self._context.voice_client.is_playing():
-                    p('is_playing')
-                    self._current_playing = next_song
-                else:
-                    raise CommonException('vc is not playing now.')
+        if self._context.voice_client and hasattr(self._context.voice_client, 'play'):
+            self._context.voice_client.play(source, after=after)
+            p('vc play')
+
+            if self._context.voice_client.is_playing():
+                p('is_playing')
+                self._current_playing = next_song
+                self.previous_song = self._current_playing
             else:
-                raise CommonException(f'voice_client is not ready\n'
-                                      f'vc: {self._context.voice_client}\n'
-                                      f'play: {hasattr(self._context.voice_client, "play")}')
+                raise CommonException('vc is not playing now.')
+        else:
+            raise CommonException(f'voice_client is not ready\n'
+                                  f'vc: {self._context.voice_client}\n'
+                                  f'play: {hasattr(self._context.voice_client, "play")}')
 
     async def _loop(self) -> None:
         while True:
+            p('in the _loop')
+            p('before clear event')
             self._event.clear()
 
-            if not self._context.voice_client.is_playing() and not self._is_paused and self.play_queue:
-                if self.play_queue:
-                    await self._play(self._play_next_song)
-            elif not self._is_paused and not self.play_queue:
-                await self._context.voice_client.disconnect(force=True)
-                del players[self._context.guild_id]
-                players[self._context.guild_id] = None
+            if not self._context.voice_client.is_playing() and not self._is_paused:
+                p(f'not playing and not paused')
+                if self.play_queue or self.is_repeating:
+                    p(f'not play_queue')
+                    await self._play(self._after_play)
+                elif not self.is_repeating:
+                    p(f'condition to disconnect')
+                    await self._context.voice_client.disconnect(force=True)
+                    del players[self._context.guild_id]
+                    players[self._context.guild_id] = None
 
-                await self._event.wait()
+            p('before wait event')
+            await self._event.wait()
 
-    def _play_next_song(self, error=None):
+    def _after_play(self, error=None):
         if error:
             print(str(error))
             self._task.cancel(str(error))
@@ -197,13 +200,13 @@ class Player:
     async def get_queue(self) -> (Song | None, [Song]):
         return self._current_playing, [song for song in self.play_queue]
 
-    def get_queue_len(self) -> int:
+    async def get_queue_len(self) -> int:
         return len(self.play_queue)
 
-    def get_current_playing_song(self) -> Song:
+    async def get_current_playing_song(self) -> Song:
         return self._current_playing
 
-    def repeat_this_song(self, is_repeating: bool) -> bool:
+    async def repeat_this_song(self, is_repeating: bool) -> bool:
         self.is_repeating = is_repeating
         return self.is_repeating
 
@@ -427,14 +430,15 @@ async def repeat_this_song(context: discord.ApplicationContext, value: bool):
         return await context.respond('You have to play something!')
 
     try:
-        current_song = players[context.guild_id].get_current_playing_song()
+        current_song = await players[context.guild_id].get_current_playing_song()
 
-        result = players[context.guild_id].repeat_this_song(value)
+        p(f'{current_song=}')
+        result = await players[context.guild_id].repeat_this_song(value)
         embed = discord.Embed()
 
         if result:
             embed.title = f'Repeat on **{current_song.title}**'
-            embed.set_image(url=current_song.thumbnail_url)  # https only.
+            embed.set_thumbnail(url=current_song.thumbnail_url)  # https only.
         else:
             embed.title = 'Turn off repeat.'
 
@@ -456,7 +460,7 @@ async def skip(context: discord.ApplicationContext, index: int = 1):
 
     await context.defer()
 
-    queue_size = players[context.guild_id].get_queue_len()
+    queue_size = await players[context.guild_id].get_queue_len()
     if queue_size + 1 < index:
         return await context.responsd(f'Your index({index}) is larger than queue\'s size({queue_size})!')
 
@@ -481,7 +485,7 @@ async def remove(context: discord.ApplicationContext, index: int = 1):
     print(f'who: {context.author.name}')
 
     await context.defer()
-    queue_size = players[context.guild_id].get_queue_len()
+    queue_size = await players[context.guild_id].get_queue_len()
     if queue_size + 1 < index:
         return await context.responsd(f'Your index({index}) is larger than queue\'s size({queue_size})!')
 
