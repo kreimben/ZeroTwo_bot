@@ -2,3 +2,4 @@ node_modules/
 .gitignore
 **/*.js
 log.txt
+develop_to_deploy.sh
