@@ -505,8 +505,8 @@ async def stop(context: discord.ApplicationContext):
         return await context.respond('Already not joined voice channel.')
 
     await context.voice_client.disconnect(force=True)
-    del players[context.guild_id]
     players[context.guild_id] = None
+    del players[context.guild_id]
     return await context.respond("Okay, Bye.")
 
 
