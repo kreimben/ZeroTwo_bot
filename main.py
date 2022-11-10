@@ -317,7 +317,7 @@ async def play(context: discord.ApplicationContext, url_or_keyword: str):
 
         embed = discord.Embed()
         embed.add_field(name='Now playing 🎧', value=f"[{song.title}]({song.webpage_url}) - {song.duration}")
-        embed.set_image(url=song.thumbnail_url)
+        embed.set_thumbnail(song.thumbnail_url)
 
         return await context.respond(embed=embed)
     except CommonException as e:
