@@ -524,6 +524,7 @@ async def version(context: discord.ApplicationContext):
     content += '4. Remove sound filter features.\n'
     content += '5. Fix ping command.\n'
     content += '6. Add `force_quit` command to restart process.\n'
+    content += '7. Add repeat mode.\n'
 
     embed.add_field(name='Features', value=content)
 
