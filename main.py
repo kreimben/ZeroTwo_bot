@@ -6,7 +6,6 @@ from urllib.parse import urlparse
 
 import discord
 import youtube_dl
-from discord import FFmpegOpusAudio, FFmpegPCMAudio
 from discord.ext import commands
 from dotenv import load_dotenv
 
@@ -239,11 +238,6 @@ players: dict[int, Player | None] = {}
 @bot.event
 async def on_ready():
     print('on_ready zerotwo!')
-
-
-# @bot.event
-# async def on_message(message: discord.Message):
-#     print(f'on_message: {message.guild} / {message.channel}')
 
 
 @bot.slash_command(name='dance', description='Dance zerotwo.')
