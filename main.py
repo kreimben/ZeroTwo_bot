@@ -317,7 +317,7 @@ async def play(context: discord.ApplicationContext, url_or_keyword: str):
 
         embed = discord.Embed()
         embed.add_field(name='Now playing 🎧', value=f"[{song.title}]({song.webpage_url}) - {song.duration}")
-        embed.set_thumbnail(url=song.thumbnail_url)
+        embed.set_image(url=song.thumbnail_url)
 
         return await context.respond(embed=embed)
     except CommonException as e:
@@ -386,7 +386,7 @@ async def queue(context: discord.ApplicationContext):
         v = f"[{current_song.title}]({current_song.webpage_url}) <@{current_song.applicant}> "
         v += f"{played}/{current_song.duration}"
         if players[context.guild_id].is_repeating:
-            v += f' (repeathing)'
+            v += f' (repeating)'
         embed.add_field(name='Now Playing 🎧', value=v)
 
         if not play_queue:
@@ -432,7 +432,7 @@ async def repeat_this_song(context: discord.ApplicationContext, value: bool):
 
         if result:
             embed.title = f'Repeat on **{current_song.title}**'
-            embed.set_thumbnail(url=current_song.thumbnail_url)  # https only.
+            embed.set_image(url=current_song.thumbnail_url)  # https only.
         else:
             embed.title = 'Turn off repeat.'
 
