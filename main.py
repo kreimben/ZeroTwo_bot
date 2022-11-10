@@ -182,6 +182,9 @@ class Player:
     async def get_queue(self) -> (Song | None, [Song]):
         return self._current_playing, [song for song in self.play_queue]
 
+    def get_queue_len(self) -> int:
+        return len(self.play_queue)
+
     def get_current_playing_song(self) -> Song:
         return self._current_playing
 
@@ -435,6 +438,11 @@ async def skip(context: discord.ApplicationContext, index: int = 1):
     print(f'who: {context.author.name}')
 
     await context.defer()
+
+    queue_size = players[context.guild_id].get_queue_len()
+    if queue_size + 1 < index:
+        return await context.responsd(f'Your index({index}) is larger than queue\'s size({queue_size})!')
+
     try:
         skipped_song = players[context.guild_id].skip(index - 1)
 
@@ -456,6 +464,10 @@ async def remove(context: discord.ApplicationContext, index: int = 1):
     print(f'who: {context.author.name}')
 
     await context.defer()
+    queue_size = players[context.guild_id].get_queue_len()
+    if queue_size + 1 < index:
+        return await context.responsd(f'Your index({index}) is larger than queue\'s size({queue_size})!')
+
     removed_song = players[context.guild_id].remove(index - 1)
     if removed_song:
         return await context.respond(
