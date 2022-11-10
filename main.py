@@ -6,7 +6,6 @@ from urllib.parse import urlparse
 
 import discord
 import youtube_dl
-from discord import FFmpegOpusAudio, FFmpegPCMAudio
 from discord.ext import commands
 from dotenv import load_dotenv
 
@@ -73,6 +72,8 @@ class Player:
         self._context = copy(context)
         self._task = bot.loop.create_task(self._loop())
 
+        self._is_repeating = False
+
     def _add_song(self, arg: str, applicant: any) -> Song:
         """
         Add song to `self.queue`.
@@ -130,7 +131,11 @@ class Player:
         """
         if self.play_queue:
             p(f'if self.play_queue')
-            next_song: Song = self.play_queue.pop(0)
+            if self._is_repeating:
+                next_song: Song = self.play_queue.pop(0)
+            else:
+                p(f'repeating mode is on and i will play current song again.')
+                next_song: Song = self.get_current_playing_song()
             source = await _get_source(next_song)
             p(f'{source=}')
             if self._context.voice_client and hasattr(self._context.voice_client, 'play'):
@@ -176,6 +181,13 @@ class Player:
 
     async def get_queue(self) -> (Song | None, [Song]):
         return self._current_playing, [song for song in self.play_queue]
+
+    def get_current_playing_song(self) -> Song:
+        return self._current_playing
+
+    def repeat_this_song(self, is_repeating: bool) -> bool:
+        self._is_repeating = is_repeating
+        return self._is_repeating
 
     def paused(self, context: discord.ApplicationContext):
         self._is_paused = True
@@ -226,11 +238,6 @@ players: dict[int, Player | None] = {}
 @bot.event
 async def on_ready():
     print('on_ready zerotwo!')
-
-
-# @bot.event
-# async def on_message(message: discord.Message):
-#     print(f'on_message: {message.guild} / {message.channel}')
 
 
 @bot.slash_command(name='dance', description='Dance zerotwo.')
@@ -386,6 +393,39 @@ async def queue(context: discord.ApplicationContext):
         return await context.respond(e.detail)
     except discord.errors.HTTPException as e:
         return await context.respond(e.text)
+
+
+@bot.slash_command(name='repeat', description='지금 틀고 있는 이 노래만 반복됩니다.')
+async def repeat_this_song(context: discord.ApplicationContext, value: bool):
+    # For logging.
+    print('Command: repeat_this_song')
+    print(f'who: {context.author.name}')
+
+    await context.defer()
+
+    if not context.voice_client:
+        return await context.respond('You have to play something!')
+
+    try:
+        current_song = players[context.guild_id].get_current_playing_song()
+
+        result = players[context.guild_id].repeat_this_song(value)
+        embed = discord.Embed()
+
+        if result:
+            embed.title = f'Repeat on **{current_song.title}**'
+            embed.set_image(current_song.thumbnail_url)  # https only.
+        else:
+            embed.title = 'Turn off repeat.'
+
+        return await context.respond(embed=embed)
+
+    except CommonException as e:
+        return await context.respond(e.detail)
+    except discord.errors.HTTPException as e:
+        return await context.respond(e.text)
+    except AttributeError as e:
+        return await context.respond('현재 나오고 있는 음악을 알 수 없어요!')
 
 
 @bot.slash_command(name='skip', description='Skip away!')
