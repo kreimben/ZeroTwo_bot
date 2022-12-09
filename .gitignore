@@ -6,3 +6,4 @@ yarn.lock
 log.txt
 out/**
 develop_to_deploy.sh
+playgroud.py
