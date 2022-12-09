@@ -82,14 +82,13 @@ class Player:
         self.is_repeating = False
         self.previous_song: Song | None = None
 
-    def _add_song(self, arg: str, applicant: any) -> Song:
+    def _add_song(self, arg: str, applicant: any) -> [Song]:
         """
         Add song to `self.queue`.
         """
         ydl_options = {
             'format': 'bestaudio/best',
             'restrictfilenames': True,
-            'noplaylist': True,
             'nocheckcertificate': True,
             'ignoreerrors': False,
             'logtostderr': True,
@@ -116,22 +115,25 @@ class Player:
 
             info = ydl.extract_info(ready, download=False)
 
+            results = []
             if 'entries' in info:
-                info = info['entries'][0]
-
-            # print(f'info: {ujson.dumps(info, indent=4)}')
-
-            song = Song(webpage_url=info['webpage_url'],
-                        audio_url=info['url'],
-                        title=info['title'],
-                        thumbnail_url=info['thumbnail'],
-                        applicant=applicant,
-                        duration=info['duration'])
-
-            p(f'add_song {song=}')
-
-            self.play_queue.append(song)
-            return song
+                for entry in info['entries']:
+                    results.append(Song(webpage_url=entry['webpage_url'],
+                                        audio_url=entry['url'],
+                                        title=entry['title'],
+                                        thumbnail_url=entry['thumbnail'],
+                                        applicant=applicant,
+                                        duration=entry['duration']))
+            else:
+                results.append(Song(webpage_url=info['webpage_url'],
+                                    audio_url=info['url'],
+                                    title=info['title'],
+                                    thumbnail_url=info['thumbnail'],
+                                    applicant=applicant,
+                                    duration=info['duration']))
+            self.play_queue += results
+            p(f'add_song {results=}')
+            return results
 
     async def _play(self, after) -> None:
         """
@@ -194,8 +196,8 @@ class Player:
 
     async def play(self, arg: str, applicant: any) -> Song:
         # Add song to queue
-        song = self._add_song(arg, applicant)
-        return song
+        song: [Song] = self._add_song(arg, applicant)
+        return song[0]
 
     async def get_queue(self) -> (Song | None, [Song]):
         return self._current_playing, [song for song in self.play_queue]
@@ -292,16 +294,23 @@ async def ping(context: discord.ApplicationContext):
         return await context.respond(embed=embed)
 
 
-@bot.slash_command(name='play', aliases=['p', 'ㅔ'], description='Search keyword or Use URL.')
+@bot.slash_command(name='play', description='Search keyword or Use URL.')
+@commands.has_permissions(manage_messages=True)
 async def play(context: discord.ApplicationContext, url_or_keyword: str):
     # For logging.
     print('Command: play')
     print(f'who: {context.author.name}')
     print(f'message: {url_or_keyword}')
 
+    message = await context.send('''
+    Processing! 처리중!
+This may be longer if url is playlist.
+플레이리스트일 경우 오래걸릴 수 있습니다.''')
     await context.defer()
+
     if not context.author.voice:
-        return await context.respond('You have to join VC first!')
+        await message.delete()
+        return await context.respond(content='You have to join VC first!')
     voice_channel = context.author.voice.channel
 
     if not context.voice_client:
@@ -318,15 +327,18 @@ async def play(context: discord.ApplicationContext, url_or_keyword: str):
 
         song = await players[context.guild_id].play(url_or_keyword, context.author.id)
         if not song:
-            return await context.respond('cannot fetch song.')
+            await message.delete()
+            return await context.respond(content='cannot fetch song.')
 
         embed = discord.Embed()
         embed.add_field(name='Now playing 🎧', value=f"[{song.title}]({song.webpage_url}) - {song.duration}")
         embed.set_image(url=song.thumbnail_url)
 
+        await message.delete()
         return await context.respond(embed=embed)
     except CommonException as e:
-        return await context.respond(e.detail)
+        await message.delete()
+        return await context.respond(content=e.detail)
 
 
 @bot.slash_command(name='pause', description='Pause the music')
@@ -399,7 +411,7 @@ async def queue(context: discord.ApplicationContext):
         else:
             contents = []
             content = ''
-            for i in range(len(play_queue)):
+            for i in range(min(len(play_queue), 6)):
                 contents.append(f"{i + 1}. **[{play_queue[i].title}]({play_queue[i].webpage_url}) ")
                 contents.append(f"<@{play_queue[i].applicant}>** {play_queue[i].duration}\n")
 
@@ -462,7 +474,7 @@ async def skip(context: discord.ApplicationContext, index: int = 1):
 
     queue_size = await players[context.guild_id].get_queue_len()
     if queue_size + 1 < index:
-        return await context.responsd(f'Your index({index}) is larger than queue\'s size({queue_size})!')
+        return await context.respond(f'Your index({index}) is larger than queue\'s size({queue_size})!')
 
     try:
         skipped_song = players[context.guild_id].skip(index - 1)
@@ -546,6 +558,8 @@ async def version(context: discord.ApplicationContext):
     content += '5. Fix ping command.\n'
     content += '6. Add `force_quit` command to restart process.\n'
     content += '7. Add repeat mode.\n'
+    content += '8. Support playlist.\n'
+    content += '9. '
 
     embed.add_field(name='Features', value=content)
 
