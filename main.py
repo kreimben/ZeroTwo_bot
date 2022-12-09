@@ -559,7 +559,6 @@ async def version(context: discord.ApplicationContext):
     content += '6. Add `force_quit` command to restart process.\n'
     content += '7. Add repeat mode.\n'
     content += '8. Support playlist.\n'
-    content += '9. '
 
     embed.add_field(name='Features', value=content)
 
