@@ -295,7 +295,6 @@ async def ping(context: discord.ApplicationContext):
 
 
 @bot.slash_command(name='play', description='Search keyword or Use URL.')
-@commands.has_permissions(manage_messages=True)
 async def play(context: discord.ApplicationContext, url_or_keyword: str):
     # For logging.
     print('Command: play')
