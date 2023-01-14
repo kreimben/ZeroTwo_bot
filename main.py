@@ -5,7 +5,7 @@ from datetime import timedelta
 from urllib.parse import urlparse
 
 import discord
-import youtube_dl
+import yt_dlp
 from discord.ext import commands
 from dotenv import load_dotenv
 
@@ -100,7 +100,7 @@ class Player:
             'force-ipv4': True,
             'cachedir': False
         }
-        with youtube_dl.YoutubeDL(ydl_options) as ydl:
+        with yt_dlp.YoutubeDL(ydl_options) as ydl:
             def is_url(url):
                 try:
                     result = urlparse(url)
