@@ -590,7 +590,7 @@ try:
     bot.run(os.getenv('DISCORD_TOKEN'))
 except Exception as e:
     # Whatever It is.
-    with open('error.log', 'r') as f:
+    with open('./error.log') as f:
         f.write('\n')
         from datetime import datetime
 
