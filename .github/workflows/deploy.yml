@@ -26,7 +26,7 @@ jobs:
     container:
       image: harbor.address/devops/actions/base:latest
       credentials:
-        username: bot@hpcnt.com
+        username: admin
         password: ${{ secrets.KEY }}
 
     steps:
