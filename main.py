@@ -589,11 +589,4 @@ async def _help(context: discord.ApplicationContext):
 try:
     bot.run(os.getenv('DISCORD_TOKEN'))
 except Exception as e:
-    # Whatever It is.
-    with open('./error.log') as f:
-        f.write('\n')
-        from datetime import datetime
-
-        now = datetime.now()
-        f.write(f'{now=}')
-        f.write(f'error message: {e}')
+    print(str(e))
