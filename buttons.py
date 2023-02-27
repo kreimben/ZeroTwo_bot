@@ -2,6 +2,7 @@ from datetime import timedelta
 
 import discord.ui
 from discord import Interaction
+from discord.ui import Item
 
 from Helper import Player, players, MyAudio, Song
 
@@ -9,7 +10,7 @@ from Helper import Player, players, MyAudio, Song
 class PlayerView(discord.ui.View):
 
     def __init__(self, context, player: Player):
-        super().__init__()
+        super().__init__(timeout=None, disable_on_timeout=True)
         self.add_item(
             PauseResumeButton(emoji='⏯️', style=discord.ButtonStyle.primary, context=context, player=player))
         self.add_item(RepeatButton(emoji='🔂', style=discord.ButtonStyle.primary, context=context, player=player))
@@ -19,6 +20,14 @@ class PlayerView(discord.ui.View):
         self.add_item(
             StopButton(emoji='🛑', style=discord.ButtonStyle.red, context=context, player=player, stop=self.disable)
         )
+
+    async def on_error(
+            self, error: Exception, item: Item, interaction: Interaction
+    ) -> None:
+        print('on_error on PlayView')
+        print(f'{error}')
+        print(f'{item}')
+        interaction.response.send_message(f'Error Occurred! {error}')
 
     def disable(self):
         self.disable_all_items()
