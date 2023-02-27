@@ -1,3 +1,9 @@
+/node_modules
+package-lock.json
+yarn.lock
 /.idea
 .env
 log.txt
+out/**
+develop_to_deploy.sh
+playgroud.py

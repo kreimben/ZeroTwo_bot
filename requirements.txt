@@ -1,0 +1,5 @@
+py-cord[voice]
+python-dotenv
+yt-dlp
+ujson
+asyncio
