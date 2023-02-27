@@ -206,8 +206,11 @@ class Player:
     async def get_current_playing_song(self) -> Song:
         return self._current_playing
 
-    async def repeat_this_song(self, is_repeating: bool) -> bool:
-        self.is_repeating = is_repeating
+    async def repeat_this_song(self, is_repeating: bool | None = None) -> bool:
+        if is_repeating:
+            self.is_repeating = is_repeating
+        else:
+            self.is_repeating = not self.is_repeating
         return self.is_repeating
 
     def paused(self, context: discord.ApplicationContext):

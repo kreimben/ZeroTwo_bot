@@ -66,7 +66,7 @@ class RepeatButton(discord.ui.Button):
         super().__init__(**kwargs)
 
     async def callback(self, interaction: Interaction):
-        self.is_repeating = await self.player.repeat_this_song(not self.is_repeating)
+        self.is_repeating = await self.player.repeat_this_song()
         if self.is_repeating:
             await interaction.response.send_message(f'<@!{interaction.user.id}> Repeat: Turn On')
         else:
