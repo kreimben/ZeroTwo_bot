@@ -6,7 +6,6 @@ import (
 	"github.com/kreimben/ZeroTwo_bot/src/discord/commands"
 	"log"
 	"os"
-	"os/signal"
 )
 
 var DiscordSession *discordgo.Session
@@ -46,10 +45,4 @@ func DiscordInit() {
 	commands.RegisterHey(DiscordSession, guildId)
 	commands.RegisterDance(DiscordSession, guildId)
 	commands.RegisterVersion(DiscordSession, guildId)
-
-	// Run until code is terminated
-	fmt.Println("Bot running...")
-	stop := make(chan os.Signal, 1)
-	signal.Notify(stop, os.Interrupt, os.Kill)
-	<-stop
 }
