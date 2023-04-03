@@ -3,26 +3,30 @@ package discord
 import (
 	"fmt"
 	"github.com/bwmarrin/discordgo"
+	"github.com/kreimben/ZeroTwo_bot/src/discord/commands"
 	"log"
 	"os"
 	"os/signal"
 )
 
+var DiscordSession *discordgo.Session
+var err error
+
 func DiscordInit() {
-	session, err := discordgo.New("Bot " + os.Getenv("DISCORD_TOKEN"))
+	DiscordSession, err = discordgo.New("Bot " + os.Getenv("DISCORD_TOKEN"))
 	if err != nil {
 		fmt.Printf("Error creating Discord session: %s", err)
 		panic("Error creating Discord session")
 	}
 
 	//discord.AddHandler(messageCreate)
-	session.AddHandler(func(s *discordgo.Session, r *discordgo.Ready) {
-		log.Printf("Logged in as: %v#%v", s.State.User.Username, s.State.User.Discriminator)
+	DiscordSession.AddHandler(func(s *discordgo.Session, r *discordgo.Ready) {
+		log.Printf("Logged in as: %v#%v\n", s.State.User.Username, s.State.User.Discriminator)
 	})
 
 	// Open a websocket connection to Discord and begin listening.
-	err = session.Open()
-	defer session.Close()
+	err = DiscordSession.Open()
+	defer DiscordSession.Close()
 	if err != nil {
 		fmt.Printf("Error creating Discord session: %s", err)
 		panic("Error opening Discord session")
