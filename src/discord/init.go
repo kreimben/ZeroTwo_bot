@@ -28,19 +28,24 @@ func DiscordInit() {
 		panic("Error opening Discord session")
 	}
 
+	// Check debug mode.
+	var guildId string
+	if os.Getenv("DEBUG") == "true" {
+		guildId = os.Getenv("TEST_GUILD_ID")
+		log.Println("Guild ID: " + guildId)
+		log.Println("Debug mode: " + os.Getenv("DEBUG"))
+	} else {
+		guildId = ""
+	}
+
+	// Register commands
+	commands.RegisterHey(DiscordSession, guildId)
+	commands.RegisterDance(DiscordSession, guildId)
+	commands.RegisterVersion(DiscordSession, guildId)
+
 	// Run until code is terminated
 	fmt.Println("Bot running...")
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, os.Interrupt)
 	<-stop
-
-	_, err = session.ApplicationCommandCreate("960047470589657108", os.Getenv("TEST_GUILD_ID"), &discordgo.ApplicationCommand{
-		Name:        "hey",
-		Description: "Hey!",
-	})
-	if err != nil {
-		fmt.Printf("Error creating command: %s", err)
-		panic("Error creating command")
-	}
-
 }
