@@ -46,6 +46,6 @@ func DiscordInit() {
 	// Run until code is terminated
 	fmt.Println("Bot running...")
 	stop := make(chan os.Signal, 1)
-	signal.Notify(stop, os.Interrupt)
+	signal.Notify(stop, os.Interrupt, os.Kill)
 	<-stop
 }
