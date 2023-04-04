@@ -19,10 +19,6 @@ func heyHandler(s *discordgo.Session, i *discordgo.InteractionCreate) {
 	// Check if the user is in a voice channel
 	voiceState, err := s.State.VoiceState(i.GuildID, i.Member.User.ID) // user's voice state
 	if err != nil {
-		log.Println(err)
-		return
-	}
-	if voiceState.ChannelID == "" {
 		err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 			Type: discordgo.InteractionResponseChannelMessageWithSource,
 			Data: &discordgo.InteractionResponseData{
