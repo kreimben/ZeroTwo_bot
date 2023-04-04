@@ -21,7 +21,7 @@ var DbLogger = logger.New(
 	},
 )
 
-var DB *gorm.DB
+var DatabaseSession *gorm.DB
 var err error
 
 func DbInit() {
@@ -32,7 +32,7 @@ func DbInit() {
 		os.Getenv("DB_NAME"),
 	)
 
-	DB, err = gorm.Open(mysql.Open(dsn), &gorm.Config{
+	DatabaseSession, err = gorm.Open(mysql.Open(dsn), &gorm.Config{
 		Logger: DbLogger,
 	})
 	if err != nil {
@@ -55,7 +55,7 @@ func DbInit() {
 func Migrate(models []interface{}) error {
 	for _, model := range models {
 		DbLogger.Info(context.Background(), "Migrating model: "+fmt.Sprintf("%T", model))
-		err = DB.AutoMigrate(model)
+		err = DatabaseSession.AutoMigrate(model)
 		if err != nil {
 			return err
 		}
