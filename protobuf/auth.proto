@@ -9,7 +9,7 @@ option go_package = "/discord_oauth";
 service Discord {
     rpc GetOAuthUrl (google.protobuf.Empty) returns (GetOAuthUrlResponse) {}
     rpc LoginWithDiscord (LoginWithDiscordRequest) returns (LoginWithDiscordResponse) {}
-    rpc RefreshAccessToken (RefreshAccessTokenRequest) returns (google.protobuf.Empty) {}
+    rpc RefreshAccessToken (RefreshAccessTokenRequest) returns (LoginWithDiscordResponse) {}
 }
 
 message GetOAuthUrlResponse {
@@ -42,4 +42,7 @@ message DiscordAccessTokenResponse {
 
 message RefreshAccessTokenRequest {
     string refresh_token = 1;
+    string client_id = 2;
+    string client_secret = 3;
+    string grant_type = 4;
 }
