@@ -30,7 +30,7 @@ func heyHandler(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			},
 		})
 		if err != nil {
-			log.Println(err)
+			log.Println("Error sending response: " + err.Error())
 			return
 		}
 		return
@@ -41,9 +41,9 @@ func heyHandler(s *discordgo.Session, i *discordgo.InteractionCreate) {
 		// Join the channel
 		_, err := s.ChannelVoiceJoin(i.GuildID, voiceState.ChannelID, false, false)
 		if err != nil {
-			log.Println(err)
+			log.Println("Error joining voice channel: " + err.Error())
 			if err != nil {
-				log.Println(err)
+				log.Println("Error joining voice channel: " + err.Error())
 				return
 			}
 			return
@@ -52,16 +52,16 @@ func heyHandler(s *discordgo.Session, i *discordgo.InteractionCreate) {
 		// move to the user's channel
 		join, err := s.ChannelVoiceJoin(voiceState.GuildID, voiceState.ChannelID, false, false)
 		if err != nil {
-			log.Println(err)
+			log.Println("Error joining voice channel: " + err.Error())
 			if err != nil {
-				log.Println(err)
+				log.Println("Error joining voice channel: " + err.Error())
 				return
 			}
 			return
 		}
 		err = join.Speaking(true)
 		if err != nil {
-			log.Println(err)
+			log.Println("Error speaking: " + err.Error())
 			return
 		}
 	}
@@ -82,7 +82,7 @@ func heyHandler(s *discordgo.Session, i *discordgo.InteractionCreate) {
 		},
 	})
 	if err != nil {
-		log.Println(err)
+		log.Println("Error sending response: " + err.Error())
 		return
 	}
 }
