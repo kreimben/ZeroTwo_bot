@@ -10,6 +10,7 @@ service Discord {
     rpc GetOAuthUrl (google.protobuf.Empty) returns (GetOAuthUrlResponse) {}
     rpc LoginWithDiscord (LoginWithDiscordRequest) returns (LoginWithDiscordResponse) {}
     rpc RefreshAccessToken (RefreshAccessTokenRequest) returns (LoginWithDiscordResponse) {}
+    rpc GetMyInfo(GetMyInfoRequest) returns (GetMyInfoResponse) {}
 }
 
 message GetOAuthUrlResponse {
@@ -42,4 +43,32 @@ message DiscordAccessTokenResponse {
 
 message RefreshAccessTokenRequest {
     string refresh_token = 1;
+}
+
+message GetMyInfoRequest {
+    string access_token = 1;
+}
+
+message GetMyInfoResponse {
+    oneof response {
+        UserInfo my_info = 1;
+        DiscordErrorResponse error = 2;
+    }
+}
+
+message UserInfo {
+    /*
+    "user": {
+        "id": "268473310986240001",
+        "username": "Discord",
+        "avatar": "f749bb0cbeeb26ef21eca719337d20f1",
+        "discriminator": "0001",
+        "public_flags": 131072
+    }
+     */
+    string user_id = 1;
+    string user_name = 2;
+    string avatar = 3;
+    string discriminator = 4;
+    string public_flags = 5;
 }

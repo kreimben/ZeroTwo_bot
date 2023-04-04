@@ -23,6 +23,7 @@ const (
 	Discord_GetOAuthUrl_FullMethodName        = "/discord.Discord/GetOAuthUrl"
 	Discord_LoginWithDiscord_FullMethodName   = "/discord.Discord/LoginWithDiscord"
 	Discord_RefreshAccessToken_FullMethodName = "/discord.Discord/RefreshAccessToken"
+	Discord_GetMyInfo_FullMethodName          = "/discord.Discord/GetMyInfo"
 )
 
 // DiscordClient is the client API for Discord service.
@@ -32,6 +33,7 @@ type DiscordClient interface {
 	GetOAuthUrl(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetOAuthUrlResponse, error)
 	LoginWithDiscord(ctx context.Context, in *LoginWithDiscordRequest, opts ...grpc.CallOption) (*LoginWithDiscordResponse, error)
 	RefreshAccessToken(ctx context.Context, in *RefreshAccessTokenRequest, opts ...grpc.CallOption) (*LoginWithDiscordResponse, error)
+	GetMyInfo(ctx context.Context, in *GetMyInfoRequest, opts ...grpc.CallOption) (*GetMyInfoResponse, error)
 }
 
 type discordClient struct {
@@ -69,6 +71,15 @@ func (c *discordClient) RefreshAccessToken(ctx context.Context, in *RefreshAcces
 	return out, nil
 }
 
+func (c *discordClient) GetMyInfo(ctx context.Context, in *GetMyInfoRequest, opts ...grpc.CallOption) (*GetMyInfoResponse, error) {
+	out := new(GetMyInfoResponse)
+	err := c.cc.Invoke(ctx, Discord_GetMyInfo_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // DiscordServer is the server API for Discord service.
 // All implementations must embed UnimplementedDiscordServer
 // for forward compatibility
@@ -76,6 +87,7 @@ type DiscordServer interface {
 	GetOAuthUrl(context.Context, *emptypb.Empty) (*GetOAuthUrlResponse, error)
 	LoginWithDiscord(context.Context, *LoginWithDiscordRequest) (*LoginWithDiscordResponse, error)
 	RefreshAccessToken(context.Context, *RefreshAccessTokenRequest) (*LoginWithDiscordResponse, error)
+	GetMyInfo(context.Context, *GetMyInfoRequest) (*GetMyInfoResponse, error)
 	mustEmbedUnimplementedDiscordServer()
 }
 
@@ -91,6 +103,9 @@ func (UnimplementedDiscordServer) LoginWithDiscord(context.Context, *LoginWithDi
 }
 func (UnimplementedDiscordServer) RefreshAccessToken(context.Context, *RefreshAccessTokenRequest) (*LoginWithDiscordResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RefreshAccessToken not implemented")
+}
+func (UnimplementedDiscordServer) GetMyInfo(context.Context, *GetMyInfoRequest) (*GetMyInfoResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetMyInfo not implemented")
 }
 func (UnimplementedDiscordServer) mustEmbedUnimplementedDiscordServer() {}
 
@@ -159,6 +174,24 @@ func _Discord_RefreshAccessToken_Handler(srv interface{}, ctx context.Context, d
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Discord_GetMyInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetMyInfoRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DiscordServer).GetMyInfo(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Discord_GetMyInfo_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DiscordServer).GetMyInfo(ctx, req.(*GetMyInfoRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Discord_ServiceDesc is the grpc.ServiceDesc for Discord service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -177,6 +210,10 @@ var Discord_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "RefreshAccessToken",
 			Handler:    _Discord_RefreshAccessToken_Handler,
+		},
+		{
+			MethodName: "GetMyInfo",
+			Handler:    _Discord_GetMyInfo_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
