@@ -22,3 +22,10 @@ type discordError struct {
 	Error            string `json:"error"`
 	ErrorDescription string `json:"error_description"`
 }
+
+type discordUserInfo struct {
+	Id            string `json:"id"`
+	Username      string `json:"username"`
+	Avatar        string `json:"avatar"`
+	Discriminator string `json:"discriminator"`
+}
