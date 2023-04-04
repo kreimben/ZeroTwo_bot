@@ -4,6 +4,7 @@ import (
 	"context"
 	gen "github.com/kreimben/ZeroTwo_bot/src/gen"
 	"google.golang.org/protobuf/types/known/emptypb"
+	"log"
 	"net/http"
 	"net/url"
 	"os"
@@ -74,5 +75,23 @@ func (s *discordServer) RefreshAccessToken(_ context.Context, req *gen.RefreshAc
 }
 
 func (s *discordServer) GetMyInfo(_ context.Context, req *gen.GetMyInfoRequest) (*gen.GetMyInfoResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetMyInfo not implemented")
+	GRPCLogger.Println("GetMyInfo: access token: " + req.String())
+	discordUrl, _ := url.Parse("https://discord.com/api/users/@me")
+
+	// Send GET request.
+	// Get with header (bearer token)
+	client := &http.Client{}
+	r, err := http.NewRequest("GET", discordUrl.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+	log.Println("token: " + "Bearer " + req.AccessToken)
+	r.Header.Set("Authorization", token)
+
+	do, err := client.Do(r)
+	if err != nil {
+		return nil, err
+	}
+
+	return getUserInfoOrError(do.Body)
 }
