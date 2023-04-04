@@ -10,10 +10,6 @@ import (
 	"strings"
 )
 
-func (s *discordServer) mustEmbedUnimplementedDiscordServer() {
-	return
-}
-
 func (s *discordServer) LoginWithDiscord(_ context.Context, in *gen.LoginWithDiscordRequest) (*gen.LoginWithDiscordResponse, error) {
 	GRPCLogger.Println("LoginWithDiscord: " + in.String())
 	discordUrl, _ := url.Parse("https://discord.com/api/v10/oauth2/token")
