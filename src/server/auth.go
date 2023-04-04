@@ -2,12 +2,8 @@ package server
 
 import (
 	"context"
-	"encoding/json"
-	"errors"
 	gen "github.com/kreimben/ZeroTwo_bot/src/gen"
 	"google.golang.org/protobuf/types/known/emptypb"
-	"io"
-	"log"
 	"net/http"
 	"net/url"
 	"os"
@@ -38,7 +34,7 @@ func (s *discordServer) LoginWithDiscord(_ context.Context, in *gen.LoginWithDis
 		return nil, err
 	}
 
-	return convertBodyToJSON(res.Body)
+	return getAccessTokenOrError(res.Body)
 }
 
 func (s *discordServer) GetOAuthUrl(context.Context, *emptypb.Empty) (*gen.GetOAuthUrlResponse, error) {
@@ -78,7 +74,7 @@ func (s *discordServer) RefreshAccessToken(_ context.Context, req *gen.RefreshAc
 		return nil, err
 	}
 
-	return convertBodyToJSON(res.Body)
+	return getAccessTokenOrError(res.Body)
 }
 
 func (s *discordServer) GetMyInfo(_ context.Context, req *gen.GetMyInfoRequest) (*gen.GetMyInfoResponse, error) {

@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-func convertBodyToJSON(body io.ReadCloser) (*gen.LoginWithDiscordResponse, error) {
+func getAccessTokenOrError(body io.ReadCloser) (*gen.LoginWithDiscordResponse, error) {
 	// Convert response to JSON.
 	rawJSON, _ := io.ReadAll(body)
 	var (
