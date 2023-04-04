@@ -7,6 +7,7 @@ type YoutubeHistory struct {
 	gorm.Model
 	GuildID       string `gorm:"not null;size:128"`
 	UserID        string `gorm:"not null;size:256"`
+	UserName      string `gorm:"not null;size:256"`
 	SearchKeyword string `gorm:"null;size:1024"`
 	VideoURL      string `gorm:"not null;size:1024"`
 }

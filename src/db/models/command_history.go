@@ -8,9 +8,10 @@ import (
 type CommandHistory struct {
 	// Record every command!
 	gorm.Model
-	GuildID string `gorm:"not null;size:128"`
-	UserID  string `gorm:"not null;size:256"`
-	Command string `gorm:"not null;size:20"`
+	GuildID  string `gorm:"not null;size:128"`
+	UserID   string `gorm:"not null;size:256"`
+	UserName string `gorm:"not null;size:256"`
+	Command  string `gorm:"not null;size:20"`
 }
 
 func GetAllHitories(db *gorm.DB) ([]CommandHistory, error) {
