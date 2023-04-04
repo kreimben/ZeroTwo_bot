@@ -78,9 +78,10 @@ func heyHandler(s *discordgo.Session, i *discordgo.InteractionCreate) {
 	// webpage for control zerotwo bot
 	// send session info to website for playing music.
 	err = s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
-		Type: discordgo.InteractionResponseDeferredChannelMessageWithSource,
+		Type: discordgo.InteractionResponseChannelMessageWithSource,
 		Data: &discordgo.InteractionResponseData{
-			Content: "https://zerotwo-bot.herokuapp.com/",
+			Content: "https://kreimben.com/",
+			Flags:   discordgo.MessageFlagsEphemeral,
 		},
 	})
 	if err != nil {
