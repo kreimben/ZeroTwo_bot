@@ -19,7 +19,7 @@ func init() {
 	flag.Parse()
 }
 
-func GRPCServerInit() {
+func BackendServerInit() {
 	go httpServer()
 	go gRPCServer()
 }

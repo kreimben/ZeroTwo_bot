@@ -19,7 +19,7 @@ func main() {
 
 	db.DbInit()
 	discord.DiscordInit()
-	server.GRPCServerInit()
+	server.BackendServerInit()
 
 	// Run until code is terminated
 	// Do not put any code after this
