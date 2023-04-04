@@ -27,6 +27,7 @@ func heyHandler(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			Type: discordgo.InteractionResponseChannelMessageWithSource,
 			Data: &discordgo.InteractionResponseData{
 				Content: "You need to be in a voice channel to use this command!",
+				Flags:   discordgo.MessageFlagsEphemeral,
 			},
 		})
 		if err != nil {
@@ -68,9 +69,10 @@ func heyHandler(s *discordgo.Session, i *discordgo.InteractionCreate) {
 
 	// before sending the response, record to db
 	db.DatabaseSession.Create(&models.CommandHistory{
-		GuildID: i.GuildID,
-		UserID:  i.Member.User.ID,
-		Command: heyName,
+		GuildID:  i.GuildID,
+		UserID:   i.Member.User.ID,
+		UserName: i.Member.User.Username,
+		Command:  heyName,
 	})
 
 	// webpage for control zerotwo bot
