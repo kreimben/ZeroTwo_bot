@@ -57,15 +57,6 @@ message GetMyInfoResponse {
 }
 
 message UserInfo {
-    /*
-    "user": {
-        "id": "268473310986240001",
-        "username": "Discord",
-        "avatar": "f749bb0cbeeb26ef21eca719337d20f1",
-        "discriminator": "0001",
-        "public_flags": 131072
-    }
-     */
     string user_id = 1;
     string user_name = 2;
     string avatar = 3;
