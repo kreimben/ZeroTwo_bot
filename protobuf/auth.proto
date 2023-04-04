@@ -61,5 +61,4 @@ message UserInfo {
     string user_name = 2;
     string avatar = 3;
     string discriminator = 4;
-    string public_flags = 5;
 }
