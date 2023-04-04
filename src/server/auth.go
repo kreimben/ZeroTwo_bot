@@ -75,7 +75,7 @@ func (s *discordServer) RefreshAccessToken(_ context.Context, req *gen.RefreshAc
 
 func (s *discordServer) GetMyInfo(_ context.Context, req *gen.GetMyInfoRequest) (*gen.GetMyInfoResponse, error) {
 	GRPCLogger.Println("GetMyInfo: access token: " + req.String())
-	discordUrl, _ := url.Parse("https://discord.com/api/users/@me")
+	discordUrl, _ := url.Parse("https://discord.com/api/v10/users/@me")
 
 	// Send GET request.
 	// Get with header (bearer token)
