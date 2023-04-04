@@ -4,7 +4,6 @@ import (
 	"context"
 	gen "github.com/kreimben/ZeroTwo_bot/src/gen"
 	"google.golang.org/protobuf/types/known/emptypb"
-	"log"
 	"net/http"
 	"net/url"
 	"os"
@@ -85,8 +84,7 @@ func (s *discordServer) GetMyInfo(_ context.Context, req *gen.GetMyInfoRequest) 
 	if err != nil {
 		return nil, err
 	}
-	log.Println("token: " + "Bearer " + req.AccessToken)
-	r.Header.Set("Authorization", token)
+	r.Header.Set("Authorization", "Bearer "+req.AccessToken)
 
 	do, err := client.Do(r)
 	if err != nil {
