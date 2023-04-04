@@ -31,7 +31,7 @@ const (
 type DiscordClient interface {
 	GetOAuthUrl(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetOAuthUrlResponse, error)
 	LoginWithDiscord(ctx context.Context, in *LoginWithDiscordRequest, opts ...grpc.CallOption) (*LoginWithDiscordResponse, error)
-	RefreshAccessToken(ctx context.Context, in *RefreshAccessTokenRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	RefreshAccessToken(ctx context.Context, in *RefreshAccessTokenRequest, opts ...grpc.CallOption) (*LoginWithDiscordResponse, error)
 }
 
 type discordClient struct {
@@ -60,8 +60,8 @@ func (c *discordClient) LoginWithDiscord(ctx context.Context, in *LoginWithDisco
 	return out, nil
 }
 
-func (c *discordClient) RefreshAccessToken(ctx context.Context, in *RefreshAccessTokenRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
-	out := new(emptypb.Empty)
+func (c *discordClient) RefreshAccessToken(ctx context.Context, in *RefreshAccessTokenRequest, opts ...grpc.CallOption) (*LoginWithDiscordResponse, error) {
+	out := new(LoginWithDiscordResponse)
 	err := c.cc.Invoke(ctx, Discord_RefreshAccessToken_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -75,7 +75,7 @@ func (c *discordClient) RefreshAccessToken(ctx context.Context, in *RefreshAcces
 type DiscordServer interface {
 	GetOAuthUrl(context.Context, *emptypb.Empty) (*GetOAuthUrlResponse, error)
 	LoginWithDiscord(context.Context, *LoginWithDiscordRequest) (*LoginWithDiscordResponse, error)
-	RefreshAccessToken(context.Context, *RefreshAccessTokenRequest) (*emptypb.Empty, error)
+	RefreshAccessToken(context.Context, *RefreshAccessTokenRequest) (*LoginWithDiscordResponse, error)
 	mustEmbedUnimplementedDiscordServer()
 }
 
@@ -89,7 +89,7 @@ func (UnimplementedDiscordServer) GetOAuthUrl(context.Context, *emptypb.Empty) (
 func (UnimplementedDiscordServer) LoginWithDiscord(context.Context, *LoginWithDiscordRequest) (*LoginWithDiscordResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method LoginWithDiscord not implemented")
 }
-func (UnimplementedDiscordServer) RefreshAccessToken(context.Context, *RefreshAccessTokenRequest) (*emptypb.Empty, error) {
+func (UnimplementedDiscordServer) RefreshAccessToken(context.Context, *RefreshAccessTokenRequest) (*LoginWithDiscordResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RefreshAccessToken not implemented")
 }
 func (UnimplementedDiscordServer) mustEmbedUnimplementedDiscordServer() {}
