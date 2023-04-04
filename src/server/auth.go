@@ -45,7 +45,7 @@ func (s *discordServer) GetOAuthUrl(context.Context, *emptypb.Empty) (*gen.GetOA
 		"&client_id=" + os.Getenv("CLIENT_ID") +
 		"&redirect_uri=" + os.Getenv("AUTH_CALLBACK_URL") +
 		"&response_type=code" +
-		"&scope=identify%20guilds.join"
+		"&scope=identify%20guilds"
 
 	return &gen.GetOAuthUrlResponse{
 		Url: discordUrl,
