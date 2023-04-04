@@ -42,7 +42,4 @@ message DiscordAccessTokenResponse {
 
 message RefreshAccessTokenRequest {
     string refresh_token = 1;
-    string client_id = 2;
-    string client_secret = 3;
-    string grant_type = 4;
 }
