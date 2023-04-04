@@ -8,8 +8,10 @@ import (
 	"os"
 )
 
-var DiscordSession *discordgo.Session
-var err error
+var (
+	DiscordSession *discordgo.Session
+	err            error
+)
 
 func DiscordInit() {
 	DiscordSession, err = discordgo.New("Bot " + os.Getenv("DISCORD_TOKEN"))
@@ -19,13 +21,12 @@ func DiscordInit() {
 	}
 
 	//discord.AddHandler(messageCreate)
-	DiscordSession.AddHandler(func(s *discordgo.Session, r *discordgo.Ready) {
+	DiscordSession.AddHandlerOnce(func(s *discordgo.Session, r *discordgo.Ready) {
 		log.Printf("Logged in as: %v#%v\n", s.State.User.Username, s.State.User.Discriminator)
 	})
 
 	// Open a websocket connection to Discord and begin listening.
 	err = DiscordSession.Open()
-	defer DiscordSession.Close()
 	if err != nil {
 		fmt.Printf("Error creating Discord session: %s", err)
 		panic("Error opening Discord session")

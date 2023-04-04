@@ -23,7 +23,7 @@ func main() {
 
 	// Run until code is terminated
 	// Do not put any code after this
-	fmt.Println("Server is running...")
+	fmt.Println("main() is running...")
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, os.Interrupt, os.Kill)
 	<-stop

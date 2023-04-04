@@ -12,10 +12,14 @@ import (
 )
 
 var GRPCLogger = log.New(os.Stdout, "[gRPC] ", log.LstdFlags)
-var port *int
+var (
+	grpcPort *int
+	httpPort *int
+)
 
 func init() {
-	port = flag.Int("port", 50051, "The server port")
+	grpcPort = flag.Int("grpcPort", 5011, "The server grpcPort")
+	httpPort = flag.Int("httpPort", 5010, "The server httpPort")
 	flag.Parse()
 }
 
@@ -29,25 +33,24 @@ func httpServer() {
 		log.Println("Callback")
 		code := r.URL.Query().Get("code")
 		log.Println("Discord OAuth2 Code:", code)
-		_, err := w.Write([]byte("Success!\ncode: " + code))
+		_, err := w.Write([]byte("{\"code\": \"" + code + "\"}"))
 		if err != nil {
 			log.Println("Error:", err)
 		}
 	})
-	err := http.ListenAndServe(":50050", nil)
+	err := http.ListenAndServe(fmt.Sprintf(":%d", *httpPort), nil)
 	if err != nil {
 		log.Fatal("ListenAndServe: ", err)
 	}
-	log.Println("Callback Server is running...")
 }
 
 func gRPCServer() {
 	// gRPC Server start
-	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", *port))
+	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", *grpcPort))
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
-	GRPCLogger.Println("gRPC Server is running on port:", fmt.Sprintf("%d", *port))
+	GRPCLogger.Println("gRPC Server is running on grpcPort:", fmt.Sprintf("%d", *grpcPort))
 	server := grpc.NewServer()
 	gen.RegisterDiscordServer(server, &discordServer{})
 	if err := server.Serve(lis); err != nil {

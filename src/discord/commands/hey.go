@@ -12,7 +12,7 @@ const heyName = "hey"
 
 var heyCommand = &discordgo.ApplicationCommand{
 	Name:        heyName,
-	Description: "Say hey! (to get a webpage or play songs traditionally.)",
+	Description: "Responds with a link to the website for controlling the bot / 봇을 제어할 수 있는 웹사이트를 제공합니다.",
 }
 
 func heyHandler(s *discordgo.Session, i *discordgo.InteractionCreate) {
