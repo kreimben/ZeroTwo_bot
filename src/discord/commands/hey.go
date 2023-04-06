@@ -26,7 +26,7 @@ func heyHandler(s *discordgo.Session, i *discordgo.InteractionCreate) {
 
 	// webpage for control zerotwo bot
 	// send session info to website for playing music.
-	err = s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+	err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 		Type: discordgo.InteractionResponseChannelMessageWithSource,
 		Data: &discordgo.InteractionResponseData{
 			Content: "https://kreimben.com/",
@@ -44,7 +44,7 @@ func RegisterHey(session *discordgo.Session, guildId string) {
 	// Register commands
 	_, heyErr := session.ApplicationCommandCreate(os.Getenv("CLIENT_ID"), guildId, heyCommand)
 	if heyErr != nil {
-		panic("Error creating heyCommand")
+		log.Fatalln("Error creating heyCommand: ", heyErr)
 	}
 
 	session.AddHandler(

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/bwmarrin/discordgo"
 	"github.com/kreimben/ZeroTwo_bot/src/discord/commands"
+	"github.com/wader/goutubedl"
 	"log"
 	"os"
 )
@@ -21,8 +22,8 @@ func DiscordInit() {
 	}
 
 	//discord.AddHandler(messageCreate)
-	DiscordSession.AddHandlerOnce(func(s *discordgo.Session, r *discordgo.Ready) {
-		log.Printf("Logged in as: %v#%v\n", s.State.User.Username, s.State.User.Discriminator)
+	DiscordSession.AddHandler(func(s *discordgo.Session, r *discordgo.Ready) {
+		log.Printf("Logged in as: %v#%v\n", r.User.Username, r.User.Discriminator)
 	})
 
 	// Open a websocket connection to Discord and begin listening.
@@ -33,14 +34,15 @@ func DiscordInit() {
 	}
 
 	// Check debug mode.
-	var guildId string
+	guildId := ""
 	if os.Getenv("DEBUG") == "true" {
-		guildId = os.Getenv("TEST_GUILD_ID")
+		guildId := os.Getenv("TEST_GUILD_ID")
 		log.Println("Guild ID: " + guildId)
 		log.Println("Debug mode: " + os.Getenv("DEBUG"))
-	} else {
-		guildId = ""
 	}
+
+	// Set youtube-dl path
+	goutubedl.Path = os.Getenv("YT_DL_PATH")
 
 	// Register commands
 	commands.RegisterHey(DiscordSession, guildId)

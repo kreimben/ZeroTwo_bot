@@ -31,7 +31,7 @@ func RegisterDance(session *discordgo.Session, guildId string) {
 	// Register commands
 	_, danceErr := session.ApplicationCommandCreate(os.Getenv("CLIENT_ID"), guildId, danceCommand)
 	if danceErr != nil {
-		panic("Error creating danceCommand")
+		log.Fatalln("Error creating danceCommand: ", danceErr)
 	}
 
 	session.AddHandler(

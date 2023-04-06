@@ -46,7 +46,7 @@ func RegisterVersion(session *discordgo.Session, guildId string) {
 	// Register commands
 	_, versionErr := session.ApplicationCommandCreate(os.Getenv("CLIENT_ID"), guildId, versionCommand)
 	if versionErr != nil {
-		panic("Error creating versionCommand")
+		log.Fatalln("Error creating versionCommand: ", versionErr)
 	}
 
 	session.AddHandler(
