@@ -2,6 +2,7 @@ package server
 
 import (
 	"context"
+	"github.com/kreimben/ZeroTwo_bot/src/discord"
 	gen "github.com/kreimben/ZeroTwo_bot/src/gen"
 	"google.golang.org/protobuf/types/known/emptypb"
 	"net/http"
@@ -92,4 +93,29 @@ func (s *discordServer) GetMyInfo(_ context.Context, req *gen.GetMyInfoRequest) 
 	}
 
 	return getUserInfoOrError(do.Body)
+}
+
+func (s *discordServer) ValidateGuildId(_ context.Context, req *gen.ValidateGuildIdRequest) (*gen.ValidateGuildIdResponse, error) {
+	// validate guild id.
+	GRPCLogger.Println("ValidateGuildId: " + req.String())
+	_, err := discord.DiscordSession.Guild(req.GuildId)
+	if err != nil {
+		return nil, err
+	} else {
+		return &gen.ValidateGuildIdResponse{
+			IsValid: true,
+		}, nil
+	}
+}
+func (s *discordServer) ValidateUserId(_ context.Context, req *gen.ValidateUserIdRequest) (*gen.ValidateUserIdResponse, error) {
+	// validate user is in guild.
+	GRPCLogger.Println("ValidateUserId: " + req.String())
+	_, err := discord.DiscordSession.GuildMember(req.GuildId, req.UserId)
+	if err != nil {
+		return nil, err
+	} else {
+		return &gen.ValidateUserIdResponse{
+			IsValid: true,
+		}, nil
+	}
 }

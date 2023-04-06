@@ -24,6 +24,8 @@ const (
 	Discord_LoginWithDiscord_FullMethodName   = "/discord.Discord/LoginWithDiscord"
 	Discord_RefreshAccessToken_FullMethodName = "/discord.Discord/RefreshAccessToken"
 	Discord_GetMyInfo_FullMethodName          = "/discord.Discord/GetMyInfo"
+	Discord_ValidateGuildId_FullMethodName    = "/discord.Discord/ValidateGuildId"
+	Discord_ValidateUserId_FullMethodName     = "/discord.Discord/ValidateUserId"
 )
 
 // DiscordClient is the client API for Discord service.
@@ -34,6 +36,8 @@ type DiscordClient interface {
 	LoginWithDiscord(ctx context.Context, in *LoginWithDiscordRequest, opts ...grpc.CallOption) (*LoginWithDiscordResponse, error)
 	RefreshAccessToken(ctx context.Context, in *RefreshAccessTokenRequest, opts ...grpc.CallOption) (*LoginWithDiscordResponse, error)
 	GetMyInfo(ctx context.Context, in *GetMyInfoRequest, opts ...grpc.CallOption) (*GetMyInfoResponse, error)
+	ValidateGuildId(ctx context.Context, in *ValidateGuildIdRequest, opts ...grpc.CallOption) (*ValidateGuildIdResponse, error)
+	ValidateUserId(ctx context.Context, in *ValidateUserIdRequest, opts ...grpc.CallOption) (*ValidateUserIdResponse, error)
 }
 
 type discordClient struct {
@@ -80,6 +84,24 @@ func (c *discordClient) GetMyInfo(ctx context.Context, in *GetMyInfoRequest, opt
 	return out, nil
 }
 
+func (c *discordClient) ValidateGuildId(ctx context.Context, in *ValidateGuildIdRequest, opts ...grpc.CallOption) (*ValidateGuildIdResponse, error) {
+	out := new(ValidateGuildIdResponse)
+	err := c.cc.Invoke(ctx, Discord_ValidateGuildId_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *discordClient) ValidateUserId(ctx context.Context, in *ValidateUserIdRequest, opts ...grpc.CallOption) (*ValidateUserIdResponse, error) {
+	out := new(ValidateUserIdResponse)
+	err := c.cc.Invoke(ctx, Discord_ValidateUserId_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // DiscordServer is the server API for Discord service.
 // All implementations must embed UnimplementedDiscordServer
 // for forward compatibility
@@ -88,6 +110,8 @@ type DiscordServer interface {
 	LoginWithDiscord(context.Context, *LoginWithDiscordRequest) (*LoginWithDiscordResponse, error)
 	RefreshAccessToken(context.Context, *RefreshAccessTokenRequest) (*LoginWithDiscordResponse, error)
 	GetMyInfo(context.Context, *GetMyInfoRequest) (*GetMyInfoResponse, error)
+	ValidateGuildId(context.Context, *ValidateGuildIdRequest) (*ValidateGuildIdResponse, error)
+	ValidateUserId(context.Context, *ValidateUserIdRequest) (*ValidateUserIdResponse, error)
 	mustEmbedUnimplementedDiscordServer()
 }
 
@@ -106,6 +130,12 @@ func (UnimplementedDiscordServer) RefreshAccessToken(context.Context, *RefreshAc
 }
 func (UnimplementedDiscordServer) GetMyInfo(context.Context, *GetMyInfoRequest) (*GetMyInfoResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetMyInfo not implemented")
+}
+func (UnimplementedDiscordServer) ValidateGuildId(context.Context, *ValidateGuildIdRequest) (*ValidateGuildIdResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ValidateGuildId not implemented")
+}
+func (UnimplementedDiscordServer) ValidateUserId(context.Context, *ValidateUserIdRequest) (*ValidateUserIdResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ValidateUserId not implemented")
 }
 func (UnimplementedDiscordServer) mustEmbedUnimplementedDiscordServer() {}
 
@@ -192,6 +222,42 @@ func _Discord_GetMyInfo_Handler(srv interface{}, ctx context.Context, dec func(i
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Discord_ValidateGuildId_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ValidateGuildIdRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DiscordServer).ValidateGuildId(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Discord_ValidateGuildId_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DiscordServer).ValidateGuildId(ctx, req.(*ValidateGuildIdRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Discord_ValidateUserId_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ValidateUserIdRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(DiscordServer).ValidateUserId(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Discord_ValidateUserId_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(DiscordServer).ValidateUserId(ctx, req.(*ValidateUserIdRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Discord_ServiceDesc is the grpc.ServiceDesc for Discord service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -214,6 +280,14 @@ var Discord_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetMyInfo",
 			Handler:    _Discord_GetMyInfo_Handler,
+		},
+		{
+			MethodName: "ValidateGuildId",
+			Handler:    _Discord_ValidateGuildId_Handler,
+		},
+		{
+			MethodName: "ValidateUserId",
+			Handler:    _Discord_ValidateUserId_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

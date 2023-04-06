@@ -11,6 +11,8 @@ service Discord {
     rpc LoginWithDiscord (LoginWithDiscordRequest) returns (LoginWithDiscordResponse) {}
     rpc RefreshAccessToken (RefreshAccessTokenRequest) returns (LoginWithDiscordResponse) {}
     rpc GetMyInfo(GetMyInfoRequest) returns (GetMyInfoResponse) {}
+    rpc ValidateGuildId(ValidateGuildIdRequest) returns (ValidateGuildIdResponse) {}
+    rpc ValidateUserId(ValidateUserIdRequest) returns (ValidateUserIdResponse) {}
 }
 
 message GetOAuthUrlResponse {
@@ -61,4 +63,21 @@ message UserInfo {
     string user_name = 2;
     string avatar = 3;
     string discriminator = 4;
+}
+
+message ValidateGuildIdRequest {
+    string guild_id = 1;
+}
+
+message ValidateGuildIdResponse {
+    bool is_valid = 1;
+}
+
+message ValidateUserIdRequest {
+    string user_id = 1;
+    string guild_id = 2;
+}
+
+message ValidateUserIdResponse {
+    bool is_valid = 1;
 }
