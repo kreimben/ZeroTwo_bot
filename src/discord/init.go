@@ -45,7 +45,8 @@ func DiscordInit() {
 	goutubedl.Path = os.Getenv("YT_DL_PATH")
 
 	// Register commands
-	commands.RegisterHey(DiscordSession, guildId)
-	commands.RegisterDance(DiscordSession, guildId)
-	commands.RegisterVersion(DiscordSession, guildId)
+	//commands.RegisterHey(DiscordSession, guildId)
+	//commands.RegisterDance(DiscordSession, guildId)
+	//commands.RegisterVersion(DiscordSession, guildId)
+	commands.RegisterTest(DiscordSession, guildId) // Just test for playing music
 }
