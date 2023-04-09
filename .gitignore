@@ -5,4 +5,4 @@
 .env
 log.txt
 src/build/**/*
-**/.vite
+**/.vite/**/*
