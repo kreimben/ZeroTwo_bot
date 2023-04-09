@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"github.com/joho/godotenv"
 	"github.com/kreimben/ZeroTwo_bot/src/db"
@@ -10,16 +11,35 @@ import (
 	"os/signal"
 )
 
+var (
+	runDb      *bool
+	runDiscord *bool
+	runServer  *bool
+)
+
 func main() {
+	// check program args
+	runDb = flag.Bool("db", true, "Run database")
+	runDiscord = flag.Bool("discord", true, "Run discord bot")
+	runServer = flag.Bool("server", true, "Run backend server")
+
 	// Setting for dotenv
 	err := godotenv.Load()
 	if err != nil {
 		panic("Error loading .env file")
 	}
 
-	db.DbInit()
-	discord.DiscordInit()
-	server.BackendServerInit()
+	flag.Parse()
+
+	if *runDb {
+		db.DbInit()
+	}
+	if *runDiscord {
+		discord.DiscordInit()
+	}
+	if *runServer {
+		server.BackendServerInit()
+	}
 
 	// Run until code is terminated
 	// Do not put any code after this

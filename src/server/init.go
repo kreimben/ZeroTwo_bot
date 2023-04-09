@@ -20,7 +20,6 @@ var (
 func init() {
 	grpcPort = flag.Int("grpcPort", 5011, "The server grpcPort")
 	httpPort = flag.Int("httpPort", 5010, "The server httpPort")
-	flag.Parse()
 }
 
 func BackendServerInit() {
