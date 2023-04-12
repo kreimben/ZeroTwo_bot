@@ -1,5 +1,6 @@
 import { ProtobufMessage } from "@improbable-eng/grpc-web/dist/typings/message";
 import {useEffect, useState} from "react";
+import styled from "styled-components";
 import {GetOAuthUrl} from "../api/GetOAuthUrl";
 
 const Login = () => {
@@ -15,10 +16,15 @@ const Login = () => {
     }, []);
 
     return (
-        <div>
+        <LoginWrapper>
             <button onClick={() => window.open(oauthUrl, "_blank")}>Login with Discord!</button>
-        </div>
+        </LoginWrapper>
     )
 }
+
+const LoginWrapper = styled.div`
+  color: white;
+  margin-right: 16px;
+`;
 
 export default Login;

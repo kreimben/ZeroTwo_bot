@@ -2,6 +2,7 @@ import useCookies from "react-cookie/cjs/useCookies";
 import {useEffect, useState} from "react";
 import {GetMyInfo} from "../api/GetMyInfo";
 import {GetMyInfoResponse} from "../gen/auth_pb";
+import styled from "styled-components";
 
 const UserInfo = () => {
     const [cookies, setCookie, removeCookie] = useCookies(['discord_access_token']);
@@ -28,12 +29,29 @@ const UserInfo = () => {
     }, []);
 
     return (
-        <div>
-            <h1>Logged in</h1>
-            <div>user name: {userName}#{discriminator}</div>
-            <img src={`https://cdn.discordapp.com/avatars/${userId}/${avatar}.png`} alt="avatar"/>
-        </div>
+        <UserInfoWrapper>
+            <UserInfoName>{userName}#{discriminator}</UserInfoName>
+            <UserInfoImage src={`https://cdn.discordapp.com/avatars/${userId}/${avatar}.png`}
+                           alt="avatar"/>
+        </UserInfoWrapper>
     )
 }
 
-export default UserInfo;
+const UserInfoWrapper = styled.div`
+  color: white;
+  display: inline-flex;
+  align-items: center;
+`;
+
+const UserInfoName = styled.p`
+  margin-right: 16px;
+`;
+
+const UserInfoImage = styled.img`
+  height: 48px;
+  width: 48px;
+  margin-right: 16px;
+  border-radius: 50%;
+`;
+
+export {UserInfo};

@@ -4,11 +4,13 @@ import {Route, Routes} from "react-router-dom";
 import {DiscordCallback} from "./components/DiscordCallback";
 import {NotFound} from "./components/NotFound";
 import {Connect} from "./components/Connect";
+import {Menu} from "./components/Menu";
 
 const App = () => {
 
     return (
         <div className="App">
+            <Menu/>
             <Routes>
                 <Route path="/" element={<Home/>}/>
                 <Route path="/discord/callback" element={<DiscordCallback/>}/>

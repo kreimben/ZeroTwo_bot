@@ -1,4 +1,3 @@
-import Auth from "./Auth";
 import {useEffect, useState} from "react";
 import {ValidateGuildId} from "../api/ValidateGuildId";
 import {ValidateUserId} from "../api/ValidateUserId";
@@ -53,7 +52,6 @@ export const Connect = () => {
 
     return (
         <div>
-            <Auth/>
             <h1>Connect</h1>
             <p>Play music</p>
         </div>
