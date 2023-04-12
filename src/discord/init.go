@@ -21,6 +21,9 @@ func DiscordInit() {
 		panic("Error creating Discord session")
 	}
 
+	// set all intents.
+	DiscordSession.Identify.Intents = discordgo.MakeIntent(discordgo.IntentsAll)
+
 	//discord.AddHandler(messageCreate)
 	DiscordSession.AddHandler(func(s *discordgo.Session, r *discordgo.Ready) {
 		log.Printf("Logged in as: %v#%v\n", r.User.Username, r.User.Discriminator)

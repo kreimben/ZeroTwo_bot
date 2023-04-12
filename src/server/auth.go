@@ -109,6 +109,7 @@ func (s *discordServer) ValidateGuildId(_ context.Context, req *gen.ValidateGuil
 func (s *discordServer) ValidateUserId(_ context.Context, req *gen.ValidateUserIdRequest) (*gen.ValidateUserIdResponse, error) {
 	// validate user is in guild.
 	GRPCLogger.Println("ValidateUserId: " + req.String())
+	GRPCLogger.Println("guild id: " + req.GuildId)
 	_, err := discord.DiscordSession.GuildMember(req.GuildId, req.UserId)
 	if err != nil {
 		return nil, err

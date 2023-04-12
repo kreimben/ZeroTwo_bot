@@ -6,7 +6,7 @@ const Home = () => {
         <div>
             <Auth/>
             <div>
-                Hello World
+                Welcome to ZeroTwo_bot 4.0!
             </div>
         </div>
     )
