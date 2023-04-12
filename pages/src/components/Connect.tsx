@@ -10,20 +10,20 @@ export const Connect = () => {
 
     const is_valid_guild = (guildId: string) => {
         ValidateGuildId(guildId, (msg) => {
-            console.log(msg);
+            // console.log(`valid guild: ${msg}`);
             setValidGuild(msg.getIsValid())
         }, (err) => {
-            console.log(err);
+            // console.log(`invalid guild: ${err}`);
             setValidGuild(false);
         });
     }
 
     const is_valid_user_in_guild = (guild_id: string, user_id: string) => {
         ValidateUserId(guild_id, user_id, (msg: ValidateUserIdResponse) => {
-            console.log(msg);
+            // console.log(`valid user in guild: ${msg}`);
             setValidUser(msg.getIsValid());
         }, (err) => {
-            console.log(err);
+            // console.log(`invalid user in guild: ${err}`);
             setValidUser(false);
         });
     }
@@ -43,9 +43,9 @@ export const Connect = () => {
 
     useEffect(() => {
         if (validGuild === true && validUser === true) {
-            console.log('valid!');
+            // console.log('valid!');
         } else if (validGuild === false || validUser === false) {
-            console.log('invalid!');
+            // console.log('invalid!');
             // redirect to home.
             window.location.href = "/";
         }
