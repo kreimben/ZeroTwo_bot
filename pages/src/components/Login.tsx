@@ -17,7 +17,7 @@ const Login = () => {
 
     return (
         <LoginWrapper>
-            <button onClick={() => window.open(oauthUrl, "_blank")}>Login with Discord!</button>
+            <button onClick={() => window.open(oauthUrl,"_parent")}>Login with Discord!</button>
         </LoginWrapper>
     )
 }
