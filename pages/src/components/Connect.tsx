@@ -55,7 +55,7 @@ export const Connect = () => {
         <div>
             <Auth/>
             <h1>Connect</h1>
-            <p>Connect to ZeroTwo_bot 4.0</p>
+            <p>Play music</p>
         </div>
     )
 }
