@@ -1,0 +1,40 @@
+syntax = "proto3";
+
+package play;
+
+import "google/protobuf/duration.proto";
+
+option go_package = "/discord_play";
+
+service PlayService {
+  rpc Search (SearchRequest) returns (SearchResponse) {}
+  rpc Play (PlayRequest) returns (PlayResponse) {}
+}
+
+message PlayRequest {
+  string guild_id = 1;
+  string user_id = 2;
+  string play_url = 3; // should be google domain. not youtube link.
+}
+
+message PlayResponse {
+  string message = 1; // result message.
+}
+
+message SearchRequest {
+  oneof search_type {// search youtube video with keyword or url.
+    string keyword = 1;
+    string url = 2; // that doesn't mean I can play that link directly. because it's searching with url.
+  }
+}
+
+message SearchResponse {
+  repeated string VideoInfo = 1; // results.
+}
+
+message VideoInfo {
+  string title = 1;
+  string url = 2; // youtube url that can be directed to youtube.
+  string thumbnail_url = 3;
+  google.protobuf.Duration duration = 4;
+}
