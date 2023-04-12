@@ -6,7 +6,10 @@ const Login = () => {
     const [oauthUrl, setOauthUrl] = useState<string>("");
 
     useEffect(() => {
-        GetOAuthUrl(window.location.toString() + 'discord/callback',(msg) => {
+        const loc = window.location.toString();
+        // cut after main domain
+        const url = loc.substring(0, loc.indexOf('/', 8));
+        GetOAuthUrl(url + '/discord/callback',(msg) => {
             setOauthUrl(msg.getUrl().toString());
         })
     }, []);
