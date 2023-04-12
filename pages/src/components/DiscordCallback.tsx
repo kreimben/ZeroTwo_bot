@@ -35,7 +35,9 @@ export const DiscordCallback = () => {
                         msg.getAccessToken().getAccessToken(),
                         {
                             path: "/",
-                            maxAge: msg.getAccessToken().getExpiresIn(),
+                            expires: new Date(Date.now() + 3600 * 1000),
+                            secure: true,
+                            sameSite: "strict",
                         }
                     );
                     // redirect to home page
