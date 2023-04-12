@@ -7,7 +7,7 @@ import {host} from "./init";
 export const ValidateGuildId = (guildId: string, completion: (msg: ValidateGuildIdResponse) => void, onError: (err: string) => void) => {
     const req = new ValidateGuildIdRequest();
     req.setGuildId(guildId);
-    grpc.unary(Discord.ValidateUserId, {
+    grpc.unary(Discord.ValidateGuildId, {
         request: req,
         host: host,
         onEnd: (res: UnaryOutput<ValidateUserIdResponse>) => {
