@@ -38,6 +38,8 @@ export const DiscordCallback = () => {
                             maxAge: msg.getAccessToken().getExpiresIn(),
                         }
                     );
+                    // redirect to home page
+                    window.location.href = "/";
                 }
             })
         }
