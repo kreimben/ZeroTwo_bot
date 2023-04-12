@@ -1,16 +1,18 @@
 import * as React from "react";
 import Home from "./components/Home";
-import {HashRouter as Router, Route, Routes} from "react-router-dom";
+import {Route, Routes} from "react-router-dom";
+import {DiscordCallback} from "./components/DiscordCallback";
+import {NotFound} from "./components/NotFound";
 
 const App = () => {
 
     return (
         <div className="App">
-            <Router>
-                <Routes>
-                    <Route path="/*" element={<Home/>}/>
-                </Routes>
-            </Router>
+            <Routes>
+                <Route path="/" element={<Home/>}/>
+                <Route path="/discord/callback" element={<DiscordCallback/>}/>
+                <Route path="*" element={<NotFound/>}/>
+            </Routes>
         </div>
     )
 }

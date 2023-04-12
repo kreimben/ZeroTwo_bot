@@ -11,7 +11,6 @@ import (
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
-	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -32,7 +31,7 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type DiscordClient interface {
-	GetOAuthUrl(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetOAuthUrlResponse, error)
+	GetOAuthUrl(ctx context.Context, in *GetOAuthUrlRequest, opts ...grpc.CallOption) (*GetOAuthUrlResponse, error)
 	LoginWithDiscord(ctx context.Context, in *LoginWithDiscordRequest, opts ...grpc.CallOption) (*LoginWithDiscordResponse, error)
 	RefreshAccessToken(ctx context.Context, in *RefreshAccessTokenRequest, opts ...grpc.CallOption) (*LoginWithDiscordResponse, error)
 	GetMyInfo(ctx context.Context, in *GetMyInfoRequest, opts ...grpc.CallOption) (*GetMyInfoResponse, error)
@@ -48,7 +47,7 @@ func NewDiscordClient(cc grpc.ClientConnInterface) DiscordClient {
 	return &discordClient{cc}
 }
 
-func (c *discordClient) GetOAuthUrl(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetOAuthUrlResponse, error) {
+func (c *discordClient) GetOAuthUrl(ctx context.Context, in *GetOAuthUrlRequest, opts ...grpc.CallOption) (*GetOAuthUrlResponse, error) {
 	out := new(GetOAuthUrlResponse)
 	err := c.cc.Invoke(ctx, Discord_GetOAuthUrl_FullMethodName, in, out, opts...)
 	if err != nil {
@@ -106,7 +105,7 @@ func (c *discordClient) ValidateUserId(ctx context.Context, in *ValidateUserIdRe
 // All implementations must embed UnimplementedDiscordServer
 // for forward compatibility
 type DiscordServer interface {
-	GetOAuthUrl(context.Context, *emptypb.Empty) (*GetOAuthUrlResponse, error)
+	GetOAuthUrl(context.Context, *GetOAuthUrlRequest) (*GetOAuthUrlResponse, error)
 	LoginWithDiscord(context.Context, *LoginWithDiscordRequest) (*LoginWithDiscordResponse, error)
 	RefreshAccessToken(context.Context, *RefreshAccessTokenRequest) (*LoginWithDiscordResponse, error)
 	GetMyInfo(context.Context, *GetMyInfoRequest) (*GetMyInfoResponse, error)
@@ -119,7 +118,7 @@ type DiscordServer interface {
 type UnimplementedDiscordServer struct {
 }
 
-func (UnimplementedDiscordServer) GetOAuthUrl(context.Context, *emptypb.Empty) (*GetOAuthUrlResponse, error) {
+func (UnimplementedDiscordServer) GetOAuthUrl(context.Context, *GetOAuthUrlRequest) (*GetOAuthUrlResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetOAuthUrl not implemented")
 }
 func (UnimplementedDiscordServer) LoginWithDiscord(context.Context, *LoginWithDiscordRequest) (*LoginWithDiscordResponse, error) {
@@ -151,7 +150,7 @@ func RegisterDiscordServer(s grpc.ServiceRegistrar, srv DiscordServer) {
 }
 
 func _Discord_GetOAuthUrl_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(emptypb.Empty)
+	in := new(GetOAuthUrlRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -163,7 +162,7 @@ func _Discord_GetOAuthUrl_Handler(srv interface{}, ctx context.Context, dec func
 		FullMethod: Discord_GetOAuthUrl_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(DiscordServer).GetOAuthUrl(ctx, req.(*emptypb.Empty))
+		return srv.(DiscordServer).GetOAuthUrl(ctx, req.(*GetOAuthUrlRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }

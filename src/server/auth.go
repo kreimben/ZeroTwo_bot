@@ -4,15 +4,14 @@ import (
 	"context"
 	"github.com/kreimben/ZeroTwo_bot/src/discord"
 	gen "github.com/kreimben/ZeroTwo_bot/src/gen"
-	"google.golang.org/protobuf/types/known/emptypb"
 	"net/http"
 	"net/url"
 	"os"
 	"strings"
 )
 
-func (s *discordServer) LoginWithDiscord(_ context.Context, in *gen.LoginWithDiscordRequest) (*gen.LoginWithDiscordResponse, error) {
-	GRPCLogger.Println("LoginWithDiscord: " + in.String())
+func (s *discordServer) LoginWithDiscord(_ context.Context, req *gen.LoginWithDiscordRequest) (*gen.LoginWithDiscordResponse, error) {
+	GRPCLogger.Println("LoginWithDiscord: " + req.String())
 	discordUrl, _ := url.Parse("https://discord.com/api/v10/oauth2/token")
 
 	// Ready for POST request (body but not json)
@@ -20,8 +19,8 @@ func (s *discordServer) LoginWithDiscord(_ context.Context, in *gen.LoginWithDis
 	values.Set("client_id", os.Getenv("CLIENT_ID"))
 	values.Set("client_secret", os.Getenv("CLIENT_SECRET"))
 	values.Set("grant_type", "authorization_code")
-	values.Set("code", in.Code)
-	values.Set("redirect_uri", os.Getenv("AUTH_CALLBACK_URL"))
+	values.Set("code", req.Code)
+	values.Set("redirect_uri", req.RedirectUri)
 
 	// Send POST request.
 	res, err := http.Post(discordUrl.String(),
@@ -34,13 +33,13 @@ func (s *discordServer) LoginWithDiscord(_ context.Context, in *gen.LoginWithDis
 	return getAccessTokenOrError(res.Body)
 }
 
-func (s *discordServer) GetOAuthUrl(context.Context, *emptypb.Empty) (*gen.GetOAuthUrlResponse, error) {
+func (s *discordServer) GetOAuthUrl(_ context.Context, req *gen.GetOAuthUrlRequest) (*gen.GetOAuthUrlResponse, error) {
 	GRPCLogger.Println("GetOAuthUrl")
 	discordUrl := "https://discord.com/api/oauth2/authorize" +
 		"?" +
 		"response_type=code" +
 		"&client_id=" + os.Getenv("CLIENT_ID") +
-		"&redirect_uri=" + os.Getenv("AUTH_CALLBACK_URL") +
+		"&redirect_uri=" + req.RedirectUri +
 		"&response_type=code" +
 		"&scope=identify%20guilds"
 

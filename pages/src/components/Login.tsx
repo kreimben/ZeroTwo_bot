@@ -1,34 +1,19 @@
-import DiscordStub from "../api/init";
+import { ProtobufMessage } from "@improbable-eng/grpc-web/dist/typings/message";
 import {useEffect, useState} from "react";
-import {google} from "../gen/google/protobuf/empty";
+import {GetOAuthUrl} from "../api/GetOAuthUrl";
 
 const Login = () => {
     const [oauthUrl, setOauthUrl] = useState<string>("");
 
-    const onclick = () => {
-        DiscordStub.getInstance().stub.getOAuthUrl(new google.protobuf.Empty(),null, (err, res) => {
-            if (err) {
-                console.log(err);
-            } else {
-                setOauthUrl(res.getUrl());
-            }
-        });
-        // DiscordStub.getInstance().stub.GetOAuthUrl(new google.protobuf.Empty(),null, (err, res) => {
-        //     if (err) {
-        //         console.log(err);
-        //     } else {
-        //         setOauthUrl(res.url);
-        //     }
-        // })
-    }
-
     useEffect(() => {
-        console.log(`oauthUrl: ${oauthUrl}`);
-    }, [oauthUrl]);
+        GetOAuthUrl(window.location.toString() + 'discord/callback',(msg: ProtobufMessage) => {
+            setOauthUrl((msg.toObject()["url"]).toString());
+        })
+    }, []);
 
     return (
         <div>
-            <button onClick={onclick}>Login with Discord!</button>
+            <button onClick={() => window.open(oauthUrl, "_blank")}>Login with Discord!</button>
         </div>
     )
 }
