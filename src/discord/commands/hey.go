@@ -1,6 +1,7 @@
 package commands
 
 import (
+	"fmt"
 	"github.com/bwmarrin/discordgo"
 	"github.com/kreimben/ZeroTwo_bot/src/db"
 	"github.com/kreimben/ZeroTwo_bot/src/db/models"
@@ -29,7 +30,7 @@ func heyHandler(s *discordgo.Session, i *discordgo.InteractionCreate) {
 	err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 		Type: discordgo.InteractionResponseChannelMessageWithSource,
 		Data: &discordgo.InteractionResponseData{
-			Content: "https://kreimben.com/",
+			Content: fmt.Sprintf("%s/connect?guild_id=%s&user_id=%s", os.Getenv("FRONTEND_URL"), i.GuildID, i.Member.User.ID),
 			Flags:   discordgo.MessageFlagsEphemeral,
 		},
 	})
