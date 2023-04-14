@@ -5,6 +5,7 @@ import (
 	"errors"
 	gen "github.com/kreimben/ZeroTwo_bot/src/gen"
 	"io"
+	"strconv"
 	"strings"
 )
 
@@ -83,4 +84,28 @@ func getUserInfoOrError(body io.ReadCloser) (*gen.GetMyInfoResponse, error) {
 		}, nil
 	}
 	return nil, errors.New("Unknown error: " + string(rawJSON))
+}
+
+func parseDuration(duration string) int64 {
+	var (
+		hIndex = 1
+		mIndex = 1
+		hour   = 0
+		minute = 0
+		second = 0
+	)
+
+	for i, ch := range duration {
+		if ch == 'H' {
+			hIndex = i
+			hour, _ = strconv.Atoi(duration[2:hIndex])
+		} else if ch == 'M' {
+			mIndex = i
+			minute, _ = strconv.Atoi(duration[hIndex+1 : mIndex])
+		} else if ch == 'S' {
+			second, _ = strconv.Atoi(duration[mIndex+1 : i])
+		}
+	}
+
+	return int64(hour*3600 + minute*60 + second)
 }
