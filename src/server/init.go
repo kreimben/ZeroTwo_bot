@@ -31,6 +31,7 @@ func gRPCServer() {
 	GRPCLogger.Println("gRPC Server is running on grpcPort:", fmt.Sprintf("%d", *grpcPort))
 	server := grpc.NewServer()
 	gen.RegisterDiscordServer(server, &discordServer{})
+	gen.RegisterPlayServiceServer(server, &playerServer{})
 	if err := server.Serve(lis); err != nil {
 		log.Fatalf("failed to serve: %v", err)
 	}
