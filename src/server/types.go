@@ -29,3 +29,7 @@ type discordUserInfo struct {
 	Avatar        string `json:"avatar"`
 	Discriminator string `json:"discriminator"`
 }
+
+type playerServer struct {
+	gen.UnimplementedPlayerServer
+}
