@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/bwmarrin/discordgo"
 	"github.com/kreimben/ZeroTwo_bot/src/discord/commands"
-	"github.com/wader/goutubedl"
 	"log"
 	"os"
 )
@@ -43,9 +42,6 @@ func DiscordInit() {
 		log.Println("Guild ID: " + guildId)
 		log.Println("Debug mode: " + os.Getenv("DEBUG"))
 	}
-
-	// Set youtube-dl path
-	goutubedl.Path = os.Getenv("YT_DL_PATH")
 
 	// Register commands
 	commands.RegisterHey(DiscordSession, guildId)

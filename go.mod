@@ -6,7 +6,6 @@ require (
 	github.com/bwmarrin/discordgo v0.27.1
 	github.com/joho/godotenv v1.5.1
 	github.com/kkdai/youtube/v2 v2.7.18
-	github.com/wader/goutubedl v0.0.0-20230308160835-387cad2e2c23
 	google.golang.org/grpc v1.54.0
 	google.golang.org/protobuf v1.30.0
 	gopkg.in/hraban/opus.v2 v2.0.0-20220302220929-eeacdbcb92d0
