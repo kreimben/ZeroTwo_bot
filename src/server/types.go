@@ -31,5 +31,5 @@ type discordUserInfo struct {
 }
 
 type playerServer struct {
-	gen.UnimplementedPlayerServer
+	gen.UnimplementedPlayServiceServer
 }

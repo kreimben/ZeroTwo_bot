@@ -8,7 +8,7 @@ import (
 )
 
 func (p *playerServer) Search(_ context.Context, req *gen.SearchRequest) (*gen.SearchResponse, error) {
-	//arr := make([]*gen.VideoInfo, len(results.Items))
+	arr := make([]*gen.VideoInfo, 0)
 	//for _, item := range results.Items {
 	//	arr = append(arr, &gen.VideoInfo{
 	//		Title:        item.Title,
