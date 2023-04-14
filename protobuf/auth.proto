@@ -3,7 +3,7 @@ syntax = "proto3";
 package discord;
 
 
-option go_package = "/discord_oauth";
+option go_package = "/protobuf_gen";
 
 service Discord {
   rpc GetOAuthUrl (GetOAuthUrlRequest) returns (GetOAuthUrlResponse) {}

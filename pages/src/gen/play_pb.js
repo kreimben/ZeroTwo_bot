@@ -507,7 +507,8 @@ proto.play.SearchRequest.prototype.toObject = function(opt_includeInstance) {
 proto.play.SearchRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
     keyword: jspb.Message.getFieldWithDefault(msg, 1, ""),
-    url: jspb.Message.getFieldWithDefault(msg, 2, "")
+    url: jspb.Message.getFieldWithDefault(msg, 2, ""),
+    amount: jspb.Message.getFieldWithDefault(msg, 3, 0)
   };
 
   if (includeInstance) {
@@ -552,6 +553,10 @@ proto.play.SearchRequest.deserializeBinaryFromReader = function(msg, reader) {
       var value = /** @type {string} */ (reader.readString());
       msg.setUrl(value);
       break;
+    case 3:
+      var value = /** @type {number} */ (reader.readUint32());
+      msg.setAmount(value);
+      break;
     default:
       reader.skipField();
       break;
@@ -592,6 +597,13 @@ proto.play.SearchRequest.serializeBinaryToWriter = function(message, writer) {
   if (f != null) {
     writer.writeString(
       2,
+      f
+    );
+  }
+  f = message.getAmount();
+  if (f !== 0) {
+    writer.writeUint32(
+      3,
       f
     );
   }
@@ -670,6 +682,24 @@ proto.play.SearchRequest.prototype.hasUrl = function() {
 };
 
 
+/**
+ * optional uint32 amount = 3;
+ * @return {number}
+ */
+proto.play.SearchRequest.prototype.getAmount = function() {
+  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 3, 0));
+};
+
+
+/**
+ * @param {number} value
+ * @return {!proto.play.SearchRequest} returns this
+ */
+proto.play.SearchRequest.prototype.setAmount = function(value) {
+  return jspb.Message.setProto3IntField(this, 3, value);
+};
+
+
 
 /**
  * List of repeated fields within this message type.
@@ -709,7 +739,8 @@ proto.play.SearchResponse.prototype.toObject = function(opt_includeInstance) {
  */
 proto.play.SearchResponse.toObject = function(includeInstance, msg) {
   var f, obj = {
-    videoinfoList: (f = jspb.Message.getRepeatedField(msg, 1)) == null ? undefined : f
+    videoinfoList: jspb.Message.toObjectList(msg.getVideoinfoList(),
+    proto.play.VideoInfo.toObject, includeInstance)
   };
 
   if (includeInstance) {
@@ -747,7 +778,8 @@ proto.play.SearchResponse.deserializeBinaryFromReader = function(msg, reader) {
     var field = reader.getFieldNumber();
     switch (field) {
     case 1:
-      var value = /** @type {string} */ (reader.readString());
+      var value = new proto.play.VideoInfo;
+      reader.readMessage(value,proto.play.VideoInfo.deserializeBinaryFromReader);
       msg.addVideoinfo(value);
       break;
     default:
@@ -781,39 +813,41 @@ proto.play.SearchResponse.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
   f = message.getVideoinfoList();
   if (f.length > 0) {
-    writer.writeRepeatedString(
+    writer.writeRepeatedMessage(
       1,
-      f
+      f,
+      proto.play.VideoInfo.serializeBinaryToWriter
     );
   }
 };
 
 
 /**
- * repeated string VideoInfo = 1;
- * @return {!Array<string>}
+ * repeated VideoInfo VideoInfo = 1;
+ * @return {!Array<!proto.play.VideoInfo>}
  */
 proto.play.SearchResponse.prototype.getVideoinfoList = function() {
-  return /** @type {!Array<string>} */ (jspb.Message.getRepeatedField(this, 1));
+  return /** @type{!Array<!proto.play.VideoInfo>} */ (
+    jspb.Message.getRepeatedWrapperField(this, proto.play.VideoInfo, 1));
 };
 
 
 /**
- * @param {!Array<string>} value
+ * @param {!Array<!proto.play.VideoInfo>} value
  * @return {!proto.play.SearchResponse} returns this
- */
+*/
 proto.play.SearchResponse.prototype.setVideoinfoList = function(value) {
-  return jspb.Message.setField(this, 1, value || []);
+  return jspb.Message.setRepeatedWrapperField(this, 1, value);
 };
 
 
 /**
- * @param {string} value
+ * @param {!proto.play.VideoInfo=} opt_value
  * @param {number=} opt_index
- * @return {!proto.play.SearchResponse} returns this
+ * @return {!proto.play.VideoInfo}
  */
-proto.play.SearchResponse.prototype.addVideoinfo = function(value, opt_index) {
-  return jspb.Message.addToRepeatedField(this, 1, value, opt_index);
+proto.play.SearchResponse.prototype.addVideoinfo = function(opt_value, opt_index) {
+  return jspb.Message.addToRepeatedWrapperField(this, 1, opt_value, proto.play.VideoInfo, opt_index);
 };
 
 

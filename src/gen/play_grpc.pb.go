@@ -4,7 +4,7 @@
 // - protoc             v3.20.3
 // source: play.proto
 
-package discord_play
+package protobuf_gen
 
 import (
 	context "context"

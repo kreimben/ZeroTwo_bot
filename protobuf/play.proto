@@ -4,7 +4,7 @@ package play;
 
 import "google/protobuf/duration.proto";
 
-option go_package = "/discord_play";
+option go_package = "/protobuf_gen";
 
 service PlayService {
   rpc Search (SearchRequest) returns (SearchResponse) {}
@@ -26,10 +26,11 @@ message SearchRequest {
     string keyword = 1;
     string url = 2; // that doesn't mean I can play that link directly. because it's searching with url.
   }
+  uint32 amount = 3; // amount of results.
 }
 
 message SearchResponse {
-  repeated string VideoInfo = 1; // results.
+  repeated VideoInfo VideoInfo = 1; // results.
 }
 
 message VideoInfo {

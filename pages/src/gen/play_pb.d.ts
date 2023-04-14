@@ -63,6 +63,9 @@ export class SearchRequest extends jspb.Message {
   getUrl(): string;
   setUrl(value: string): void;
 
+  getAmount(): number;
+  setAmount(value: number): void;
+
   getSearchTypeCase(): SearchRequest.SearchTypeCase;
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): SearchRequest.AsObject;
@@ -78,6 +81,7 @@ export namespace SearchRequest {
   export type AsObject = {
     keyword: string,
     url: string,
+    amount: number,
   }
 
   export enum SearchTypeCase {
@@ -89,9 +93,9 @@ export namespace SearchRequest {
 
 export class SearchResponse extends jspb.Message {
   clearVideoinfoList(): void;
-  getVideoinfoList(): Array<string>;
-  setVideoinfoList(value: Array<string>): void;
-  addVideoinfo(value: string, index?: number): string;
+  getVideoinfoList(): Array<VideoInfo>;
+  setVideoinfoList(value: Array<VideoInfo>): void;
+  addVideoinfo(value?: VideoInfo, index?: number): VideoInfo;
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): SearchResponse.AsObject;
@@ -105,7 +109,7 @@ export class SearchResponse extends jspb.Message {
 
 export namespace SearchResponse {
   export type AsObject = {
-    videoinfoList: Array<string>,
+    videoinfoList: Array<VideoInfo.AsObject>,
   }
 }
 

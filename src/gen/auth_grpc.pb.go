@@ -4,7 +4,7 @@
 // - protoc             v3.20.3
 // source: auth.proto
 
-package discord_oauth
+package protobuf_gen
 
 import (
 	context "context"
