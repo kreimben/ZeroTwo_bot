@@ -13,7 +13,6 @@ import (
 var GRPCLogger = log.New(os.Stdout, "[gRPC] ", log.LstdFlags)
 var (
 	grpcPort *int
-	//httpPort *int
 )
 
 func init() {
