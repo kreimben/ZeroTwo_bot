@@ -28,7 +28,7 @@ type PlayRequest struct {
 
 	GuildId string `protobuf:"bytes,1,opt,name=guild_id,json=guildId,proto3" json:"guild_id,omitempty"`
 	UserId  string `protobuf:"bytes,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	PlayUrl string `protobuf:"bytes,3,opt,name=play_url,json=playUrl,proto3" json:"play_url,omitempty"` // should be google domain. not youtube link.
+	PlayUrl string `protobuf:"bytes,3,opt,name=play_url,json=playUrl,proto3" json:"play_url,omitempty"` // youtube link.
 }
 
 func (x *PlayRequest) Reset() {
