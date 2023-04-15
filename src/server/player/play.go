@@ -201,7 +201,9 @@ func Resign(guildID string) {
 	}
 
 	// delete (set nil) in every variable in the struct.
-	delete(discord.SessionCredentials, Players[guildID].CredentialKey)
+	for _, key := range Players[guildID].CredentialKey {
+		delete(discord.SessionCredentials, key)
+	}
 	Players[guildID].VoiceConnection = nil
 	Players[guildID].AudioMutex = nil
 	Players[guildID].QueueMutex = nil

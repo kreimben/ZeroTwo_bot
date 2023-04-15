@@ -19,6 +19,8 @@ type Playable interface {
 	Resign()
 }
 
+// Player
+// One player per guild.
 type Player struct {
 	QueueMutex      *sync.RWMutex
 	AudioMutex      *sync.RWMutex
@@ -28,7 +30,7 @@ type Player struct {
 	StopSignal      chan string // use when need to stop player. value is guild id.
 	VoiceConnection *discordgo.VoiceConnection
 	YoutubeClient   *ytdl.Client
-	CredentialKey   string // "{guild_id}-{user_id}"
+	CredentialKey   []string // ["{guild_id}-{user_id}"]
 }
 
 type Song struct {

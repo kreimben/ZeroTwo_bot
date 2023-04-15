@@ -76,9 +76,11 @@ func (p *playerServer) Play(_ context.Context, req *gen.PlayRequest) (*gen.PlayR
 	// Fourth, play the music.
 	if _, ok := player.Players[state.GuildID]; !ok {
 		log.Println("player is gonna to be set")
-		player.Players[state.GuildID] = &player.Player{CredentialKey: string(state.GuildID + "-" + state.UserID)}
+		player.Players[state.GuildID] = &player.Player{CredentialKey: []string{string(state.GuildID + "-" + state.UserID)}}
 		player.Players[state.GuildID].Activate(join)
 		log.Println("Player activated")
+	} else {
+		player.Players[state.GuildID].CredentialKey = append(player.Players[state.GuildID].CredentialKey, string(state.GuildID+"-"+state.UserID))
 	}
 
 	go player.Players[state.GuildID].AddSongToQueue(req.GetPlayUrl(), req.GetUserId())
