@@ -3,10 +3,13 @@ package server
 import (
 	"context"
 	"github.com/golang/protobuf/ptypes/duration"
+	"github.com/kreimben/ZeroTwo_bot/src/discord/commands"
 	gen "github.com/kreimben/ZeroTwo_bot/src/gen"
+	"github.com/kreimben/ZeroTwo_bot/src/server/player"
 	"github.com/kreimben/youtube-info-extractor/video"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"log"
 )
 
 func (p *playerServer) Search(_ context.Context, req *gen.SearchRequest) (*gen.SearchResponse, error) {
@@ -46,5 +49,38 @@ func (p *playerServer) Search(_ context.Context, req *gen.SearchRequest) (*gen.S
 }
 
 func (p *playerServer) Play(_ context.Context, req *gen.PlayRequest) (*gen.PlayResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Play not implemented")
+	// Before start command, check parameters.
+	if req.GetGuildId() == "" || req.GetUserId() == "" || req.GetPlayUrl() == "" {
+		return nil, status.Errorf(codes.InvalidArgument, "Please check the parameters.")
+	}
+
+	// first, check if discordgo session is in the map.
+	// if not in the map, return error.
+	if _, ok := commands.SessionCredentials[string(req.GetGuildId()+"-"+req.GetUserId())]; !ok {
+		return nil, status.Errorf(codes.Unavailable, "Please hit the command `/hey` first.")
+	}
+
+	// Second, check user is in the voice channel.
+	session := commands.SessionCredentials[string(req.GetGuildId()+"-"+req.GetUserId())]
+	state, err := session.State.VoiceState(req.GetGuildId(), req.GetUserId())
+	if err != nil {
+		return nil, status.Errorf(codes.Unavailable, "Please join the voice channel first.")
+	}
+
+	// Third, join the voice channel.
+	join, err := session.ChannelVoiceJoin(state.GuildID, state.ChannelID, false, false)
+	if err != nil {
+		return nil, status.Errorf(codes.Unavailable, "I can't join the voice channel in some unknown reason.")
+	}
+
+	// Fourth, play the music.
+	if _, ok := player.Players[state.GuildID]; !ok {
+		log.Println("player is gonna to be set")
+		player.Players[state.GuildID] = &player.Player{}
+		player.Players[state.GuildID].Activate(join)
+		log.Println("Player activated")
+	}
+
+	go player.Players[state.GuildID].AddSongToQueue(req.GetPlayUrl(), req.GetUserId())
+	return &gen.PlayResponse{Message: "No hurdle now."}, nil
 }
