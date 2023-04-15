@@ -1,4 +1,4 @@
-package commands
+package discord
 
 import (
 	"fmt"
@@ -16,10 +16,6 @@ var (
 		Name:        heyName,
 		Description: "Responds with a link to the website for controlling the bot / 봇을 제어할 수 있는 웹사이트를 제공합니다.",
 	}
-	// SessionCredentials
-	// map["{guild_id}-{user_id}"]discordSession.
-	// need to be cleared when the bot is disconnected from the voice channel.
-	SessionCredentials map[string]*discordgo.Session
 )
 
 func heyHandler(s *discordgo.Session, i *discordgo.InteractionCreate) {
@@ -50,8 +46,6 @@ func heyHandler(s *discordgo.Session, i *discordgo.InteractionCreate) {
 }
 
 func RegisterHey(session *discordgo.Session, guildId string) {
-	SessionCredentials = make(map[string]*discordgo.Session)
-
 	log.Println("Registering hey command")
 	// Register commands
 	_, heyErr := session.ApplicationCommandCreate(os.Getenv("CLIENT_ID"), guildId, heyCommand)
