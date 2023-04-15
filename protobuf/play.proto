@@ -22,8 +22,9 @@ message PlayResponse {
 }
 
 message SearchRequest {
-  oneof search_type {// search youtube video with keyword or url.
-    string keyword = 1;
+  // search youtube video with keyword or url.
+  oneof search_type {
+    string keyword = 1; // If input keyword and url both, url will be ignored.
     string url = 2; // that doesn't mean I can play that link directly. because it's searching with url.
   }
   uint32 amount = 3; // amount of results.

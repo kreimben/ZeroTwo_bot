@@ -136,6 +136,8 @@ type SearchRequest struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
+	// search youtube video with keyword or url.
+	//
 	// Types that are assignable to SearchType:
 	//
 	//	*SearchRequest_Keyword
@@ -209,7 +211,7 @@ type isSearchRequest_SearchType interface {
 }
 
 type SearchRequest_Keyword struct {
-	Keyword string `protobuf:"bytes,1,opt,name=keyword,proto3,oneof"`
+	Keyword string `protobuf:"bytes,1,opt,name=keyword,proto3,oneof"` // If input keyword and url both, url will be ignored.
 }
 
 type SearchRequest_Url struct {
