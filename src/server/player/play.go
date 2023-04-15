@@ -32,12 +32,12 @@ func (p *Player) Activate(vc *discordgo.VoiceConnection) {
 
 	opusEncoder, err = opus.NewEncoder(audioFrameRate, audioChannels, opus.AppAudio)
 	if err != nil {
-		log.Println("An error occured with initializing the OpusEncoder, error: ", err)
+		log.Println("An error occurred with initializing the OpusEncoder, error: ", err)
 	}
 
 	err = opusEncoder.SetBitrate(audioBitrate)
 	if err != nil {
-		log.Println("An error occured with setting the bitrate, error: ", err)
+		log.Println("An error occurred with setting the bitrate, error: ", err)
 		return
 	}
 
