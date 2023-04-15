@@ -56,12 +56,12 @@ func (p *playerServer) Play(_ context.Context, req *gen.PlayRequest) (*gen.PlayR
 
 	// first, check if discordgo session is in the map.
 	// if not in the map, return error.
-	if _, ok := commands.SessionCredentials[string(req.GetGuildId()+"-"+req.GetUserId())]; !ok {
+	if _, ok := discord.SessionCredentials[string(req.GetGuildId()+"-"+req.GetUserId())]; !ok {
 		return nil, status.Errorf(codes.Unavailable, "Please hit the command `/hey` first.")
 	}
 
 	// Second, check user is in the voice channel.
-	session := commands.SessionCredentials[string(req.GetGuildId()+"-"+req.GetUserId())]
+	session := discord.SessionCredentials[string(req.GetGuildId()+"-"+req.GetUserId())]
 	state, err := session.State.VoiceState(req.GetGuildId(), req.GetUserId())
 	if err != nil {
 		return nil, status.Errorf(codes.Unavailable, "Please join the voice channel first.")
