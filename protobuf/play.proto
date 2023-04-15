@@ -14,7 +14,7 @@ service PlayService {
 message PlayRequest {
   string guild_id = 1;
   string user_id = 2;
-  string play_url = 3; // should be google domain. not youtube link.
+  string play_url = 3; // youtube link.
 }
 
 message PlayResponse {
