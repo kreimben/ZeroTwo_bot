@@ -3,7 +3,7 @@ package commands
 import (
 	"fmt"
 	"github.com/bwmarrin/discordgo"
-	"github.com/kreimben/ZeroTwo_bot/src/discord/player"
+	"github.com/kreimben/ZeroTwo_bot/src/server/player"
 	"log"
 	"os"
 )
