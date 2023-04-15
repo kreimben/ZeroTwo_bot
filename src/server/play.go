@@ -3,7 +3,7 @@ package server
 import (
 	"context"
 	"github.com/golang/protobuf/ptypes/duration"
-	"github.com/kreimben/ZeroTwo_bot/src/discord/commands"
+	"github.com/kreimben/ZeroTwo_bot/src/discord"
 	gen "github.com/kreimben/ZeroTwo_bot/src/gen"
 	"github.com/kreimben/ZeroTwo_bot/src/server/player"
 	"github.com/kreimben/youtube-info-extractor/video"
@@ -82,5 +82,5 @@ func (p *playerServer) Play(_ context.Context, req *gen.PlayRequest) (*gen.PlayR
 	}
 
 	go player.Players[state.GuildID].AddSongToQueue(req.GetPlayUrl(), req.GetUserId())
-	return &gen.PlayResponse{Message: "No hurdle now."}, nil
+	return &gen.PlayResponse{Message: "Seems to no problem."}, nil
 }

@@ -40,13 +40,13 @@ var (
 	opusEncoder *opus.Encoder
 )
 
-// Play reads from the converted opus file, then sends it to the voice connection
+// _play reads from the converted opus file, then sends it to the voice connection
 // get only id of video. not search keyword or anything else.
-func (p *Player) Play() {
-	if len(p.queue) == 0 {
+func (p *Player) _play() {
+	if len(p.MusicQueue) == 0 {
 		return
 	}
-	videoId := p.queue[0].Base.ID
+	videoId := p.MusicQueue[0].Base.ID
 	decoder := bytes.NewBuffer(nil)
 
 	// Create the FFmpeg command
@@ -117,7 +117,7 @@ func (p *Player) Play() {
 		}
 	}(ffmpegCmd)
 
-	for p.voiceConnection != nil {
+	for p.VoiceConnection != nil {
 		buf := make([]int16, originalMaxBytes)
 
 		err := binary.Read(decoder, binary.LittleEndian, &buf)
@@ -133,7 +133,7 @@ func (p *Player) Play() {
 
 		num, err := opusEncoder.Encode(buf, o)
 		if err == nil && num > 0 {
-			p.voiceConnection.OpusSend <- o[:num]
+			p.VoiceConnection.OpusSend <- o[:num]
 		} else {
 			break
 		}
@@ -144,23 +144,23 @@ func (p *Player) afterEOF(err error) {
 	// Okay! There's nothing left, time to quit.
 	log.Println("song is end: ", err)
 
-	// if not repeat mode, remove song from queue
-	if len(p.queue) > 0 && !p.isRepeat {
-		p.queue = p.queue[1:]
-		log.Println("Removed played song from queue")
+	// if not repeat mode, remove song from MusicQueue
+	if len(p.MusicQueue) > 0 && !p.IsRepeat {
+		p.MusicQueue = p.MusicQueue[1:]
+		log.Println("Removed played song from MusicQueue")
 	}
 
-	// print queue
-	log.Println("queue in after EOF: ", p.queue)
+	// print MusicQueue
+	log.Println("MusicQueue in after EOF: ", p.MusicQueue)
 
-	if len(p.queue) == 0 {
-		p.stopSignal <- p.voiceConnection.GuildID
+	if len(p.MusicQueue) == 0 {
+		p.StopSignal <- p.VoiceConnection.GuildID
 		log.Println("Sent stop signal")
 	} else {
-		p.audioMutex.Unlock()
-		log.Println("unlock audioMutex in main loop")
+		p.AudioMutex.Unlock()
+		log.Println("unlock AudioMutex in main loop")
 
-		p.playSignal <- true
+		p.PlaySignal <- true
 		log.Println("Sent play signal (play next song!)")
 	}
 }

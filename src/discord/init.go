@@ -3,7 +3,6 @@ package discord
 import (
 	"fmt"
 	"github.com/bwmarrin/discordgo"
-	"github.com/kreimben/ZeroTwo_bot/src/discord/commands"
 	"log"
 	"os"
 )
@@ -11,6 +10,10 @@ import (
 var (
 	DiscordSession *discordgo.Session
 	err            error
+	// SessionCredentials
+	// map["{guild_id}-{user_id}"]discordSession.
+	// need to be cleared when the bot is disconnected from the voice channel.
+	SessionCredentials = make(map[string]*discordgo.Session)
 )
 
 func DiscordInit() {
@@ -44,7 +47,7 @@ func DiscordInit() {
 	}
 
 	// Register commands
-	commands.RegisterHey(DiscordSession, guildId)
+	RegisterHey(DiscordSession, guildId)
 	//commands.RegisterDance(DiscordSession, guildId)
 	//commands.RegisterVersion(DiscordSession, guildId)
 	//commands.RegisterTest(DiscordSession, guildId) // Just test for playing music

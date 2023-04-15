@@ -20,14 +20,15 @@ type Playable interface {
 }
 
 type Player struct {
-	queueMutex      *sync.RWMutex
-	audioMutex      *sync.RWMutex
-	queue           []*Song
-	isRepeat        bool
-	playSignal      chan bool   // use when need to play next song.
-	stopSignal      chan string // use when need to stop player. value is guild id.
-	voiceConnection *discordgo.VoiceConnection
-	youtubeClient   *ytdl.Client
+	QueueMutex      *sync.RWMutex
+	AudioMutex      *sync.RWMutex
+	MusicQueue      []*Song
+	IsRepeat        bool
+	PlaySignal      chan bool   // use when need to play next song.
+	StopSignal      chan string // use when need to stop player. value is guild id.
+	VoiceConnection *discordgo.VoiceConnection
+	YoutubeClient   *ytdl.Client
+	CredentialKey   string // "{guild_id}-{user_id}"
 }
 
 type Song struct {

@@ -4,6 +4,7 @@ import (
 	"errors"
 	"github.com/bwmarrin/discordgo"
 	ytdl "github.com/kkdai/youtube/v2"
+	"github.com/kreimben/ZeroTwo_bot/src/discord"
 	"gopkg.in/hraban/opus.v2"
 	"log"
 	"math/rand"
@@ -15,17 +16,17 @@ import (
 // run before AddSongToQueue()
 func (p *Player) Activate(vc *discordgo.VoiceConnection) {
 	// set mutex
-	p.audioMutex = &sync.RWMutex{}
-	p.queueMutex = &sync.RWMutex{}
+	p.AudioMutex = &sync.RWMutex{}
+	p.QueueMutex = &sync.RWMutex{}
 
-	p.queueMutex.Lock()
-	defer p.queueMutex.Unlock()
-	p.isRepeat = false
-	p.queue = make([]*Song, 0)
-	p.playSignal = make(chan bool)
-	p.stopSignal = make(chan string)
-	p.voiceConnection = vc
-	p.youtubeClient = &ytdl.Client{Debug: os.Getenv("DEBUG") == "true"}
+	p.QueueMutex.Lock()
+	defer p.QueueMutex.Unlock()
+	p.IsRepeat = false
+	p.MusicQueue = make([]*Song, 0)
+	p.PlaySignal = make(chan bool)
+	p.StopSignal = make(chan string)
+	p.VoiceConnection = vc
+	p.YoutubeClient = &ytdl.Client{Debug: os.Getenv("DEBUG") == "true"}
 
 	var err error = nil
 
@@ -43,171 +44,171 @@ func (p *Player) Activate(vc *discordgo.VoiceConnection) {
 	go func() {
 		for {
 			select {
-			case guildId := <-p.stopSignal:
-				log.Println("Got stopSignal")
+			case guildId := <-p.StopSignal:
+				log.Println("Got StopSignal")
 				Resign(guildId)
 				log.Println("Resigned")
 				return
-			case <-p.playSignal:
-				log.Println("Got playSignal")
+			case <-p.PlaySignal:
+				log.Println("Got PlaySignal")
 
-				p.audioMutex.Lock()
-				log.Println("lock audioMutex")
+				p.AudioMutex.Lock()
+				log.Println("lock AudioMutex")
 
-				// skip to 1st song in queue
-				p.queueMutex.Lock()
-				log.Println("lock queueMutex in main loop")
+				// skip to 1st song in MusicQueue
+				p.QueueMutex.Lock()
+				log.Println("lock QueueMutex in main loop")
 
-				go p.Play()
+				go p._play()
 
-				p.queueMutex.Unlock()
-				log.Println("unlock queueMutex in main loop")
+				p.QueueMutex.Unlock()
+				log.Println("unlock QueueMutex in main loop")
 			}
 		}
 	}()
 }
 
 // AddSongToQueue
-// Add a song to the queue.
+// Add a song to the MusicQueue.
 // Use after Activate().
 func (p *Player) AddSongToQueue(url string, applicant string) {
 	log.Println("\nAddSongToQueue called")
 
-	p.queueMutex.Lock()
-	log.Println("lock queue mutex")
+	p.QueueMutex.Lock()
+	log.Println("lock MusicQueue mutex")
 
 	log.Println("before GetVideo in AddSongToQueue")
-	base, err := p.youtubeClient.GetVideo(url)
+	base, err := p.YoutubeClient.GetVideo(url)
 	if err != nil {
 		log.Println("An error occurred with getting the video, error: ", err)
 		return
 	}
 
-	log.Println("before append song to queue in AddSongToQueue")
-	p.queue = append(p.queue, &Song{
+	log.Println("before append song to MusicQueue in AddSongToQueue")
+	p.MusicQueue = append(p.MusicQueue, &Song{
 		Base:      base,
 		Applicant: applicant,
 	})
-	log.Println("queue:", p.queue)
+	log.Println("MusicQueue:", p.MusicQueue)
 
-	p.queueMutex.Unlock()
-	log.Println("unlock queue mutex in AddSongToQueue")
+	p.QueueMutex.Unlock()
+	log.Println("unlock MusicQueue mutex in AddSongToQueue")
 
-	p.playSignal <- true
-	log.Println("playSignal sent")
+	p.PlaySignal <- true
+	log.Println("PlaySignal sent")
 
 	return
 }
 
 func (p *Player) ClearQueue() error {
-	p.queueMutex.Lock()
-	defer p.queueMutex.Unlock()
-	p.queue = nil
+	p.QueueMutex.Lock()
+	defer p.QueueMutex.Unlock()
+	p.MusicQueue = nil
 	return nil
 }
 
 func (p *Player) Pause() error {
-	p.audioMutex.Lock()
+	p.AudioMutex.Lock()
 	return nil
 }
 
 func (p *Player) Resume() error {
-	p.audioMutex.Unlock()
+	p.AudioMutex.Unlock()
 	return nil
 }
 
 // Skip skipIndex is the number of songs to skip.
 // Start from 1.
-// If skipIndex is greater than the queue size, just go to the final song.
+// If skipIndex is greater than the MusicQueue size, just go to the final song.
 func (p *Player) Skip(skipIndex uint) error {
-	p.queueMutex.Lock()
-	defer p.queueMutex.Unlock()
-	if p.queue == nil || len(p.queue) == 0 {
-		return errors.New("nothing in the queue")
-	} else if skipIndex > uint(len(p.queue)) {
-		// just go to final song in current queue
-		p.queue = p.queue[len(p.queue)-1:]
+	p.QueueMutex.Lock()
+	defer p.QueueMutex.Unlock()
+	if p.MusicQueue == nil || len(p.MusicQueue) == 0 {
+		return errors.New("nothing in the MusicQueue")
+	} else if skipIndex > uint(len(p.MusicQueue)) {
+		// just go to final song in current MusicQueue
+		p.MusicQueue = p.MusicQueue[len(p.MusicQueue)-1:]
 		return nil
 	} else {
 		// index start from 1
-		p.queue = p.queue[skipIndex:]
+		p.MusicQueue = p.MusicQueue[skipIndex:]
 		return nil
 	}
 }
 
 // Repeat toggle repeat mode.
 func (p *Player) Repeat() bool {
-	p.isRepeat = !p.isRepeat
-	return p.isRepeat
+	p.IsRepeat = !p.IsRepeat
+	return p.IsRepeat
 }
 
 // RemoveAt remove the song at index.
-// index range 1 to queue size.
+// index range 1 to MusicQueue size.
 func (p *Player) RemoveAt(index uint) error {
-	p.queueMutex.Lock()
-	defer p.queueMutex.Unlock()
-	if p.queue == nil {
-		return errors.New("nothing in the queue")
-	} else if index > uint(len(p.queue)) {
-		// Just remove the last song in the queue.
-		p.queue = p.queue[:len(p.queue)-1]
+	p.QueueMutex.Lock()
+	defer p.QueueMutex.Unlock()
+	if p.MusicQueue == nil {
+		return errors.New("nothing in the MusicQueue")
+	} else if index > uint(len(p.MusicQueue)) {
+		// Just remove the last song in the MusicQueue.
+		p.MusicQueue = p.MusicQueue[:len(p.MusicQueue)-1]
 		return nil
 	} else {
 		// index start from 1
-		p.queue = append(p.queue[:index-1], p.queue[index:]...)
+		p.MusicQueue = append(p.MusicQueue[:index-1], p.MusicQueue[index:]...)
 		return nil
 	}
 }
 
-// Queue get current queue.
+// Queue get current MusicQueue.
 func (p *Player) Queue() ([]*Song, error) {
-	p.queueMutex.Lock()
-	defer p.queueMutex.Unlock()
-	if p.queue == nil {
-		return nil, errors.New("nothing in the queue")
+	p.QueueMutex.Lock()
+	defer p.QueueMutex.Unlock()
+	if p.MusicQueue == nil {
+		return nil, errors.New("nothing in the MusicQueue")
 	} else {
-		return p.queue, nil
+		return p.MusicQueue, nil
 	}
 }
 
 // NowPlaying get the song that is currently playing.
 func (p *Player) NowPlaying() (*Song, error) {
-	if p.queue == nil || len(p.queue) == 0 {
-		return nil, errors.New("nothing in the queue")
+	if p.MusicQueue == nil || len(p.MusicQueue) == 0 {
+		return nil, errors.New("nothing in the MusicQueue")
 	} else {
-		return p.queue[0], nil
+		return p.MusicQueue[0], nil
 	}
 }
 
-// MakeShuffle shuffle the queue.
+// MakeShuffle shuffle the MusicQueue.
 func (p *Player) MakeShuffle() error {
-	// Just shuffle the queue.
-	p.queueMutex.Lock()
-	defer p.queueMutex.RUnlock()
+	// Just shuffle the MusicQueue.
+	p.QueueMutex.Lock()
+	defer p.QueueMutex.RUnlock()
 	// https://stackoverflow.com/questions/12264789/shuffle-array-in-go
-	for i := range p.queue {
+	for i := range p.MusicQueue {
 		j := rand.Intn(i + 1)
-		p.queue[i], p.queue[j] = p.queue[j], p.queue[i]
+		p.MusicQueue[i], p.MusicQueue[j] = p.MusicQueue[j], p.MusicQueue[i]
 	}
 	return nil
 }
 
 func Resign(guildID string) {
-	err := Players[guildID].voiceConnection.Disconnect()
+	err := Players[guildID].VoiceConnection.Disconnect()
 	if err != nil {
 		log.Println("An error occured with disconnecting the voice connection, error: ", err)
 		return
 	}
 
 	// delete (set nil) in every variable in the struct.
-	Players[guildID].voiceConnection = nil
-	Players[guildID].audioMutex = nil
-	Players[guildID].queueMutex = nil
-	Players[guildID].playSignal = nil
-	Players[guildID].stopSignal = nil
-	Players[guildID].youtubeClient = nil
-	Players[guildID].queue = nil
-	Players[guildID].isRepeat = false
+	delete(discord.SessionCredentials, Players[guildID].CredentialKey)
+	Players[guildID].VoiceConnection = nil
+	Players[guildID].AudioMutex = nil
+	Players[guildID].QueueMutex = nil
+	Players[guildID].PlaySignal = nil
+	Players[guildID].StopSignal = nil
+	Players[guildID].YoutubeClient = nil
+	Players[guildID].MusicQueue = nil
 
 	Players[guildID] = nil
 
