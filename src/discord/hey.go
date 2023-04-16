@@ -19,6 +19,7 @@ var (
 )
 
 func heyHandler(s *discordgo.Session, i *discordgo.InteractionCreate) {
+	log.Println("heyHandler called")
 	// update session credentials
 	SessionCredentials[string(i.GuildID+"-"+i.Member.User.ID)] = s
 
