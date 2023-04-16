@@ -1,59 +1,62 @@
 import {useEffect, useState} from "react";
+import {useSearchParams} from "react-router-dom";
 import {ValidateGuildId} from "../api/ValidateGuildId";
 import {ValidateUserId} from "../api/ValidateUserId";
 import {ValidateUserIdResponse} from "../gen/auth_pb";
+import {SearchView} from "./SearchView";
 
 export const Connect = () => {
     const [validGuild, setValidGuild] = useState<boolean | null>(null);
     const [validUser, setValidUser] = useState<boolean | null>(null);
 
+    const [guildId, setGuildId] = useState<string>("");
+    const [userId, setUserId] = useState<string>("");
+
+    const [params, setParams] = useSearchParams();
+
     const is_valid_guild = (guildId: string) => {
         ValidateGuildId(guildId, (msg) => {
             // console.log(`valid guild: ${msg}`);
-            setValidGuild(msg.getIsValid())
+            setValidGuild(true)
         }, (err) => {
-            // console.log(`invalid guild: ${err}`);
-            setValidGuild(false);
+            console.error(`invalid guild: ${err}`);
+            // setValidGuild(false);
         });
     }
 
     const is_valid_user_in_guild = (guild_id: string, user_id: string) => {
         ValidateUserId(guild_id, user_id, (msg: ValidateUserIdResponse) => {
             // console.log(`valid user in guild: ${msg}`);
-            setValidUser(msg.getIsValid());
+            setValidUser(true);
         }, (err) => {
-            // console.log(`invalid user in guild: ${err}`);
-            setValidUser(false);
+            console.error(`invalid user in guild: ${err}`);
+            // setValidUser(false);
         });
     }
 
     useEffect(() => {
-        // get the url params if not redirect to home
-        const params = new URLSearchParams(window.location.search);
-        if (!(params.has("guild_id") && params.has("user_id"))) {
-            window.location.href = "/";
-        } else {
-            const guild_id = params.get("guild_id");
-            const user_id = params.get("user_id");
-            is_valid_guild(guild_id);
-            is_valid_user_in_guild(guild_id, user_id);
-        }
+        // console.log(`before set guild_id: ${params.get("guild_id")} user_id: ${params.get("user_id")}`)
+        setGuildId(params.get("guild_id"));
+        setUserId(params.get("user_id"));
     }, []);
 
     useEffect(() => {
-        if (validGuild === true && validUser === true) {
-            // console.log('valid!');
-        } else if (validGuild === false || validUser === false) {
-            // console.log('invalid!');
-            // redirect to home.
-            window.location.href = "/";
-        }
-    }, [validGuild, validUser]);
+        // console.log(`guild id: ${guildId} ${params.get("guild_id")}`)
+        if (params.get("guild_id") !== "") is_valid_guild(params.get("guild_id"));
+    }, [validGuild]);
+
+    useEffect(() => {
+        // console.log(`user id: ${userId} ${params.get("user_id")}`)
+        if (params.get("guild_id") !== "" && params.get("user_id") !== "") is_valid_user_in_guild(params.get("guild_id"), params.get("user_id"));
+    }, [validUser]);
 
     return (
         <div>
-            <h1>Connect</h1>
-            <p>Play music</p>
+            {
+                validGuild === true && validUser === true ?
+                    <SearchView guildId={guildId} userId={userId}/> :
+                    <h1>Please wait...</h1>
+            }
         </div>
     )
 }
