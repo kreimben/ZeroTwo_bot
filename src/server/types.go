@@ -33,3 +33,7 @@ type discordUserInfo struct {
 type playerServer struct {
 	gen.UnimplementedPlayServiceServer
 }
+
+type voiceChannelServer struct {
+	gen.UnimplementedVoiceChannelServiceServer
+}
