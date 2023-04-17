@@ -26,6 +26,13 @@ func DiscordInit() {
 	// set all intents.
 	DiscordSession.Identify.Intents = discordgo.MakeIntent(discordgo.IntentsAll)
 
+	// Enable State tracking.
+	DiscordSession.StateEnabled = true
+	DiscordSession.State.TrackChannels = true
+	DiscordSession.State.TrackMembers = true
+	DiscordSession.State.TrackVoice = true
+	DiscordSession.State.TrackPresences = true
+
 	//discord.AddHandler(messageCreate)
 	DiscordSession.AddHandler(func(s *discordgo.Session, r *discordgo.Ready) {
 		log.Printf("Logged in as: %v#%v\n", r.User.Username, r.User.Discriminator)
