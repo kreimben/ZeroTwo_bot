@@ -10,7 +10,7 @@ export const ValidateGuildId = (guildId: string, completion: (msg: ValidateGuild
     grpc.unary(Discord.ValidateGuildId, {
         request: req,
         host: host,
-        onEnd: (res: UnaryOutput<ValidateUserIdResponse>) => {
+        onEnd: (res: UnaryOutput<ValidateGuildIdResponse>) => {
             const {status, statusMessage, headers, message, trailers} = res;
             if (status === grpc.Code.OK && message) {
                 completion(message);
