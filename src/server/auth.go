@@ -97,12 +97,16 @@ func (s *discordServer) GetMyInfo(_ context.Context, req *gen.GetMyInfoRequest) 
 func (s *discordServer) ValidateGuildId(_ context.Context, req *gen.ValidateGuildIdRequest) (*gen.ValidateGuildIdResponse, error) {
 	// validate guild id.
 	GRPCLogger.Println("ValidateGuildId: " + req.String())
-	_, err := discord.DiscordSession.Guild(req.GuildId)
+	guild, err := discord.DiscordSession.Guild(req.GuildId)
 	if err != nil {
 		return nil, err
 	} else {
 		return &gen.ValidateGuildIdResponse{
-			IsValid: true,
+			GuildInfo: &gen.DiscordGuild{
+				GuildId:   guild.ID,
+				GuildName: guild.Name,
+				Icon:      guild.Icon,
+			},
 		}, nil
 	}
 }
