@@ -1,0 +1,41 @@
+syntax = "proto3";
+
+package queue;
+
+option go_package = "/protobuf_gen";
+
+/**
+  * VoiceChannelService is the service that handles voice channel related requests.
+  * It is used to track where a user is in the voice channel.
+  */
+service VoiceChannelService {
+  // response whenever the user changes channel.
+  // Client should use this rpc to update the user's current channel per 5 seconds.
+  rpc WhereAmI (WhereAmIRequest) returns (WhereAmIResponse) {}
+}
+
+message WhereAmIRequest {
+  string user_id = 1;
+  string guild_id = 2;
+}
+
+message WhereAmIResponse {
+  ChannelInfo channel = 1;
+}
+
+message ChannelInfo {
+  string channel_id = 1;
+  string channel_name = 2;
+  uint64 bitrate = 3;
+  repeated MemberInfo members = 4; // Who is in the channel.
+}
+
+/*
+  * MemberInfo is the information about a member in a voice channel.
+  * Should composite multiple responses from the Discord API.
+  */
+message MemberInfo {
+  string user_id = 1;
+  string user_name = 2;
+  string user_avatar = 3;
+}

@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package queue;
+
+option go_package = "/protobuf_gen";
+//
+//service QueueService {
+//  rpc CurrentQueue (CurrentQueueRequest) returns (CurrentQueueResponse) {}
+//  rpc RemoveSong (RemoveSongRequest) returns (RemoveSongResponse) {}
+//  rpc SkipSong (SkipSongRequest) returns (SkipSongResponse) {}
+//  rpc RepeatSong (RepeatSongRequest) returns (RepeatSongResponse) {}
+//  rpc ShuffleQueue (ShuffleQueueRequest) returns (ShuffleQueueResponse) {}
+//}
