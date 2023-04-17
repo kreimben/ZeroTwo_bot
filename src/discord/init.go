@@ -35,7 +35,7 @@ func DiscordInit() {
 
 	//discord.AddHandler(messageCreate)
 	DiscordSession.AddHandler(func(s *discordgo.Session, r *discordgo.Ready) {
-		log.Printf("Logged in as: %v#%v\n", r.User.Username, r.User.Discriminator)
+		log.Printf("[READY] Logged in as: %v#%v\n", r.User.Username, r.User.Discriminator)
 	})
 
 	// Open a websocket connection to Discord and begin listening.
