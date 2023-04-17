@@ -35,6 +35,10 @@ export const SearchView = ({guildId, userId}) => {
         Search(keyword, url, (videos) => {
             setVideos(videos.getVideoinfoList());
             setIsLoadingSearching(false);
+        }, (err) => {
+            // toast error message.
+            alert(err);
+            setIsLoadingSearching(false);
         })
     }
 
