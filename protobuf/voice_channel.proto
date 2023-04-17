@@ -11,6 +11,7 @@ option go_package = "/protobuf_gen";
 service VoiceChannelService {
   // response whenever the user changes channel.
   // Client should use this rpc to update the user's current channel per 5 seconds.
+  // If the user is not in a voice channel, the response will return `NotFound` code.
   rpc WhereAmI (WhereAmIRequest) returns (WhereAmIResponse) {}
 }
 
