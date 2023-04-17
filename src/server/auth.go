@@ -105,7 +105,7 @@ func (s *discordServer) ValidateGuildId(_ context.Context, req *gen.ValidateGuil
 			GuildInfo: &gen.DiscordGuild{
 				GuildId:   guild.ID,
 				GuildName: guild.Name,
-				Icon:      guild.Icon,
+				Icon:      guild.IconURL("128"),
 			},
 		}, nil
 	}
