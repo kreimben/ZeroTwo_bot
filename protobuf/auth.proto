@@ -75,7 +75,14 @@ message ValidateGuildIdRequest {
 }
 
 message ValidateGuildIdResponse {
-  bool is_valid = 1;
+  reserved 1;
+  DiscordGuild guild_info = 2;
+}
+
+message DiscordGuild {
+  string guild_id = 1;
+  string guild_name = 2;
+  string icon = 3;
 }
 
 message ValidateUserIdRequest {

@@ -290,8 +290,10 @@ export namespace ValidateGuildIdRequest {
 }
 
 export class ValidateGuildIdResponse extends jspb.Message {
-  getIsValid(): boolean;
-  setIsValid(value: boolean): void;
+  hasGuildInfo(): boolean;
+  clearGuildInfo(): void;
+  getGuildInfo(): DiscordGuild | undefined;
+  setGuildInfo(value?: DiscordGuild): void;
 
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): ValidateGuildIdResponse.AsObject;
@@ -305,7 +307,35 @@ export class ValidateGuildIdResponse extends jspb.Message {
 
 export namespace ValidateGuildIdResponse {
   export type AsObject = {
-    isValid: boolean,
+    guildInfo?: DiscordGuild.AsObject,
+  }
+}
+
+export class DiscordGuild extends jspb.Message {
+  getGuildId(): string;
+  setGuildId(value: string): void;
+
+  getGuildName(): string;
+  setGuildName(value: string): void;
+
+  getIcon(): string;
+  setIcon(value: string): void;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): DiscordGuild.AsObject;
+  static toObject(includeInstance: boolean, msg: DiscordGuild): DiscordGuild.AsObject;
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+  static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+  static serializeBinaryToWriter(message: DiscordGuild, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): DiscordGuild;
+  static deserializeBinaryFromReader(message: DiscordGuild, reader: jspb.BinaryReader): DiscordGuild;
+}
+
+export namespace DiscordGuild {
+  export type AsObject = {
+    guildId: string,
+    guildName: string,
+    icon: string,
   }
 }
 
