@@ -29,4 +29,10 @@ const Home = () => {
     )
 }
 
+const InfoContent = styled.div`
+  text-align: center;
+  margin-top: 16px;
+  font-size: 1.2rem;
+`;
+
 export default Home;
