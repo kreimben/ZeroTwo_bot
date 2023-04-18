@@ -25,7 +25,7 @@ const CurrentConnectedGuildInfoWrapper = styled.div`
   margin-top: 16px;
   background-color: red;
   height: 96px;
-  width: 30vw;
+  min-width: 400px;
   display: flex;
   justify-content: center;
   align-items: center;
