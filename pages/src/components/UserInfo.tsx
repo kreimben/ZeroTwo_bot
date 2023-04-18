@@ -5,7 +5,7 @@ import {GetMyInfoResponse} from "../gen/auth_pb";
 import styled from "styled-components";
 
 const UserInfo = () => {
-    const [cookies, setCookie, removeCookie] = useCookies(['discord_access_token']);
+    const [cookies, _] = useCookies(['discord_access_token']);
 
     // create useState variable for userName, userId, avatar, discriminator
     const [userName, setUserName] = useState<string>("");

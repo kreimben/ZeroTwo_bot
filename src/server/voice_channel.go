@@ -11,7 +11,6 @@ import (
 func (vs *voiceChannelServer) WhereAmI(_ context.Context, req *gen.WhereAmIRequest) (*gen.WhereAmIResponse, error) {
 	guild, err := discord.DiscordSession.State.Guild(req.GetGuildId())
 	if err != nil {
-		//log.Println("Error while getting guild info: ", err)
 		return nil, status.Errorf(codes.Internal, "Error while getting guild info: %v", err)
 	}
 

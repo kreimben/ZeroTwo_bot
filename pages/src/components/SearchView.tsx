@@ -119,12 +119,12 @@ export const SearchView = ({guildId, userId}) => {
 const SearchViewWrapper = styled.div`
   height: 64vh;
   text-align: center;
+  min-width: 300px;
 `;
 
 const VideosWrapper = styled.div`
   text-align: center;
   display: inline-flex;
-  //background-color: red;
 `;
 
 const VideoImage = styled.img`
