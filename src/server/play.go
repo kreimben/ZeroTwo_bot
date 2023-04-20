@@ -13,22 +13,28 @@ import (
 )
 
 func (p *playerServer) Search(_ context.Context, req *gen.SearchRequest) (*gen.SearchResponse, error) {
+	if req.GetAmount() <= 0 || req.GetAmount() > 10 {
+		return nil, status.Errorf(codes.InvalidArgument, "You can only search 1 to 10 videos")
+	}
+
 	videoCh := make(chan *video.Video)
 
 	if req.GetKeyword() != "" {
-		go video.SearchOneVideoKeyword(req.GetKeyword(), videoCh)
-		if v, ok := <-videoCh; ok {
-			var arr []*gen.VideoInfo
-			arr = append(arr, &gen.VideoInfo{
-				Title:        v.Title,
-				Url:          string("https://youtube.com/watch?v=" + v.Id),
-				ThumbnailUrl: v.ThumbnailUrl,
-				Duration:     &duration.Duration{Seconds: int64(v.Duration)},
-			})
-			return &gen.SearchResponse{VideoInfo: arr}, nil
-		} else { // that means not ok.
-			return nil, status.Errorf(codes.NotFound, "no video found")
+		go video.SearchVideoKeyword(req.GetKeyword(), int(req.GetAmount()), videoCh)
+		var arr []*gen.VideoInfo
+		for i := 0; i < int(req.GetAmount()); i++ {
+			if v, ok := <-videoCh; ok {
+				arr = append(arr, &gen.VideoInfo{
+					Title:        v.Title,
+					Url:          string("https://youtube.com/watch?v=" + v.Id),
+					ThumbnailUrl: v.ThumbnailUrl,
+					Duration:     &duration.Duration{Seconds: int64(v.Duration)},
+				})
+			} else { // that means not ok.
+				return nil, status.Errorf(codes.NotFound, "no video found")
+			}
 		}
+		return &gen.SearchResponse{VideoInfo: arr}, nil
 	} else if req.GetUrl() != "" {
 		go video.SearchOneVideoUrl(req.GetUrl(), videoCh)
 		if v, ok := <-videoCh; ok {
