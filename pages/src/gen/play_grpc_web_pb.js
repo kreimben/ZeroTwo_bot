@@ -198,5 +198,127 @@ proto.play.PlayServicePromiseClient.prototype.play =
 };
 
 
+/**
+ * @const
+ * @type {!grpc.web.MethodDescriptor<
+ *   !proto.play.PauseRequest,
+ *   !proto.play.PauseResponse>}
+ */
+const methodDescriptor_PlayService_Pause = new grpc.web.MethodDescriptor(
+  '/play.PlayService/Pause',
+  grpc.web.MethodType.UNARY,
+  proto.play.PauseRequest,
+  proto.play.PauseResponse,
+  /**
+   * @param {!proto.play.PauseRequest} request
+   * @return {!Uint8Array}
+   */
+  function(request) {
+    return request.serializeBinary();
+  },
+  proto.play.PauseResponse.deserializeBinary
+);
+
+
+/**
+ * @param {!proto.play.PauseRequest} request The
+ *     request proto
+ * @param {?Object<string, string>} metadata User defined
+ *     call metadata
+ * @param {function(?grpc.web.RpcError, ?proto.play.PauseResponse)}
+ *     callback The callback function(error, response)
+ * @return {!grpc.web.ClientReadableStream<!proto.play.PauseResponse>|undefined}
+ *     The XHR Node Readable Stream
+ */
+proto.play.PlayServiceClient.prototype.pause =
+    function(request, metadata, callback) {
+  return this.client_.rpcCall(this.hostname_ +
+      '/play.PlayService/Pause',
+      request,
+      metadata || {},
+      methodDescriptor_PlayService_Pause,
+      callback);
+};
+
+
+/**
+ * @param {!proto.play.PauseRequest} request The
+ *     request proto
+ * @param {?Object<string, string>=} metadata User defined
+ *     call metadata
+ * @return {!Promise<!proto.play.PauseResponse>}
+ *     Promise that resolves to the response
+ */
+proto.play.PlayServicePromiseClient.prototype.pause =
+    function(request, metadata) {
+  return this.client_.unaryCall(this.hostname_ +
+      '/play.PlayService/Pause',
+      request,
+      metadata || {},
+      methodDescriptor_PlayService_Pause);
+};
+
+
+/**
+ * @const
+ * @type {!grpc.web.MethodDescriptor<
+ *   !proto.play.ResumeRequest,
+ *   !proto.play.ResumeResponse>}
+ */
+const methodDescriptor_PlayService_Resume = new grpc.web.MethodDescriptor(
+  '/play.PlayService/Resume',
+  grpc.web.MethodType.UNARY,
+  proto.play.ResumeRequest,
+  proto.play.ResumeResponse,
+  /**
+   * @param {!proto.play.ResumeRequest} request
+   * @return {!Uint8Array}
+   */
+  function(request) {
+    return request.serializeBinary();
+  },
+  proto.play.ResumeResponse.deserializeBinary
+);
+
+
+/**
+ * @param {!proto.play.ResumeRequest} request The
+ *     request proto
+ * @param {?Object<string, string>} metadata User defined
+ *     call metadata
+ * @param {function(?grpc.web.RpcError, ?proto.play.ResumeResponse)}
+ *     callback The callback function(error, response)
+ * @return {!grpc.web.ClientReadableStream<!proto.play.ResumeResponse>|undefined}
+ *     The XHR Node Readable Stream
+ */
+proto.play.PlayServiceClient.prototype.resume =
+    function(request, metadata, callback) {
+  return this.client_.rpcCall(this.hostname_ +
+      '/play.PlayService/Resume',
+      request,
+      metadata || {},
+      methodDescriptor_PlayService_Resume,
+      callback);
+};
+
+
+/**
+ * @param {!proto.play.ResumeRequest} request The
+ *     request proto
+ * @param {?Object<string, string>=} metadata User defined
+ *     call metadata
+ * @return {!Promise<!proto.play.ResumeResponse>}
+ *     Promise that resolves to the response
+ */
+proto.play.PlayServicePromiseClient.prototype.resume =
+    function(request, metadata) {
+  return this.client_.unaryCall(this.hostname_ +
+      '/play.PlayService/Resume',
+      request,
+      metadata || {},
+      methodDescriptor_PlayService_Resume);
+};
+
+
 module.exports = proto.play;
 

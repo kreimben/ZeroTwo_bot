@@ -97,14 +97,14 @@ func (p *Player) ClearQueue() error {
 	return nil
 }
 
-func (p *Player) Pause() error {
-	p.AudioMutex.Lock()
-	return nil
+func (p *Player) Pause() bool {
+	p.IsPaused = true
+	return p.IsPaused
 }
 
-func (p *Player) Resume() error {
-	p.AudioMutex.Unlock()
-	return nil
+func (p *Player) Resume() bool {
+	p.IsPaused = false
+	return p.IsPaused
 }
 
 // Skip skipIndex is the number of songs to skip.

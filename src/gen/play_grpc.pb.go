@@ -21,6 +21,8 @@ const _ = grpc.SupportPackageIsVersion7
 const (
 	PlayService_Search_FullMethodName = "/play.PlayService/Search"
 	PlayService_Play_FullMethodName   = "/play.PlayService/Play"
+	PlayService_Pause_FullMethodName  = "/play.PlayService/Pause"
+	PlayService_Resume_FullMethodName = "/play.PlayService/Resume"
 )
 
 // PlayServiceClient is the client API for PlayService service.
@@ -29,6 +31,8 @@ const (
 type PlayServiceClient interface {
 	Search(ctx context.Context, in *SearchRequest, opts ...grpc.CallOption) (*SearchResponse, error)
 	Play(ctx context.Context, in *PlayRequest, opts ...grpc.CallOption) (*PlayResponse, error)
+	Pause(ctx context.Context, in *PauseRequest, opts ...grpc.CallOption) (*PauseResponse, error)
+	Resume(ctx context.Context, in *ResumeRequest, opts ...grpc.CallOption) (*ResumeResponse, error)
 }
 
 type playServiceClient struct {
@@ -57,12 +61,32 @@ func (c *playServiceClient) Play(ctx context.Context, in *PlayRequest, opts ...g
 	return out, nil
 }
 
+func (c *playServiceClient) Pause(ctx context.Context, in *PauseRequest, opts ...grpc.CallOption) (*PauseResponse, error) {
+	out := new(PauseResponse)
+	err := c.cc.Invoke(ctx, PlayService_Pause_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *playServiceClient) Resume(ctx context.Context, in *ResumeRequest, opts ...grpc.CallOption) (*ResumeResponse, error) {
+	out := new(ResumeResponse)
+	err := c.cc.Invoke(ctx, PlayService_Resume_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // PlayServiceServer is the server API for PlayService service.
 // All implementations must embed UnimplementedPlayServiceServer
 // for forward compatibility
 type PlayServiceServer interface {
 	Search(context.Context, *SearchRequest) (*SearchResponse, error)
 	Play(context.Context, *PlayRequest) (*PlayResponse, error)
+	Pause(context.Context, *PauseRequest) (*PauseResponse, error)
+	Resume(context.Context, *ResumeRequest) (*ResumeResponse, error)
 	mustEmbedUnimplementedPlayServiceServer()
 }
 
@@ -75,6 +99,12 @@ func (UnimplementedPlayServiceServer) Search(context.Context, *SearchRequest) (*
 }
 func (UnimplementedPlayServiceServer) Play(context.Context, *PlayRequest) (*PlayResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Play not implemented")
+}
+func (UnimplementedPlayServiceServer) Pause(context.Context, *PauseRequest) (*PauseResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Pause not implemented")
+}
+func (UnimplementedPlayServiceServer) Resume(context.Context, *ResumeRequest) (*ResumeResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Resume not implemented")
 }
 func (UnimplementedPlayServiceServer) mustEmbedUnimplementedPlayServiceServer() {}
 
@@ -125,6 +155,42 @@ func _PlayService_Play_Handler(srv interface{}, ctx context.Context, dec func(in
 	return interceptor(ctx, in, info, handler)
 }
 
+func _PlayService_Pause_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PauseRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PlayServiceServer).Pause(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: PlayService_Pause_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PlayServiceServer).Pause(ctx, req.(*PauseRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _PlayService_Resume_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ResumeRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PlayServiceServer).Resume(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: PlayService_Resume_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PlayServiceServer).Resume(ctx, req.(*ResumeRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // PlayService_ServiceDesc is the grpc.ServiceDesc for PlayService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -139,6 +205,14 @@ var PlayService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Play",
 			Handler:    _PlayService_Play_Handler,
+		},
+		{
+			MethodName: "Pause",
+			Handler:    _PlayService_Pause_Handler,
+		},
+		{
+			MethodName: "Resume",
+			Handler:    _PlayService_Resume_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

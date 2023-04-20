@@ -22,10 +22,30 @@ type PlayServicePlay = {
   readonly responseType: typeof play_pb.PlayResponse;
 };
 
+type PlayServicePause = {
+  readonly methodName: string;
+  readonly service: typeof PlayService;
+  readonly requestStream: false;
+  readonly responseStream: false;
+  readonly requestType: typeof play_pb.PauseRequest;
+  readonly responseType: typeof play_pb.PauseResponse;
+};
+
+type PlayServiceResume = {
+  readonly methodName: string;
+  readonly service: typeof PlayService;
+  readonly requestStream: false;
+  readonly responseStream: false;
+  readonly requestType: typeof play_pb.ResumeRequest;
+  readonly responseType: typeof play_pb.ResumeResponse;
+};
+
 export class PlayService {
   static readonly serviceName: string;
   static readonly Search: PlayServiceSearch;
   static readonly Play: PlayServicePlay;
+  static readonly Pause: PlayServicePause;
+  static readonly Resume: PlayServiceResume;
 }
 
 export type ServiceError = { message: string, code: number; metadata: grpc.Metadata }
@@ -77,6 +97,24 @@ export class PlayServiceClient {
   play(
     requestMessage: play_pb.PlayRequest,
     callback: (error: ServiceError|null, responseMessage: play_pb.PlayResponse|null) => void
+  ): UnaryResponse;
+  pause(
+    requestMessage: play_pb.PauseRequest,
+    metadata: grpc.Metadata,
+    callback: (error: ServiceError|null, responseMessage: play_pb.PauseResponse|null) => void
+  ): UnaryResponse;
+  pause(
+    requestMessage: play_pb.PauseRequest,
+    callback: (error: ServiceError|null, responseMessage: play_pb.PauseResponse|null) => void
+  ): UnaryResponse;
+  resume(
+    requestMessage: play_pb.ResumeRequest,
+    metadata: grpc.Metadata,
+    callback: (error: ServiceError|null, responseMessage: play_pb.ResumeResponse|null) => void
+  ): UnaryResponse;
+  resume(
+    requestMessage: play_pb.ResumeRequest,
+    callback: (error: ServiceError|null, responseMessage: play_pb.ResumeResponse|null) => void
   ): UnaryResponse;
 }
 

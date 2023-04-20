@@ -147,3 +147,91 @@ export namespace VideoInfo {
   }
 }
 
+export class PauseRequest extends jspb.Message {
+  getGuildId(): string;
+  setGuildId(value: string): void;
+
+  getUserId(): string;
+  setUserId(value: string): void;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): PauseRequest.AsObject;
+  static toObject(includeInstance: boolean, msg: PauseRequest): PauseRequest.AsObject;
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+  static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+  static serializeBinaryToWriter(message: PauseRequest, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): PauseRequest;
+  static deserializeBinaryFromReader(message: PauseRequest, reader: jspb.BinaryReader): PauseRequest;
+}
+
+export namespace PauseRequest {
+  export type AsObject = {
+    guildId: string,
+    userId: string,
+  }
+}
+
+export class PauseResponse extends jspb.Message {
+  getIsRepeat(): boolean;
+  setIsRepeat(value: boolean): void;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): PauseResponse.AsObject;
+  static toObject(includeInstance: boolean, msg: PauseResponse): PauseResponse.AsObject;
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+  static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+  static serializeBinaryToWriter(message: PauseResponse, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): PauseResponse;
+  static deserializeBinaryFromReader(message: PauseResponse, reader: jspb.BinaryReader): PauseResponse;
+}
+
+export namespace PauseResponse {
+  export type AsObject = {
+    isRepeat: boolean,
+  }
+}
+
+export class ResumeRequest extends jspb.Message {
+  getGuildId(): string;
+  setGuildId(value: string): void;
+
+  getUserId(): string;
+  setUserId(value: string): void;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): ResumeRequest.AsObject;
+  static toObject(includeInstance: boolean, msg: ResumeRequest): ResumeRequest.AsObject;
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+  static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+  static serializeBinaryToWriter(message: ResumeRequest, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): ResumeRequest;
+  static deserializeBinaryFromReader(message: ResumeRequest, reader: jspb.BinaryReader): ResumeRequest;
+}
+
+export namespace ResumeRequest {
+  export type AsObject = {
+    guildId: string,
+    userId: string,
+  }
+}
+
+export class ResumeResponse extends jspb.Message {
+  getIsRepeat(): boolean;
+  setIsRepeat(value: boolean): void;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): ResumeResponse.AsObject;
+  static toObject(includeInstance: boolean, msg: ResumeResponse): ResumeResponse.AsObject;
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+  static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+  static serializeBinaryToWriter(message: ResumeResponse, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): ResumeResponse;
+  static deserializeBinaryFromReader(message: ResumeResponse, reader: jspb.BinaryReader): ResumeResponse;
+}
+
+export namespace ResumeResponse {
+  export type AsObject = {
+    isRepeat: boolean,
+  }
+}
+

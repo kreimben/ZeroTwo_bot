@@ -92,3 +92,20 @@ func (p *playerServer) Play(_ context.Context, req *gen.PlayRequest) (*gen.PlayR
 	go player.Players[state.GuildID].AddSongToQueue(req.GetPlayUrl(), req.GetUserId())
 	return &gen.PlayResponse{Message: "Added to play queue."}, nil
 }
+
+func (p *playerServer) Pause(_ context.Context, req *gen.PauseRequest) (*gen.PauseResponse, error) {
+	// just assume guild id and user id is valid.
+	playerObj, ok := player.Players[req.GetGuildId()]
+	if !ok {
+		return nil, status.Errorf(codes.Unavailable, "Player is not initialized.")
+	}
+	return &gen.PauseResponse{IsRepeat: playerObj.Pause()}, nil
+}
+func (p *playerServer) Resume(_ context.Context, req *gen.ResumeRequest) (*gen.ResumeResponse, error) {
+	// just assume guild id and user id is valid.
+	playerObj, ok := player.Players[req.GetGuildId()]
+	if !ok {
+		return nil, status.Errorf(codes.Unavailable, "Player is not initialized.")
+	}
+	return &gen.ResumeResponse{IsRepeat: playerObj.Resume()}, nil
+}

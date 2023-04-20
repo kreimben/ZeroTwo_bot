@@ -9,6 +9,8 @@ option go_package = "/protobuf_gen";
 service PlayService {
   rpc Search (SearchRequest) returns (SearchResponse) {}
   rpc Play (PlayRequest) returns (PlayResponse) {}
+  rpc Pause(PauseRequest) returns (PauseResponse) {}
+  rpc Resume(ResumeRequest) returns (ResumeResponse) {}
 }
 
 message PlayRequest {
@@ -39,4 +41,22 @@ message VideoInfo {
   string url = 2; // youtube url that can be directed to youtube.
   string thumbnail_url = 3;
   google.protobuf.Duration duration = 4;
+}
+
+message PauseRequest {
+  string guild_id = 1;
+  string user_id = 2;
+}
+
+message PauseResponse {
+  bool is_repeat = 1;
+}
+
+message ResumeRequest {
+  string guild_id = 1;
+  string user_id = 2;
+}
+
+message ResumeResponse {
+  bool is_repeat = 1;
 }
