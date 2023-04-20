@@ -3,11 +3,88 @@ syntax = "proto3";
 package queue;
 
 option go_package = "/protobuf_gen";
-//
-//service QueueService {
-//  rpc CurrentQueue (CurrentQueueRequest) returns (CurrentQueueResponse) {}
-//  rpc RemoveSong (RemoveSongRequest) returns (RemoveSongResponse) {}
-//  rpc SkipSong (SkipSongRequest) returns (SkipSongResponse) {}
-//  rpc RepeatSong (RepeatSongRequest) returns (RepeatSongResponse) {}
-//  rpc ShuffleQueue (ShuffleQueueRequest) returns (ShuffleQueueResponse) {}
-//}
+
+service QueueService {
+  rpc CurrentQueue (CurrentQueueRequest) returns (CurrentQueueResponse) {}
+  rpc RemoveSong (RemoveSongRequest) returns (RemoveSongResponse) {}
+  rpc SkipSong (SkipSongRequest) returns (SkipSongResponse) {}
+  rpc RepeatSong (RepeatSongRequest) returns (RepeatSongResponse) {}
+  rpc ShuffleQueue (ShuffleQueueRequest) returns (ShuffleQueueResponse) {}
+  rpc ChangeSongPosition (ChangeSongPositionRequest) returns (ChangeSongPositionResponse) {}
+}
+
+message CurrentQueueRequest {
+  string guild_id = 1;
+  string user_id = 2;
+}
+
+message CurrentQueueResponse {
+  Song current_song = 1; // current song playing
+  repeated Song songs = 2; // songs in queue WITHOUT current song.
+  uint32 length = 3; // length of queue.
+}
+
+message Song {
+  string title = 1;
+  string url = 2; // youtube url that can be directed to youtube.
+  string thumbnail_url = 3;
+  uint32 duration = 4; // in seconds
+  string applicant = 5;
+  uint32 position = 6; // position in queue.
+}
+
+message RemoveSongRequest {
+  string guild_id = 1;
+  string user_id = 2;
+  uint32 song_index = 3; // 1 to songs.length - 1 cuz 0 is current playing song.
+}
+
+message RemoveSongResponse {
+  bool success = 1; // just for assuming.
+}
+
+message SkipSongRequest {
+  string guild_id = 1;
+  string user_id = 2;
+  uint32 song_index = 3; // 1 to songs.length - 1 cuz 0 is current playing song.
+}
+
+message SkipSongResponse {
+  bool success = 1; // just for assuming.
+}
+
+/**
+ * Only repeat current playing song.
+ * If there is no song playing, return false.
+ */
+message RepeatSongRequest {
+  string guild_id = 1;
+  string user_id = 2;
+}
+
+message RepeatSongResponse {
+  bool result = 1; // indicates if to set repeat or not.
+}
+
+/**
+ * Change song position in queue.
+ * Basically no different with ChangeSongPosition.
+ */
+message ShuffleQueueRequest {
+  string guild_id = 1;
+  string user_id = 2;
+}
+
+message ShuffleQueueResponse {
+  repeated Song songs = 1; // as a results.
+}
+
+message ChangeSongPositionRequest {
+  string guild_id = 1;
+  string user_id = 2;
+  repeated uint32 song_positions = 3; // Only adjust to rest of queue. Not affect to current playing song.
+}
+
+message ChangeSongPositionResponse {
+  repeated Song songs = 1; // as a results.
+}

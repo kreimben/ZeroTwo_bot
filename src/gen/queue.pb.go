@@ -10,6 +10,7 @@ import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
+	sync "sync"
 )
 
 const (
@@ -19,21 +20,908 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+type CurrentQueueRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	GuildId string `protobuf:"bytes,1,opt,name=guild_id,json=guildId,proto3" json:"guild_id,omitempty"`
+	UserId  string `protobuf:"bytes,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+}
+
+func (x *CurrentQueueRequest) Reset() {
+	*x = CurrentQueueRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_queue_proto_msgTypes[0]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *CurrentQueueRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CurrentQueueRequest) ProtoMessage() {}
+
+func (x *CurrentQueueRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_queue_proto_msgTypes[0]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CurrentQueueRequest.ProtoReflect.Descriptor instead.
+func (*CurrentQueueRequest) Descriptor() ([]byte, []int) {
+	return file_queue_proto_rawDescGZIP(), []int{0}
+}
+
+func (x *CurrentQueueRequest) GetGuildId() string {
+	if x != nil {
+		return x.GuildId
+	}
+	return ""
+}
+
+func (x *CurrentQueueRequest) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+type CurrentQueueResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	CurrentSong *Song   `protobuf:"bytes,1,opt,name=current_song,json=currentSong,proto3" json:"current_song,omitempty"` // current song playing
+	Songs       []*Song `protobuf:"bytes,2,rep,name=songs,proto3" json:"songs,omitempty"`                                // songs in queue WITHOUT current song.
+	Length      uint32  `protobuf:"varint,3,opt,name=length,proto3" json:"length,omitempty"`                             // length of queue.
+}
+
+func (x *CurrentQueueResponse) Reset() {
+	*x = CurrentQueueResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_queue_proto_msgTypes[1]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *CurrentQueueResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CurrentQueueResponse) ProtoMessage() {}
+
+func (x *CurrentQueueResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_queue_proto_msgTypes[1]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CurrentQueueResponse.ProtoReflect.Descriptor instead.
+func (*CurrentQueueResponse) Descriptor() ([]byte, []int) {
+	return file_queue_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *CurrentQueueResponse) GetCurrentSong() *Song {
+	if x != nil {
+		return x.CurrentSong
+	}
+	return nil
+}
+
+func (x *CurrentQueueResponse) GetSongs() []*Song {
+	if x != nil {
+		return x.Songs
+	}
+	return nil
+}
+
+func (x *CurrentQueueResponse) GetLength() uint32 {
+	if x != nil {
+		return x.Length
+	}
+	return 0
+}
+
+type Song struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Title        string `protobuf:"bytes,1,opt,name=title,proto3" json:"title,omitempty"`
+	Url          string `protobuf:"bytes,2,opt,name=url,proto3" json:"url,omitempty"` // youtube url that can be directed to youtube.
+	ThumbnailUrl string `protobuf:"bytes,3,opt,name=thumbnail_url,json=thumbnailUrl,proto3" json:"thumbnail_url,omitempty"`
+	Duration     uint32 `protobuf:"varint,4,opt,name=duration,proto3" json:"duration,omitempty"` // in seconds
+	Applicant    string `protobuf:"bytes,5,opt,name=applicant,proto3" json:"applicant,omitempty"`
+	Position     uint32 `protobuf:"varint,6,opt,name=position,proto3" json:"position,omitempty"` // position in queue.
+}
+
+func (x *Song) Reset() {
+	*x = Song{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_queue_proto_msgTypes[2]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *Song) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Song) ProtoMessage() {}
+
+func (x *Song) ProtoReflect() protoreflect.Message {
+	mi := &file_queue_proto_msgTypes[2]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Song.ProtoReflect.Descriptor instead.
+func (*Song) Descriptor() ([]byte, []int) {
+	return file_queue_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *Song) GetTitle() string {
+	if x != nil {
+		return x.Title
+	}
+	return ""
+}
+
+func (x *Song) GetUrl() string {
+	if x != nil {
+		return x.Url
+	}
+	return ""
+}
+
+func (x *Song) GetThumbnailUrl() string {
+	if x != nil {
+		return x.ThumbnailUrl
+	}
+	return ""
+}
+
+func (x *Song) GetDuration() uint32 {
+	if x != nil {
+		return x.Duration
+	}
+	return 0
+}
+
+func (x *Song) GetApplicant() string {
+	if x != nil {
+		return x.Applicant
+	}
+	return ""
+}
+
+func (x *Song) GetPosition() uint32 {
+	if x != nil {
+		return x.Position
+	}
+	return 0
+}
+
+type RemoveSongRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	GuildId   string `protobuf:"bytes,1,opt,name=guild_id,json=guildId,proto3" json:"guild_id,omitempty"`
+	UserId    string `protobuf:"bytes,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	SongIndex uint32 `protobuf:"varint,3,opt,name=song_index,json=songIndex,proto3" json:"song_index,omitempty"` // 1 to songs.length - 1 cuz 0 is current playing song.
+}
+
+func (x *RemoveSongRequest) Reset() {
+	*x = RemoveSongRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_queue_proto_msgTypes[3]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *RemoveSongRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RemoveSongRequest) ProtoMessage() {}
+
+func (x *RemoveSongRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_queue_proto_msgTypes[3]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RemoveSongRequest.ProtoReflect.Descriptor instead.
+func (*RemoveSongRequest) Descriptor() ([]byte, []int) {
+	return file_queue_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *RemoveSongRequest) GetGuildId() string {
+	if x != nil {
+		return x.GuildId
+	}
+	return ""
+}
+
+func (x *RemoveSongRequest) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+func (x *RemoveSongRequest) GetSongIndex() uint32 {
+	if x != nil {
+		return x.SongIndex
+	}
+	return 0
+}
+
+type RemoveSongResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Success bool `protobuf:"varint,1,opt,name=success,proto3" json:"success,omitempty"` // just for assuming.
+}
+
+func (x *RemoveSongResponse) Reset() {
+	*x = RemoveSongResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_queue_proto_msgTypes[4]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *RemoveSongResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RemoveSongResponse) ProtoMessage() {}
+
+func (x *RemoveSongResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_queue_proto_msgTypes[4]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RemoveSongResponse.ProtoReflect.Descriptor instead.
+func (*RemoveSongResponse) Descriptor() ([]byte, []int) {
+	return file_queue_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *RemoveSongResponse) GetSuccess() bool {
+	if x != nil {
+		return x.Success
+	}
+	return false
+}
+
+type SkipSongRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	GuildId   string `protobuf:"bytes,1,opt,name=guild_id,json=guildId,proto3" json:"guild_id,omitempty"`
+	UserId    string `protobuf:"bytes,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	SongIndex uint32 `protobuf:"varint,3,opt,name=song_index,json=songIndex,proto3" json:"song_index,omitempty"` // 1 to songs.length - 1 cuz 0 is current playing song.
+}
+
+func (x *SkipSongRequest) Reset() {
+	*x = SkipSongRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_queue_proto_msgTypes[5]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *SkipSongRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SkipSongRequest) ProtoMessage() {}
+
+func (x *SkipSongRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_queue_proto_msgTypes[5]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SkipSongRequest.ProtoReflect.Descriptor instead.
+func (*SkipSongRequest) Descriptor() ([]byte, []int) {
+	return file_queue_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *SkipSongRequest) GetGuildId() string {
+	if x != nil {
+		return x.GuildId
+	}
+	return ""
+}
+
+func (x *SkipSongRequest) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+func (x *SkipSongRequest) GetSongIndex() uint32 {
+	if x != nil {
+		return x.SongIndex
+	}
+	return 0
+}
+
+type SkipSongResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Success bool `protobuf:"varint,1,opt,name=success,proto3" json:"success,omitempty"` // just for assuming.
+}
+
+func (x *SkipSongResponse) Reset() {
+	*x = SkipSongResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_queue_proto_msgTypes[6]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *SkipSongResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SkipSongResponse) ProtoMessage() {}
+
+func (x *SkipSongResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_queue_proto_msgTypes[6]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SkipSongResponse.ProtoReflect.Descriptor instead.
+func (*SkipSongResponse) Descriptor() ([]byte, []int) {
+	return file_queue_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *SkipSongResponse) GetSuccess() bool {
+	if x != nil {
+		return x.Success
+	}
+	return false
+}
+
+// *
+// Only repeat current playing song.
+// If there is no song playing, return false.
+type RepeatSongRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	GuildId string `protobuf:"bytes,1,opt,name=guild_id,json=guildId,proto3" json:"guild_id,omitempty"`
+	UserId  string `protobuf:"bytes,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+}
+
+func (x *RepeatSongRequest) Reset() {
+	*x = RepeatSongRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_queue_proto_msgTypes[7]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *RepeatSongRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RepeatSongRequest) ProtoMessage() {}
+
+func (x *RepeatSongRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_queue_proto_msgTypes[7]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RepeatSongRequest.ProtoReflect.Descriptor instead.
+func (*RepeatSongRequest) Descriptor() ([]byte, []int) {
+	return file_queue_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *RepeatSongRequest) GetGuildId() string {
+	if x != nil {
+		return x.GuildId
+	}
+	return ""
+}
+
+func (x *RepeatSongRequest) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+type RepeatSongResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Result bool `protobuf:"varint,1,opt,name=result,proto3" json:"result,omitempty"` // indicates if to set repeat or not.
+}
+
+func (x *RepeatSongResponse) Reset() {
+	*x = RepeatSongResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_queue_proto_msgTypes[8]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *RepeatSongResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*RepeatSongResponse) ProtoMessage() {}
+
+func (x *RepeatSongResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_queue_proto_msgTypes[8]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use RepeatSongResponse.ProtoReflect.Descriptor instead.
+func (*RepeatSongResponse) Descriptor() ([]byte, []int) {
+	return file_queue_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *RepeatSongResponse) GetResult() bool {
+	if x != nil {
+		return x.Result
+	}
+	return false
+}
+
+// *
+// Change song position in queue.
+// Basically no different with ChangeSongPosition.
+type ShuffleQueueRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	GuildId string `protobuf:"bytes,1,opt,name=guild_id,json=guildId,proto3" json:"guild_id,omitempty"`
+	UserId  string `protobuf:"bytes,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+}
+
+func (x *ShuffleQueueRequest) Reset() {
+	*x = ShuffleQueueRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_queue_proto_msgTypes[9]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *ShuffleQueueRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ShuffleQueueRequest) ProtoMessage() {}
+
+func (x *ShuffleQueueRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_queue_proto_msgTypes[9]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ShuffleQueueRequest.ProtoReflect.Descriptor instead.
+func (*ShuffleQueueRequest) Descriptor() ([]byte, []int) {
+	return file_queue_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *ShuffleQueueRequest) GetGuildId() string {
+	if x != nil {
+		return x.GuildId
+	}
+	return ""
+}
+
+func (x *ShuffleQueueRequest) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+type ShuffleQueueResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Songs []*Song `protobuf:"bytes,1,rep,name=songs,proto3" json:"songs,omitempty"` // as a results.
+}
+
+func (x *ShuffleQueueResponse) Reset() {
+	*x = ShuffleQueueResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_queue_proto_msgTypes[10]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *ShuffleQueueResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ShuffleQueueResponse) ProtoMessage() {}
+
+func (x *ShuffleQueueResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_queue_proto_msgTypes[10]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ShuffleQueueResponse.ProtoReflect.Descriptor instead.
+func (*ShuffleQueueResponse) Descriptor() ([]byte, []int) {
+	return file_queue_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *ShuffleQueueResponse) GetSongs() []*Song {
+	if x != nil {
+		return x.Songs
+	}
+	return nil
+}
+
+type ChangeSongPositionRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	GuildId       string   `protobuf:"bytes,1,opt,name=guild_id,json=guildId,proto3" json:"guild_id,omitempty"`
+	UserId        string   `protobuf:"bytes,2,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	SongPositions []uint32 `protobuf:"varint,3,rep,packed,name=song_positions,json=songPositions,proto3" json:"song_positions,omitempty"` // Only adjust to rest of queue. Not affect to current playing song.
+}
+
+func (x *ChangeSongPositionRequest) Reset() {
+	*x = ChangeSongPositionRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_queue_proto_msgTypes[11]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *ChangeSongPositionRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ChangeSongPositionRequest) ProtoMessage() {}
+
+func (x *ChangeSongPositionRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_queue_proto_msgTypes[11]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ChangeSongPositionRequest.ProtoReflect.Descriptor instead.
+func (*ChangeSongPositionRequest) Descriptor() ([]byte, []int) {
+	return file_queue_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *ChangeSongPositionRequest) GetGuildId() string {
+	if x != nil {
+		return x.GuildId
+	}
+	return ""
+}
+
+func (x *ChangeSongPositionRequest) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+func (x *ChangeSongPositionRequest) GetSongPositions() []uint32 {
+	if x != nil {
+		return x.SongPositions
+	}
+	return nil
+}
+
+type ChangeSongPositionResponse struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	Songs []*Song `protobuf:"bytes,1,rep,name=songs,proto3" json:"songs,omitempty"` // as a results.
+}
+
+func (x *ChangeSongPositionResponse) Reset() {
+	*x = ChangeSongPositionResponse{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_queue_proto_msgTypes[12]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *ChangeSongPositionResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ChangeSongPositionResponse) ProtoMessage() {}
+
+func (x *ChangeSongPositionResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_queue_proto_msgTypes[12]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ChangeSongPositionResponse.ProtoReflect.Descriptor instead.
+func (*ChangeSongPositionResponse) Descriptor() ([]byte, []int) {
+	return file_queue_proto_rawDescGZIP(), []int{12}
+}
+
+func (x *ChangeSongPositionResponse) GetSongs() []*Song {
+	if x != nil {
+		return x.Songs
+	}
+	return nil
+}
+
 var File_queue_proto protoreflect.FileDescriptor
 
 var file_queue_proto_rawDesc = []byte{
 	0x0a, 0x0b, 0x71, 0x75, 0x65, 0x75, 0x65, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x12, 0x05, 0x71,
-	0x75, 0x65, 0x75, 0x65, 0x42, 0x0f, 0x5a, 0x0d, 0x2f, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62, 0x75,
-	0x66, 0x5f, 0x67, 0x65, 0x6e, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x75, 0x65, 0x75, 0x65, 0x22, 0x49, 0x0a, 0x13, 0x43, 0x75, 0x72, 0x72, 0x65, 0x6e, 0x74, 0x51,
+	0x75, 0x65, 0x75, 0x65, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x19, 0x0a, 0x08, 0x67,
+	0x75, 0x69, 0x6c, 0x64, 0x5f, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x07, 0x67,
+	0x75, 0x69, 0x6c, 0x64, 0x49, 0x64, 0x12, 0x17, 0x0a, 0x07, 0x75, 0x73, 0x65, 0x72, 0x5f, 0x69,
+	0x64, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x06, 0x75, 0x73, 0x65, 0x72, 0x49, 0x64, 0x22,
+	0x81, 0x01, 0x0a, 0x14, 0x43, 0x75, 0x72, 0x72, 0x65, 0x6e, 0x74, 0x51, 0x75, 0x65, 0x75, 0x65,
+	0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x2e, 0x0a, 0x0c, 0x63, 0x75, 0x72, 0x72,
+	0x65, 0x6e, 0x74, 0x5f, 0x73, 0x6f, 0x6e, 0x67, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x0b,
+	0x2e, 0x71, 0x75, 0x65, 0x75, 0x65, 0x2e, 0x53, 0x6f, 0x6e, 0x67, 0x52, 0x0b, 0x63, 0x75, 0x72,
+	0x72, 0x65, 0x6e, 0x74, 0x53, 0x6f, 0x6e, 0x67, 0x12, 0x21, 0x0a, 0x05, 0x73, 0x6f, 0x6e, 0x67,
+	0x73, 0x18, 0x02, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x0b, 0x2e, 0x71, 0x75, 0x65, 0x75, 0x65, 0x2e,
+	0x53, 0x6f, 0x6e, 0x67, 0x52, 0x05, 0x73, 0x6f, 0x6e, 0x67, 0x73, 0x12, 0x16, 0x0a, 0x06, 0x6c,
+	0x65, 0x6e, 0x67, 0x74, 0x68, 0x18, 0x03, 0x20, 0x01, 0x28, 0x0d, 0x52, 0x06, 0x6c, 0x65, 0x6e,
+	0x67, 0x74, 0x68, 0x22, 0xa9, 0x01, 0x0a, 0x04, 0x53, 0x6f, 0x6e, 0x67, 0x12, 0x14, 0x0a, 0x05,
+	0x74, 0x69, 0x74, 0x6c, 0x65, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x05, 0x74, 0x69, 0x74,
+	0x6c, 0x65, 0x12, 0x10, 0x0a, 0x03, 0x75, 0x72, 0x6c, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52,
+	0x03, 0x75, 0x72, 0x6c, 0x12, 0x23, 0x0a, 0x0d, 0x74, 0x68, 0x75, 0x6d, 0x62, 0x6e, 0x61, 0x69,
+	0x6c, 0x5f, 0x75, 0x72, 0x6c, 0x18, 0x03, 0x20, 0x01, 0x28, 0x09, 0x52, 0x0c, 0x74, 0x68, 0x75,
+	0x6d, 0x62, 0x6e, 0x61, 0x69, 0x6c, 0x55, 0x72, 0x6c, 0x12, 0x1a, 0x0a, 0x08, 0x64, 0x75, 0x72,
+	0x61, 0x74, 0x69, 0x6f, 0x6e, 0x18, 0x04, 0x20, 0x01, 0x28, 0x0d, 0x52, 0x08, 0x64, 0x75, 0x72,
+	0x61, 0x74, 0x69, 0x6f, 0x6e, 0x12, 0x1c, 0x0a, 0x09, 0x61, 0x70, 0x70, 0x6c, 0x69, 0x63, 0x61,
+	0x6e, 0x74, 0x18, 0x05, 0x20, 0x01, 0x28, 0x09, 0x52, 0x09, 0x61, 0x70, 0x70, 0x6c, 0x69, 0x63,
+	0x61, 0x6e, 0x74, 0x12, 0x1a, 0x0a, 0x08, 0x70, 0x6f, 0x73, 0x69, 0x74, 0x69, 0x6f, 0x6e, 0x18,
+	0x06, 0x20, 0x01, 0x28, 0x0d, 0x52, 0x08, 0x70, 0x6f, 0x73, 0x69, 0x74, 0x69, 0x6f, 0x6e, 0x22,
+	0x66, 0x0a, 0x11, 0x52, 0x65, 0x6d, 0x6f, 0x76, 0x65, 0x53, 0x6f, 0x6e, 0x67, 0x52, 0x65, 0x71,
+	0x75, 0x65, 0x73, 0x74, 0x12, 0x19, 0x0a, 0x08, 0x67, 0x75, 0x69, 0x6c, 0x64, 0x5f, 0x69, 0x64,
+	0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x07, 0x67, 0x75, 0x69, 0x6c, 0x64, 0x49, 0x64, 0x12,
+	0x17, 0x0a, 0x07, 0x75, 0x73, 0x65, 0x72, 0x5f, 0x69, 0x64, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09,
+	0x52, 0x06, 0x75, 0x73, 0x65, 0x72, 0x49, 0x64, 0x12, 0x1d, 0x0a, 0x0a, 0x73, 0x6f, 0x6e, 0x67,
+	0x5f, 0x69, 0x6e, 0x64, 0x65, 0x78, 0x18, 0x03, 0x20, 0x01, 0x28, 0x0d, 0x52, 0x09, 0x73, 0x6f,
+	0x6e, 0x67, 0x49, 0x6e, 0x64, 0x65, 0x78, 0x22, 0x2e, 0x0a, 0x12, 0x52, 0x65, 0x6d, 0x6f, 0x76,
+	0x65, 0x53, 0x6f, 0x6e, 0x67, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x18, 0x0a,
+	0x07, 0x73, 0x75, 0x63, 0x63, 0x65, 0x73, 0x73, 0x18, 0x01, 0x20, 0x01, 0x28, 0x08, 0x52, 0x07,
+	0x73, 0x75, 0x63, 0x63, 0x65, 0x73, 0x73, 0x22, 0x64, 0x0a, 0x0f, 0x53, 0x6b, 0x69, 0x70, 0x53,
+	0x6f, 0x6e, 0x67, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x19, 0x0a, 0x08, 0x67, 0x75,
+	0x69, 0x6c, 0x64, 0x5f, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x07, 0x67, 0x75,
+	0x69, 0x6c, 0x64, 0x49, 0x64, 0x12, 0x17, 0x0a, 0x07, 0x75, 0x73, 0x65, 0x72, 0x5f, 0x69, 0x64,
+	0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x06, 0x75, 0x73, 0x65, 0x72, 0x49, 0x64, 0x12, 0x1d,
+	0x0a, 0x0a, 0x73, 0x6f, 0x6e, 0x67, 0x5f, 0x69, 0x6e, 0x64, 0x65, 0x78, 0x18, 0x03, 0x20, 0x01,
+	0x28, 0x0d, 0x52, 0x09, 0x73, 0x6f, 0x6e, 0x67, 0x49, 0x6e, 0x64, 0x65, 0x78, 0x22, 0x2c, 0x0a,
+	0x10, 0x53, 0x6b, 0x69, 0x70, 0x53, 0x6f, 0x6e, 0x67, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73,
+	0x65, 0x12, 0x18, 0x0a, 0x07, 0x73, 0x75, 0x63, 0x63, 0x65, 0x73, 0x73, 0x18, 0x01, 0x20, 0x01,
+	0x28, 0x08, 0x52, 0x07, 0x73, 0x75, 0x63, 0x63, 0x65, 0x73, 0x73, 0x22, 0x47, 0x0a, 0x11, 0x52,
+	0x65, 0x70, 0x65, 0x61, 0x74, 0x53, 0x6f, 0x6e, 0x67, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74,
+	0x12, 0x19, 0x0a, 0x08, 0x67, 0x75, 0x69, 0x6c, 0x64, 0x5f, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01,
+	0x28, 0x09, 0x52, 0x07, 0x67, 0x75, 0x69, 0x6c, 0x64, 0x49, 0x64, 0x12, 0x17, 0x0a, 0x07, 0x75,
+	0x73, 0x65, 0x72, 0x5f, 0x69, 0x64, 0x18, 0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x06, 0x75, 0x73,
+	0x65, 0x72, 0x49, 0x64, 0x22, 0x2c, 0x0a, 0x12, 0x52, 0x65, 0x70, 0x65, 0x61, 0x74, 0x53, 0x6f,
+	0x6e, 0x67, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x16, 0x0a, 0x06, 0x72, 0x65,
+	0x73, 0x75, 0x6c, 0x74, 0x18, 0x01, 0x20, 0x01, 0x28, 0x08, 0x52, 0x06, 0x72, 0x65, 0x73, 0x75,
+	0x6c, 0x74, 0x22, 0x49, 0x0a, 0x13, 0x53, 0x68, 0x75, 0x66, 0x66, 0x6c, 0x65, 0x51, 0x75, 0x65,
+	0x75, 0x65, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x19, 0x0a, 0x08, 0x67, 0x75, 0x69,
+	0x6c, 0x64, 0x5f, 0x69, 0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x07, 0x67, 0x75, 0x69,
+	0x6c, 0x64, 0x49, 0x64, 0x12, 0x17, 0x0a, 0x07, 0x75, 0x73, 0x65, 0x72, 0x5f, 0x69, 0x64, 0x18,
+	0x02, 0x20, 0x01, 0x28, 0x09, 0x52, 0x06, 0x75, 0x73, 0x65, 0x72, 0x49, 0x64, 0x22, 0x39, 0x0a,
+	0x14, 0x53, 0x68, 0x75, 0x66, 0x66, 0x6c, 0x65, 0x51, 0x75, 0x65, 0x75, 0x65, 0x52, 0x65, 0x73,
+	0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x21, 0x0a, 0x05, 0x73, 0x6f, 0x6e, 0x67, 0x73, 0x18, 0x01,
+	0x20, 0x03, 0x28, 0x0b, 0x32, 0x0b, 0x2e, 0x71, 0x75, 0x65, 0x75, 0x65, 0x2e, 0x53, 0x6f, 0x6e,
+	0x67, 0x52, 0x05, 0x73, 0x6f, 0x6e, 0x67, 0x73, 0x22, 0x76, 0x0a, 0x19, 0x43, 0x68, 0x61, 0x6e,
+	0x67, 0x65, 0x53, 0x6f, 0x6e, 0x67, 0x50, 0x6f, 0x73, 0x69, 0x74, 0x69, 0x6f, 0x6e, 0x52, 0x65,
+	0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x19, 0x0a, 0x08, 0x67, 0x75, 0x69, 0x6c, 0x64, 0x5f, 0x69,
+	0x64, 0x18, 0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x07, 0x67, 0x75, 0x69, 0x6c, 0x64, 0x49, 0x64,
+	0x12, 0x17, 0x0a, 0x07, 0x75, 0x73, 0x65, 0x72, 0x5f, 0x69, 0x64, 0x18, 0x02, 0x20, 0x01, 0x28,
+	0x09, 0x52, 0x06, 0x75, 0x73, 0x65, 0x72, 0x49, 0x64, 0x12, 0x25, 0x0a, 0x0e, 0x73, 0x6f, 0x6e,
+	0x67, 0x5f, 0x70, 0x6f, 0x73, 0x69, 0x74, 0x69, 0x6f, 0x6e, 0x73, 0x18, 0x03, 0x20, 0x03, 0x28,
+	0x0d, 0x52, 0x0d, 0x73, 0x6f, 0x6e, 0x67, 0x50, 0x6f, 0x73, 0x69, 0x74, 0x69, 0x6f, 0x6e, 0x73,
+	0x22, 0x3f, 0x0a, 0x1a, 0x43, 0x68, 0x61, 0x6e, 0x67, 0x65, 0x53, 0x6f, 0x6e, 0x67, 0x50, 0x6f,
+	0x73, 0x69, 0x74, 0x69, 0x6f, 0x6e, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12, 0x21,
+	0x0a, 0x05, 0x73, 0x6f, 0x6e, 0x67, 0x73, 0x18, 0x01, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x0b, 0x2e,
+	0x71, 0x75, 0x65, 0x75, 0x65, 0x2e, 0x53, 0x6f, 0x6e, 0x67, 0x52, 0x05, 0x73, 0x6f, 0x6e, 0x67,
+	0x73, 0x32, 0xca, 0x03, 0x0a, 0x0c, 0x51, 0x75, 0x65, 0x75, 0x65, 0x53, 0x65, 0x72, 0x76, 0x69,
+	0x63, 0x65, 0x12, 0x49, 0x0a, 0x0c, 0x43, 0x75, 0x72, 0x72, 0x65, 0x6e, 0x74, 0x51, 0x75, 0x65,
+	0x75, 0x65, 0x12, 0x1a, 0x2e, 0x71, 0x75, 0x65, 0x75, 0x65, 0x2e, 0x43, 0x75, 0x72, 0x72, 0x65,
+	0x6e, 0x74, 0x51, 0x75, 0x65, 0x75, 0x65, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x1b,
+	0x2e, 0x71, 0x75, 0x65, 0x75, 0x65, 0x2e, 0x43, 0x75, 0x72, 0x72, 0x65, 0x6e, 0x74, 0x51, 0x75,
+	0x65, 0x75, 0x65, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x00, 0x12, 0x43, 0x0a,
+	0x0a, 0x52, 0x65, 0x6d, 0x6f, 0x76, 0x65, 0x53, 0x6f, 0x6e, 0x67, 0x12, 0x18, 0x2e, 0x71, 0x75,
+	0x65, 0x75, 0x65, 0x2e, 0x52, 0x65, 0x6d, 0x6f, 0x76, 0x65, 0x53, 0x6f, 0x6e, 0x67, 0x52, 0x65,
+	0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x19, 0x2e, 0x71, 0x75, 0x65, 0x75, 0x65, 0x2e, 0x52, 0x65,
+	0x6d, 0x6f, 0x76, 0x65, 0x53, 0x6f, 0x6e, 0x67, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65,
+	0x22, 0x00, 0x12, 0x3d, 0x0a, 0x08, 0x53, 0x6b, 0x69, 0x70, 0x53, 0x6f, 0x6e, 0x67, 0x12, 0x16,
+	0x2e, 0x71, 0x75, 0x65, 0x75, 0x65, 0x2e, 0x53, 0x6b, 0x69, 0x70, 0x53, 0x6f, 0x6e, 0x67, 0x52,
+	0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x17, 0x2e, 0x71, 0x75, 0x65, 0x75, 0x65, 0x2e, 0x53,
+	0x6b, 0x69, 0x70, 0x53, 0x6f, 0x6e, 0x67, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22,
+	0x00, 0x12, 0x43, 0x0a, 0x0a, 0x52, 0x65, 0x70, 0x65, 0x61, 0x74, 0x53, 0x6f, 0x6e, 0x67, 0x12,
+	0x18, 0x2e, 0x71, 0x75, 0x65, 0x75, 0x65, 0x2e, 0x52, 0x65, 0x70, 0x65, 0x61, 0x74, 0x53, 0x6f,
+	0x6e, 0x67, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x19, 0x2e, 0x71, 0x75, 0x65, 0x75,
+	0x65, 0x2e, 0x52, 0x65, 0x70, 0x65, 0x61, 0x74, 0x53, 0x6f, 0x6e, 0x67, 0x52, 0x65, 0x73, 0x70,
+	0x6f, 0x6e, 0x73, 0x65, 0x22, 0x00, 0x12, 0x49, 0x0a, 0x0c, 0x53, 0x68, 0x75, 0x66, 0x66, 0x6c,
+	0x65, 0x51, 0x75, 0x65, 0x75, 0x65, 0x12, 0x1a, 0x2e, 0x71, 0x75, 0x65, 0x75, 0x65, 0x2e, 0x53,
+	0x68, 0x75, 0x66, 0x66, 0x6c, 0x65, 0x51, 0x75, 0x65, 0x75, 0x65, 0x52, 0x65, 0x71, 0x75, 0x65,
+	0x73, 0x74, 0x1a, 0x1b, 0x2e, 0x71, 0x75, 0x65, 0x75, 0x65, 0x2e, 0x53, 0x68, 0x75, 0x66, 0x66,
+	0x6c, 0x65, 0x51, 0x75, 0x65, 0x75, 0x65, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22,
+	0x00, 0x12, 0x5b, 0x0a, 0x12, 0x43, 0x68, 0x61, 0x6e, 0x67, 0x65, 0x53, 0x6f, 0x6e, 0x67, 0x50,
+	0x6f, 0x73, 0x69, 0x74, 0x69, 0x6f, 0x6e, 0x12, 0x20, 0x2e, 0x71, 0x75, 0x65, 0x75, 0x65, 0x2e,
+	0x43, 0x68, 0x61, 0x6e, 0x67, 0x65, 0x53, 0x6f, 0x6e, 0x67, 0x50, 0x6f, 0x73, 0x69, 0x74, 0x69,
+	0x6f, 0x6e, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x21, 0x2e, 0x71, 0x75, 0x65, 0x75,
+	0x65, 0x2e, 0x43, 0x68, 0x61, 0x6e, 0x67, 0x65, 0x53, 0x6f, 0x6e, 0x67, 0x50, 0x6f, 0x73, 0x69,
+	0x74, 0x69, 0x6f, 0x6e, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x22, 0x00, 0x42, 0x0f,
+	0x5a, 0x0d, 0x2f, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62, 0x75, 0x66, 0x5f, 0x67, 0x65, 0x6e, 0x62,
+	0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
-var file_queue_proto_goTypes = []interface{}{}
+var (
+	file_queue_proto_rawDescOnce sync.Once
+	file_queue_proto_rawDescData = file_queue_proto_rawDesc
+)
+
+func file_queue_proto_rawDescGZIP() []byte {
+	file_queue_proto_rawDescOnce.Do(func() {
+		file_queue_proto_rawDescData = protoimpl.X.CompressGZIP(file_queue_proto_rawDescData)
+	})
+	return file_queue_proto_rawDescData
+}
+
+var file_queue_proto_msgTypes = make([]protoimpl.MessageInfo, 13)
+var file_queue_proto_goTypes = []interface{}{
+	(*CurrentQueueRequest)(nil),        // 0: queue.CurrentQueueRequest
+	(*CurrentQueueResponse)(nil),       // 1: queue.CurrentQueueResponse
+	(*Song)(nil),                       // 2: queue.Song
+	(*RemoveSongRequest)(nil),          // 3: queue.RemoveSongRequest
+	(*RemoveSongResponse)(nil),         // 4: queue.RemoveSongResponse
+	(*SkipSongRequest)(nil),            // 5: queue.SkipSongRequest
+	(*SkipSongResponse)(nil),           // 6: queue.SkipSongResponse
+	(*RepeatSongRequest)(nil),          // 7: queue.RepeatSongRequest
+	(*RepeatSongResponse)(nil),         // 8: queue.RepeatSongResponse
+	(*ShuffleQueueRequest)(nil),        // 9: queue.ShuffleQueueRequest
+	(*ShuffleQueueResponse)(nil),       // 10: queue.ShuffleQueueResponse
+	(*ChangeSongPositionRequest)(nil),  // 11: queue.ChangeSongPositionRequest
+	(*ChangeSongPositionResponse)(nil), // 12: queue.ChangeSongPositionResponse
+}
 var file_queue_proto_depIdxs = []int32{
-	0, // [0:0] is the sub-list for method output_type
-	0, // [0:0] is the sub-list for method input_type
-	0, // [0:0] is the sub-list for extension type_name
-	0, // [0:0] is the sub-list for extension extendee
-	0, // [0:0] is the sub-list for field type_name
+	2,  // 0: queue.CurrentQueueResponse.current_song:type_name -> queue.Song
+	2,  // 1: queue.CurrentQueueResponse.songs:type_name -> queue.Song
+	2,  // 2: queue.ShuffleQueueResponse.songs:type_name -> queue.Song
+	2,  // 3: queue.ChangeSongPositionResponse.songs:type_name -> queue.Song
+	0,  // 4: queue.QueueService.CurrentQueue:input_type -> queue.CurrentQueueRequest
+	3,  // 5: queue.QueueService.RemoveSong:input_type -> queue.RemoveSongRequest
+	5,  // 6: queue.QueueService.SkipSong:input_type -> queue.SkipSongRequest
+	7,  // 7: queue.QueueService.RepeatSong:input_type -> queue.RepeatSongRequest
+	9,  // 8: queue.QueueService.ShuffleQueue:input_type -> queue.ShuffleQueueRequest
+	11, // 9: queue.QueueService.ChangeSongPosition:input_type -> queue.ChangeSongPositionRequest
+	1,  // 10: queue.QueueService.CurrentQueue:output_type -> queue.CurrentQueueResponse
+	4,  // 11: queue.QueueService.RemoveSong:output_type -> queue.RemoveSongResponse
+	6,  // 12: queue.QueueService.SkipSong:output_type -> queue.SkipSongResponse
+	8,  // 13: queue.QueueService.RepeatSong:output_type -> queue.RepeatSongResponse
+	10, // 14: queue.QueueService.ShuffleQueue:output_type -> queue.ShuffleQueueResponse
+	12, // 15: queue.QueueService.ChangeSongPosition:output_type -> queue.ChangeSongPositionResponse
+	10, // [10:16] is the sub-list for method output_type
+	4,  // [4:10] is the sub-list for method input_type
+	4,  // [4:4] is the sub-list for extension type_name
+	4,  // [4:4] is the sub-list for extension extendee
+	0,  // [0:4] is the sub-list for field type_name
 }
 
 func init() { file_queue_proto_init() }
@@ -41,18 +929,177 @@ func file_queue_proto_init() {
 	if File_queue_proto != nil {
 		return
 	}
+	if !protoimpl.UnsafeEnabled {
+		file_queue_proto_msgTypes[0].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*CurrentQueueRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_queue_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*CurrentQueueResponse); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_queue_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*Song); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_queue_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*RemoveSongRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_queue_proto_msgTypes[4].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*RemoveSongResponse); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_queue_proto_msgTypes[5].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*SkipSongRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_queue_proto_msgTypes[6].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*SkipSongResponse); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_queue_proto_msgTypes[7].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*RepeatSongRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_queue_proto_msgTypes[8].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*RepeatSongResponse); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_queue_proto_msgTypes[9].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*ShuffleQueueRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_queue_proto_msgTypes[10].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*ShuffleQueueResponse); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_queue_proto_msgTypes[11].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*ChangeSongPositionRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_queue_proto_msgTypes[12].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*ChangeSongPositionResponse); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_queue_proto_rawDesc,
 			NumEnums:      0,
-			NumMessages:   0,
+			NumMessages:   13,
 			NumExtensions: 0,
-			NumServices:   0,
+			NumServices:   1,
 		},
 		GoTypes:           file_queue_proto_goTypes,
 		DependencyIndexes: file_queue_proto_depIdxs,
+		MessageInfos:      file_queue_proto_msgTypes,
 	}.Build()
 	File_queue_proto = out.File
 	file_queue_proto_rawDesc = nil

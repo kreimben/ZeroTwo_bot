@@ -28,6 +28,7 @@ const (
 type VoiceChannelServiceClient interface {
 	// response whenever the user changes channel.
 	// Client should use this rpc to update the user's current channel per 5 seconds.
+	// If the user is not in a voice channel, the response will return `NotFound` code.
 	WhereAmI(ctx context.Context, in *WhereAmIRequest, opts ...grpc.CallOption) (*WhereAmIResponse, error)
 }
 
@@ -54,6 +55,7 @@ func (c *voiceChannelServiceClient) WhereAmI(ctx context.Context, in *WhereAmIRe
 type VoiceChannelServiceServer interface {
 	// response whenever the user changes channel.
 	// Client should use this rpc to update the user's current channel per 5 seconds.
+	// If the user is not in a voice channel, the response will return `NotFound` code.
 	WhereAmI(context.Context, *WhereAmIRequest) (*WhereAmIResponse, error)
 	mustEmbedUnimplementedVoiceChannelServiceServer()
 }
