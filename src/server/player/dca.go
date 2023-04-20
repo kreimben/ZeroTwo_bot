@@ -49,7 +49,7 @@ func (p *Player) _play() {
 		p.IsPlaying = true
 	}
 
-	for /*p.MusicQueue != nil && len(p.MusicQueue) > 0 */ {
+	for p.MusicQueue != nil && len(p.MusicQueue) > 0 {
 		videoId := p.MusicQueue[0].Base.ID
 		decoder := bytes.NewBuffer(nil)
 
