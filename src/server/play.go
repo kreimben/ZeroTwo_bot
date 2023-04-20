@@ -81,6 +81,7 @@ func (p *playerServer) Play(_ context.Context, req *gen.PlayRequest) (*gen.PlayR
 			IsPaused:      false,
 			IsPlaying:     false,
 			Break:         false,
+			CurrentTime:   0,
 		}
 		player.Players[state.GuildID].Activate(join)
 		log.Println("Player activated")

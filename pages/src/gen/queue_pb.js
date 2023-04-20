@@ -503,7 +503,8 @@ proto.queue.CurrentQueueResponse.toObject = function(includeInstance, msg) {
     currentSong: (f = msg.getCurrentSong()) && proto.queue.Song.toObject(includeInstance, f),
     songsList: jspb.Message.toObjectList(msg.getSongsList(),
     proto.queue.Song.toObject, includeInstance),
-    length: jspb.Message.getFieldWithDefault(msg, 3, 0)
+    length: jspb.Message.getFieldWithDefault(msg, 3, 0),
+    timestamp: jspb.Message.getFieldWithDefault(msg, 4, 0)
   };
 
   if (includeInstance) {
@@ -554,6 +555,10 @@ proto.queue.CurrentQueueResponse.deserializeBinaryFromReader = function(msg, rea
       var value = /** @type {number} */ (reader.readUint32());
       msg.setLength(value);
       break;
+    case 4:
+      var value = /** @type {number} */ (reader.readUint32());
+      msg.setTimestamp(value);
+      break;
     default:
       reader.skipField();
       break;
@@ -603,6 +608,13 @@ proto.queue.CurrentQueueResponse.serializeBinaryToWriter = function(message, wri
   if (f !== 0) {
     writer.writeUint32(
       3,
+      f
+    );
+  }
+  f = message.getTimestamp();
+  if (f !== 0) {
+    writer.writeUint32(
+      4,
       f
     );
   }
@@ -699,6 +711,24 @@ proto.queue.CurrentQueueResponse.prototype.getLength = function() {
  */
 proto.queue.CurrentQueueResponse.prototype.setLength = function(value) {
   return jspb.Message.setProto3IntField(this, 3, value);
+};
+
+
+/**
+ * optional uint32 timestamp = 4;
+ * @return {number}
+ */
+proto.queue.CurrentQueueResponse.prototype.getTimestamp = function() {
+  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 4, 0));
+};
+
+
+/**
+ * @param {number} value
+ * @return {!proto.queue.CurrentQueueResponse} returns this
+ */
+proto.queue.CurrentQueueResponse.prototype.setTimestamp = function(value) {
+  return jspb.Message.setProto3IntField(this, 4, value);
 };
 
 

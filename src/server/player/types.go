@@ -18,8 +18,9 @@ type Player struct {
 	YoutubeClient   *ytdl.Client
 	CredentialKey   []string // ["{guild_id}-{user_id}"]
 	IsPaused        bool
-	IsPlaying       bool // indicates only if the player is playing now.
-	Break           bool // just for skipping.
+	IsPlaying       bool   // indicates only if the player is playing now.
+	Break           bool   // just for skipping.
+	CurrentTime     uint32 // current playing time of the song in `milliseconds`.
 }
 
 type Song struct {

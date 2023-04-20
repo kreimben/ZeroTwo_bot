@@ -22,6 +22,7 @@ message CurrentQueueResponse {
   Song current_song = 1; // current song playing
   repeated Song songs = 2; // songs in queue WITHOUT current song.
   uint32 length = 3; // length of queue.
+  uint32 timestamp = 4; // timestamp of current song in seconds.
 }
 
 message Song {

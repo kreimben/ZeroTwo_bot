@@ -56,6 +56,7 @@ func (q *queueServer) CurrentQueue(_ context.Context, req *gen.CurrentQueueReque
 		Songs:       songs[1:],
 		CurrentSong: songs[0],
 		Length:      uint32(len(songs)),
+		Timestamp:   p.CurrentTime,
 	}, nil
 }
 

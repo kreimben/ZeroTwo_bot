@@ -41,6 +41,9 @@ export class CurrentQueueResponse extends jspb.Message {
   getLength(): number;
   setLength(value: number): void;
 
+  getTimestamp(): number;
+  setTimestamp(value: number): void;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): CurrentQueueResponse.AsObject;
   static toObject(includeInstance: boolean, msg: CurrentQueueResponse): CurrentQueueResponse.AsObject;
@@ -56,6 +59,7 @@ export namespace CurrentQueueResponse {
     currentSong?: Song.AsObject,
     songsList: Array<Song.AsObject>,
     length: number,
+    timestamp: number,
   }
 }
 

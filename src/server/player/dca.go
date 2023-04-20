@@ -144,6 +144,7 @@ func (p *Player) _play() {
 
 			num, err := opusEncoder.Encode(buf, o)
 			if err == nil && num > 0 {
+				p.CurrentTime += 20
 				p.VoiceConnection.OpusSend <- o[:num]
 			} else {
 				break
@@ -159,6 +160,7 @@ func (p *Player) afterEOF(err error) {
 	// if not repeat mode, remove song from MusicQueue
 	if len(p.MusicQueue) > 0 && !p.IsRepeat {
 		p.MusicQueue = p.MusicQueue[1:]
+		p.CurrentTime = 0
 		log.Println("Removed played song from MusicQueue")
 	}
 
