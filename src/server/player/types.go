@@ -6,21 +6,7 @@ import (
 	"sync"
 )
 
-type Playable interface {
-	AddSongToQueue(song *Song) error
-	ClearQueue() error
-	Skip(skipIndex uint) error
-	Queue() ([]*Song, error)
-	NowPlaying() (*Song, error)
-	MakeShuffle() error
-	RemoveAt(index uint) error
-	Pause() error
-	Resume() error
-	Resign()
-}
-
-// Player
-// One player per guild.
+// Player One player per guild.
 type Player struct {
 	QueueMutex      *sync.RWMutex
 	AudioMutex      *sync.RWMutex
@@ -31,6 +17,9 @@ type Player struct {
 	VoiceConnection *discordgo.VoiceConnection
 	YoutubeClient   *ytdl.Client
 	CredentialKey   []string // ["{guild_id}-{user_id}"]
+	IsPaused        bool
+	IsPlaying       bool // indicates only if the player is playing now.
+	Break           bool // just for skipping.
 }
 
 type Song struct {

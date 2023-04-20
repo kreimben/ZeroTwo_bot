@@ -43,99 +43,111 @@ var (
 // _play reads from the converted opus file, then sends it to the voice connection
 // get only id of video. not search keyword or anything else.
 func (p *Player) _play() {
-	if len(p.MusicQueue) == 0 {
+	if p.IsPlaying {
 		return
-	}
-	videoId := p.MusicQueue[0].Base.ID
-	decoder := bytes.NewBuffer(nil)
-
-	// Create the FFmpeg command
-	ytCmd := exec.Command(
-		"yt-dlp",
-		"-f", "bestaudio",
-		"-x",
-		"--audio-format", "opus",
-		"--default-search", "auto",
-		fmt.Sprintf("https://www.youtube.com/watch?v=%s", videoId),
-		"-o", "-",
-	)
-	ffmpegCmd := exec.Command(
-		"ffmpeg",
-		"-hide_banner",
-		//"-loglevel", "debug",
-		"-i", "pipe:0",
-		"-f", "s16le",
-		"-acodec", "pcm_s16le",
-		"-ar", fmt.Sprintf("%d", audioFrameRate),
-		"-ac", "2",
-		"-b:a", "96k",
-		"-reconnect", "1",
-		"-reconnect_streamed", "1",
-		"-reconnect_at_eof", "1",
-		"-reconnect_streamed", "1",
-		"-reconnect_delay_max", "5",
-		"pipe:1",
-	)
-
-	ytOutput, err := ytCmd.StdoutPipe()
-	if err != nil {
-		log.Println("Error creating stdout pipe for yt-dlp command:", err)
-		return
-	}
-	defer ytOutput.Close()
-
-	ffmpegCmd.Stdin = ytOutput
-	ffmpegCmd.Stdout = decoder
-
-	err = ffmpegCmd.Start()
-	if err != nil {
-		log.Println("Error starting ffmpeg command:", err)
-		return
+	} else {
+		p.IsPlaying = true
 	}
 
-	err = ytCmd.Run()
-	if err != nil {
-		log.Println("Error running yt-dlp command:", err)
-		return
-	}
+	for /*p.MusicQueue != nil && len(p.MusicQueue) > 0 */ {
+		videoId := p.MusicQueue[0].Base.ID
+		decoder := bytes.NewBuffer(nil)
 
-	err = ffmpegCmd.Wait()
-	if err != nil {
-		log.Println("Error waiting for ffmpeg command:", err)
-		return
-	}
+		// Create the FFmpeg command
+		ytCmd := exec.Command(
+			"yt-dlp",
+			"-f", "bestaudio",
+			"-x",
+			"--audio-format", "opus",
+			"--default-search", "auto",
+			fmt.Sprintf("https://www.youtube.com/watch?v=%s", videoId),
+			"-o", "-",
+		)
+		ffmpegCmd := exec.Command(
+			"ffmpeg",
+			"-hide_banner",
+			//"-loglevel", "debug",
+			"-i", "pipe:0",
+			"-f", "s16le",
+			"-acodec", "pcm_s16le",
+			"-ar", fmt.Sprintf("%d", audioFrameRate),
+			"-ac", "2",
+			"-b:a", "96k",
+			"-reconnect", "1",
+			"-reconnect_streamed", "1",
+			"-reconnect_at_eof", "1",
+			"-reconnect_streamed", "1",
+			"-reconnect_delay_max", "5",
+			"pipe:1",
+		)
 
-	time.Sleep(time.Second)
+		ytOutput, err := ytCmd.StdoutPipe()
+		if err != nil {
+			log.Println("Error creating stdout pipe for yt-dlp command:", err)
+			return
+		}
+		defer ytOutput.Close()
 
-	defer func(ff *exec.Cmd) {
-		for ff.Process == nil {
-			err := ff.Process.Kill()
-			if err != nil {
-				log.Println("Error killing ffmpeg process: ", err)
-				return
+		ffmpegCmd.Stdin = ytOutput
+		ffmpegCmd.Stdout = decoder
+
+		err = ffmpegCmd.Start()
+		if err != nil {
+			log.Println("Error starting ffmpeg command:", err)
+			return
+		}
+
+		err = ytCmd.Run()
+		if err != nil {
+			log.Println("Error running yt-dlp command:", err)
+			return
+		}
+
+		err = ffmpegCmd.Wait()
+		if err != nil {
+			log.Println("Error waiting for ffmpeg command:", err)
+			return
+		}
+
+		time.Sleep(time.Second)
+
+		defer func(ff *exec.Cmd) {
+			for ff.Process == nil {
+				err := ff.Process.Kill()
+				if err != nil {
+					log.Println("Error killing ffmpeg process: ", err)
+					return
+				}
 			}
-		}
-	}(ffmpegCmd)
+		}(ffmpegCmd)
 
-	for p.VoiceConnection != nil {
-		buf := make([]int16, originalMaxBytes)
+		for p.VoiceConnection != nil {
+			for p.IsPaused {
+				continue
+			}
+			if p.Break {
+				p.Break = false
+				break
+			}
+			buf := make([]int16, originalMaxBytes)
 
-		err := binary.Read(decoder, binary.LittleEndian, &buf)
-		if err == io.EOF || err == io.ErrUnexpectedEOF {
-			go p.afterEOF(err)
-			break
-		} else if err != nil {
-			log.Println("Error reading from buffer:", err)
-			break
-		}
+			err := binary.Read(decoder, binary.LittleEndian, &buf)
+			if err == io.EOF || err == io.ErrUnexpectedEOF {
+				p.afterEOF(err)
+				break
+			} else if err != nil {
+				log.Println("Error reading from buffer:", err)
+				break
+			}
 
-		o := make([]byte, originalMaxBytes)
+			o := make([]byte, originalMaxBytes)
 
-		num, err := opusEncoder.Encode(buf, o)
-		if err == nil && num > 0 {
-			p.VoiceConnection.OpusSend <- o[:num]
-		} else {
-			break
+			num, err := opusEncoder.Encode(buf, o)
+			if err == nil && num > 0 {
+				p.VoiceConnection.OpusSend <- o[:num]
+			} else {
+				break
+			}
 		}
 	}
 }
@@ -156,11 +168,5 @@ func (p *Player) afterEOF(err error) {
 	if len(p.MusicQueue) == 0 {
 		p.StopSignal <- p.VoiceConnection.GuildID
 		log.Println("Sent stop signal")
-	} else {
-		p.AudioMutex.Unlock()
-		log.Println("unlock AudioMutex in main loop")
-
-		p.PlaySignal <- true
-		log.Println("Sent play signal (play next song!)")
 	}
 }

@@ -76,7 +76,12 @@ func (p *playerServer) Play(_ context.Context, req *gen.PlayRequest) (*gen.PlayR
 	// Fourth, play the music.
 	if _, ok := player.Players[state.GuildID]; !ok {
 		log.Println("player is gonna to be set")
-		player.Players[state.GuildID] = &player.Player{CredentialKey: []string{string(state.GuildID + "-" + state.UserID)}}
+		player.Players[state.GuildID] = &player.Player{
+			CredentialKey: []string{string(state.GuildID + "-" + state.UserID)},
+			IsPaused:      false,
+			IsPlaying:     false,
+			Break:         false,
+		}
 		player.Players[state.GuildID].Activate(join)
 		log.Println("Player activated")
 	} else {
@@ -84,5 +89,5 @@ func (p *playerServer) Play(_ context.Context, req *gen.PlayRequest) (*gen.PlayR
 	}
 
 	go player.Players[state.GuildID].AddSongToQueue(req.GetPlayUrl(), req.GetUserId())
-	return &gen.PlayResponse{Message: "Seems to no problem."}, nil
+	return &gen.PlayResponse{Message: "Added to play queue."}, nil
 }

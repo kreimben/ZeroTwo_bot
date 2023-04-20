@@ -52,17 +52,7 @@ func (p *Player) Activate(vc *discordgo.VoiceConnection) {
 			case <-p.PlaySignal:
 				log.Println("Got PlaySignal")
 
-				p.AudioMutex.Lock()
-				log.Println("lock AudioMutex")
-
-				// skip to 1st song in MusicQueue
-				p.QueueMutex.Lock()
-				log.Println("lock QueueMutex in main loop")
-
 				go p._play()
-
-				p.QueueMutex.Unlock()
-				log.Println("unlock QueueMutex in main loop")
 			}
 		}
 	}()
@@ -120,20 +110,20 @@ func (p *Player) Resume() error {
 // Skip skipIndex is the number of songs to skip.
 // Start from 1.
 // If skipIndex is greater than the MusicQueue size, just go to the final song.
-func (p *Player) Skip(skipIndex uint) error {
-	p.QueueMutex.Lock()
-	defer p.QueueMutex.Unlock()
+func (p *Player) Skip(skipIndex uint, err chan error) {
 	if p.MusicQueue == nil || len(p.MusicQueue) == 0 {
-		return errors.New("nothing in the MusicQueue")
+		err <- errors.New("nothing in the MusicQueue")
+		close(err)
+		return
 	} else if skipIndex > uint(len(p.MusicQueue)) {
 		// just go to final song in current MusicQueue
 		p.MusicQueue = p.MusicQueue[len(p.MusicQueue)-1:]
-		return nil
 	} else {
 		// index start from 1
 		p.MusicQueue = p.MusicQueue[skipIndex:]
-		return nil
 	}
+	p.Break = true
+	close(err)
 }
 
 // Repeat toggle repeat mode.
@@ -191,6 +181,16 @@ func (p *Player) MakeShuffle() error {
 		p.MusicQueue[i], p.MusicQueue[j] = p.MusicQueue[j], p.MusicQueue[i]
 	}
 	return nil
+}
+
+// Shuffle cannot start from 0 cuz index 0 is the song that is currently playing.
+func (p *Player) Shuffle() {
+	for i := 1; i < len(p.MusicQueue); i++ {
+		j := rand.Intn(i + 1)
+		if j != 0 {
+			p.MusicQueue[i], p.MusicQueue[j] = p.MusicQueue[j], p.MusicQueue[i]
+		}
+	}
 }
 
 func Resign(guildID string) {
