@@ -37,3 +37,7 @@ type playerServer struct {
 type voiceChannelServer struct {
 	gen.UnimplementedVoiceChannelServiceServer
 }
+
+type queueServer struct {
+	gen.UnimplementedQueueServiceServer
+}

@@ -33,6 +33,7 @@ func gRPCServer() {
 	gen.RegisterDiscordServer(server, &discordServer{})
 	gen.RegisterPlayServiceServer(server, &playerServer{})
 	gen.RegisterVoiceChannelServiceServer(server, &voiceChannelServer{})
+	gen.RegisterQueueServiceServer(server, &queueServer{})
 	if err := server.Serve(lis); err != nil {
 		log.Fatalf("failed to serve: %v", err)
 	}
