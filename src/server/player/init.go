@@ -193,11 +193,11 @@ func (p *Player) Shuffle() {
 	}
 }
 
-func Resign(guildID string) {
+func Resign(guildID string) error {
 	err := Players[guildID].VoiceConnection.Disconnect()
 	if err != nil {
 		log.Println("An error occured with disconnecting the voice connection, error: ", err)
-		return
+		return err
 	}
 
 	// delete (set nil) in every variable in the struct.
@@ -215,4 +215,5 @@ func Resign(guildID string) {
 	Players[guildID] = nil
 
 	delete(Players, guildID)
+	return nil
 }
