@@ -8,7 +8,7 @@ type QueueServiceCurrentQueue = {
   readonly methodName: string;
   readonly service: typeof QueueService;
   readonly requestStream: false;
-  readonly responseStream: false;
+  readonly responseStream: true;
   readonly requestType: typeof queue_pb.CurrentQueueRequest;
   readonly responseType: typeof queue_pb.CurrentQueueResponse;
 };
@@ -110,15 +110,7 @@ export class QueueServiceClient {
   readonly serviceHost: string;
 
   constructor(serviceHost: string, options?: grpc.RpcOptions);
-  currentQueue(
-    requestMessage: queue_pb.CurrentQueueRequest,
-    metadata: grpc.Metadata,
-    callback: (error: ServiceError|null, responseMessage: queue_pb.CurrentQueueResponse|null) => void
-  ): UnaryResponse;
-  currentQueue(
-    requestMessage: queue_pb.CurrentQueueRequest,
-    callback: (error: ServiceError|null, responseMessage: queue_pb.CurrentQueueResponse|null) => void
-  ): UnaryResponse;
+  currentQueue(requestMessage: queue_pb.CurrentQueueRequest, metadata?: grpc.Metadata): ResponseStream<queue_pb.CurrentQueueResponse>;
   removeSong(
     requestMessage: queue_pb.RemoveSongRequest,
     metadata: grpc.Metadata,

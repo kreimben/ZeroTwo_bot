@@ -5,7 +5,15 @@ package queue;
 option go_package = "/protobuf_gen";
 
 service QueueService {
-  rpc CurrentQueue (CurrentQueueRequest) returns (CurrentQueueResponse) {}
+  /**
+   * Streaming rpc.
+   * Respond when below rpcs are called.
+   * - SkipSong
+   * - RemoveSong
+   * - ShuffleQueue
+   * - ChangeSongPosition
+   */
+  rpc CurrentQueue (CurrentQueueRequest) returns (stream CurrentQueueResponse) {}
   rpc RemoveSong (RemoveSongRequest) returns (RemoveSongResponse) {}
   rpc SkipSong (SkipSongRequest) returns (SkipSongResponse) {}
   rpc RepeatSong (RepeatSongRequest) returns (RepeatSongResponse) {}
@@ -41,9 +49,7 @@ message RemoveSongRequest {
   uint32 song_index = 3; // 1 to songs.length - 1 cuz 0 is current playing song.
 }
 
-message RemoveSongResponse {
-  bool success = 1; // just for assuming.
-}
+message RemoveSongResponse {} // check results through CurrentQueueResponse streaming.
 
 message SkipSongRequest {
   string guild_id = 1;
@@ -51,9 +57,7 @@ message SkipSongRequest {
   uint32 song_index = 3; // 1 to songs.length - 1 cuz 0 is current playing song.
 }
 
-message SkipSongResponse {
-  bool success = 1; // just for assuming.
-}
+message SkipSongResponse {} // check results through CurrentQueueResponse streaming.
 
 /**
  * Only repeat current playing song.
@@ -77,9 +81,7 @@ message ShuffleQueueRequest {
   string user_id = 2;
 }
 
-message ShuffleQueueResponse {
-  repeated Song songs = 1; // as a results.
-}
+message ShuffleQueueResponse {} // check results through CurrentQueueResponse streaming.
 
 message ChangeSongPositionRequest {
   string guild_id = 1;
@@ -87,9 +89,7 @@ message ChangeSongPositionRequest {
   repeated uint32 song_positions = 3; // Only adjust to rest of queue. Not affect to current playing song.
 }
 
-message ChangeSongPositionResponse {
-  repeated Song songs = 1; // as a results.
-}
+message ChangeSongPositionResponse {} // check results through CurrentQueueResponse streaming.
 
 message TimeStampRequest {
   string guild_id = 1;

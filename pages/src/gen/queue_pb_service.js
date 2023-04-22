@@ -14,7 +14,7 @@ QueueService.CurrentQueue = {
   methodName: "CurrentQueue",
   service: QueueService,
   requestStream: false,
-  responseStream: false,
+  responseStream: true,
   requestType: queue_pb.CurrentQueueRequest,
   responseType: queue_pb.CurrentQueueResponse
 };
@@ -80,32 +80,40 @@ function QueueServiceClient(serviceHost, options) {
   this.options = options || {};
 }
 
-QueueServiceClient.prototype.currentQueue = function currentQueue(requestMessage, metadata, callback) {
-  if (arguments.length === 2) {
-    callback = arguments[1];
-  }
-  var client = grpc.unary(QueueService.CurrentQueue, {
+QueueServiceClient.prototype.currentQueue = function currentQueue(requestMessage, metadata) {
+  var listeners = {
+    data: [],
+    end: [],
+    status: []
+  };
+  var client = grpc.invoke(QueueService.CurrentQueue, {
     request: requestMessage,
     host: this.serviceHost,
     metadata: metadata,
     transport: this.options.transport,
     debug: this.options.debug,
-    onEnd: function (response) {
-      if (callback) {
-        if (response.status !== grpc.Code.OK) {
-          var err = new Error(response.statusMessage);
-          err.code = response.status;
-          err.metadata = response.trailers;
-          callback(err, null);
-        } else {
-          callback(null, response.message);
-        }
-      }
+    onMessage: function (responseMessage) {
+      listeners.data.forEach(function (handler) {
+        handler(responseMessage);
+      });
+    },
+    onEnd: function (status, statusMessage, trailers) {
+      listeners.status.forEach(function (handler) {
+        handler({ code: status, details: statusMessage, metadata: trailers });
+      });
+      listeners.end.forEach(function (handler) {
+        handler({ code: status, details: statusMessage, metadata: trailers });
+      });
+      listeners = null;
     }
   });
   return {
+    on: function (type, handler) {
+      listeners[type].push(handler);
+      return this;
+    },
     cancel: function () {
-      callback = null;
+      listeners = null;
       client.close();
     }
   };

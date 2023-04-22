@@ -251,7 +251,7 @@ if (goog.DEBUG && !COMPILED) {
  * @constructor
  */
 proto.queue.ShuffleQueueResponse = function(opt_data) {
-  jspb.Message.initialize(this, opt_data, 0, -1, proto.queue.ShuffleQueueResponse.repeatedFields_, null);
+  jspb.Message.initialize(this, opt_data, 0, -1, null, null);
 };
 goog.inherits(proto.queue.ShuffleQueueResponse, jspb.Message);
 if (goog.DEBUG && !COMPILED) {
@@ -293,7 +293,7 @@ if (goog.DEBUG && !COMPILED) {
  * @constructor
  */
 proto.queue.ChangeSongPositionResponse = function(opt_data) {
-  jspb.Message.initialize(this, opt_data, 0, -1, proto.queue.ChangeSongPositionResponse.repeatedFields_, null);
+  jspb.Message.initialize(this, opt_data, 0, -1, null, null);
 };
 goog.inherits(proto.queue.ChangeSongPositionResponse, jspb.Message);
 if (goog.DEBUG && !COMPILED) {
@@ -1278,7 +1278,7 @@ proto.queue.RemoveSongResponse.prototype.toObject = function(opt_includeInstance
  */
 proto.queue.RemoveSongResponse.toObject = function(includeInstance, msg) {
   var f, obj = {
-    success: jspb.Message.getBooleanFieldWithDefault(msg, 1, false)
+
   };
 
   if (includeInstance) {
@@ -1315,10 +1315,6 @@ proto.queue.RemoveSongResponse.deserializeBinaryFromReader = function(msg, reade
     }
     var field = reader.getFieldNumber();
     switch (field) {
-    case 1:
-      var value = /** @type {boolean} */ (reader.readBool());
-      msg.setSuccess(value);
-      break;
     default:
       reader.skipField();
       break;
@@ -1348,31 +1344,6 @@ proto.queue.RemoveSongResponse.prototype.serializeBinary = function() {
  */
 proto.queue.RemoveSongResponse.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = message.getSuccess();
-  if (f) {
-    writer.writeBool(
-      1,
-      f
-    );
-  }
-};
-
-
-/**
- * optional bool success = 1;
- * @return {boolean}
- */
-proto.queue.RemoveSongResponse.prototype.getSuccess = function() {
-  return /** @type {boolean} */ (jspb.Message.getBooleanFieldWithDefault(this, 1, false));
-};
-
-
-/**
- * @param {boolean} value
- * @return {!proto.queue.RemoveSongResponse} returns this
- */
-proto.queue.RemoveSongResponse.prototype.setSuccess = function(value) {
-  return jspb.Message.setProto3BooleanField(this, 1, value);
 };
 
 
@@ -1598,7 +1569,7 @@ proto.queue.SkipSongResponse.prototype.toObject = function(opt_includeInstance) 
  */
 proto.queue.SkipSongResponse.toObject = function(includeInstance, msg) {
   var f, obj = {
-    success: jspb.Message.getBooleanFieldWithDefault(msg, 1, false)
+
   };
 
   if (includeInstance) {
@@ -1635,10 +1606,6 @@ proto.queue.SkipSongResponse.deserializeBinaryFromReader = function(msg, reader)
     }
     var field = reader.getFieldNumber();
     switch (field) {
-    case 1:
-      var value = /** @type {boolean} */ (reader.readBool());
-      msg.setSuccess(value);
-      break;
     default:
       reader.skipField();
       break;
@@ -1668,31 +1635,6 @@ proto.queue.SkipSongResponse.prototype.serializeBinary = function() {
  */
 proto.queue.SkipSongResponse.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = message.getSuccess();
-  if (f) {
-    writer.writeBool(
-      1,
-      f
-    );
-  }
-};
-
-
-/**
- * optional bool success = 1;
- * @return {boolean}
- */
-proto.queue.SkipSongResponse.prototype.getSuccess = function() {
-  return /** @type {boolean} */ (jspb.Message.getBooleanFieldWithDefault(this, 1, false));
-};
-
-
-/**
- * @param {boolean} value
- * @return {!proto.queue.SkipSongResponse} returns this
- */
-proto.queue.SkipSongResponse.prototype.setSuccess = function(value) {
-  return jspb.Message.setProto3BooleanField(this, 1, value);
 };
 
 
@@ -2147,13 +2089,6 @@ proto.queue.ShuffleQueueRequest.prototype.setUserId = function(value) {
 
 
 
-/**
- * List of repeated fields within this message type.
- * @private {!Array<number>}
- * @const
- */
-proto.queue.ShuffleQueueResponse.repeatedFields_ = [1];
-
 
 
 if (jspb.Message.GENERATE_TO_OBJECT) {
@@ -2185,8 +2120,7 @@ proto.queue.ShuffleQueueResponse.prototype.toObject = function(opt_includeInstan
  */
 proto.queue.ShuffleQueueResponse.toObject = function(includeInstance, msg) {
   var f, obj = {
-    songsList: jspb.Message.toObjectList(msg.getSongsList(),
-    proto.queue.Song.toObject, includeInstance)
+
   };
 
   if (includeInstance) {
@@ -2223,11 +2157,6 @@ proto.queue.ShuffleQueueResponse.deserializeBinaryFromReader = function(msg, rea
     }
     var field = reader.getFieldNumber();
     switch (field) {
-    case 1:
-      var value = new proto.queue.Song;
-      reader.readMessage(value,proto.queue.Song.deserializeBinaryFromReader);
-      msg.addSongs(value);
-      break;
     default:
       reader.skipField();
       break;
@@ -2257,52 +2186,6 @@ proto.queue.ShuffleQueueResponse.prototype.serializeBinary = function() {
  */
 proto.queue.ShuffleQueueResponse.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = message.getSongsList();
-  if (f.length > 0) {
-    writer.writeRepeatedMessage(
-      1,
-      f,
-      proto.queue.Song.serializeBinaryToWriter
-    );
-  }
-};
-
-
-/**
- * repeated Song songs = 1;
- * @return {!Array<!proto.queue.Song>}
- */
-proto.queue.ShuffleQueueResponse.prototype.getSongsList = function() {
-  return /** @type{!Array<!proto.queue.Song>} */ (
-    jspb.Message.getRepeatedWrapperField(this, proto.queue.Song, 1));
-};
-
-
-/**
- * @param {!Array<!proto.queue.Song>} value
- * @return {!proto.queue.ShuffleQueueResponse} returns this
-*/
-proto.queue.ShuffleQueueResponse.prototype.setSongsList = function(value) {
-  return jspb.Message.setRepeatedWrapperField(this, 1, value);
-};
-
-
-/**
- * @param {!proto.queue.Song=} opt_value
- * @param {number=} opt_index
- * @return {!proto.queue.Song}
- */
-proto.queue.ShuffleQueueResponse.prototype.addSongs = function(opt_value, opt_index) {
-  return jspb.Message.addToRepeatedWrapperField(this, 1, opt_value, proto.queue.Song, opt_index);
-};
-
-
-/**
- * Clears the list making it empty but non-null.
- * @return {!proto.queue.ShuffleQueueResponse} returns this
- */
-proto.queue.ShuffleQueueResponse.prototype.clearSongsList = function() {
-  return this.setSongsList([]);
 };
 
 
@@ -2525,13 +2408,6 @@ proto.queue.ChangeSongPositionRequest.prototype.clearSongPositionsList = functio
 
 
 
-/**
- * List of repeated fields within this message type.
- * @private {!Array<number>}
- * @const
- */
-proto.queue.ChangeSongPositionResponse.repeatedFields_ = [1];
-
 
 
 if (jspb.Message.GENERATE_TO_OBJECT) {
@@ -2563,8 +2439,7 @@ proto.queue.ChangeSongPositionResponse.prototype.toObject = function(opt_include
  */
 proto.queue.ChangeSongPositionResponse.toObject = function(includeInstance, msg) {
   var f, obj = {
-    songsList: jspb.Message.toObjectList(msg.getSongsList(),
-    proto.queue.Song.toObject, includeInstance)
+
   };
 
   if (includeInstance) {
@@ -2601,11 +2476,6 @@ proto.queue.ChangeSongPositionResponse.deserializeBinaryFromReader = function(ms
     }
     var field = reader.getFieldNumber();
     switch (field) {
-    case 1:
-      var value = new proto.queue.Song;
-      reader.readMessage(value,proto.queue.Song.deserializeBinaryFromReader);
-      msg.addSongs(value);
-      break;
     default:
       reader.skipField();
       break;
@@ -2635,52 +2505,6 @@ proto.queue.ChangeSongPositionResponse.prototype.serializeBinary = function() {
  */
 proto.queue.ChangeSongPositionResponse.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = message.getSongsList();
-  if (f.length > 0) {
-    writer.writeRepeatedMessage(
-      1,
-      f,
-      proto.queue.Song.serializeBinaryToWriter
-    );
-  }
-};
-
-
-/**
- * repeated Song songs = 1;
- * @return {!Array<!proto.queue.Song>}
- */
-proto.queue.ChangeSongPositionResponse.prototype.getSongsList = function() {
-  return /** @type{!Array<!proto.queue.Song>} */ (
-    jspb.Message.getRepeatedWrapperField(this, proto.queue.Song, 1));
-};
-
-
-/**
- * @param {!Array<!proto.queue.Song>} value
- * @return {!proto.queue.ChangeSongPositionResponse} returns this
-*/
-proto.queue.ChangeSongPositionResponse.prototype.setSongsList = function(value) {
-  return jspb.Message.setRepeatedWrapperField(this, 1, value);
-};
-
-
-/**
- * @param {!proto.queue.Song=} opt_value
- * @param {number=} opt_index
- * @return {!proto.queue.Song}
- */
-proto.queue.ChangeSongPositionResponse.prototype.addSongs = function(opt_value, opt_index) {
-  return jspb.Message.addToRepeatedWrapperField(this, 1, opt_value, proto.queue.Song, opt_index);
-};
-
-
-/**
- * Clears the list making it empty but non-null.
- * @return {!proto.queue.ChangeSongPositionResponse} returns this
- */
-proto.queue.ChangeSongPositionResponse.prototype.clearSongsList = function() {
-  return this.setSongsList([]);
 };
 
 

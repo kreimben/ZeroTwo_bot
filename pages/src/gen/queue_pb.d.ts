@@ -132,9 +132,6 @@ export namespace RemoveSongRequest {
 }
 
 export class RemoveSongResponse extends jspb.Message {
-  getSuccess(): boolean;
-  setSuccess(value: boolean): void;
-
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): RemoveSongResponse.AsObject;
   static toObject(includeInstance: boolean, msg: RemoveSongResponse): RemoveSongResponse.AsObject;
@@ -147,7 +144,6 @@ export class RemoveSongResponse extends jspb.Message {
 
 export namespace RemoveSongResponse {
   export type AsObject = {
-    success: boolean,
   }
 }
 
@@ -180,9 +176,6 @@ export namespace SkipSongRequest {
 }
 
 export class SkipSongResponse extends jspb.Message {
-  getSuccess(): boolean;
-  setSuccess(value: boolean): void;
-
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): SkipSongResponse.AsObject;
   static toObject(includeInstance: boolean, msg: SkipSongResponse): SkipSongResponse.AsObject;
@@ -195,7 +188,6 @@ export class SkipSongResponse extends jspb.Message {
 
 export namespace SkipSongResponse {
   export type AsObject = {
-    success: boolean,
   }
 }
 
@@ -268,11 +260,6 @@ export namespace ShuffleQueueRequest {
 }
 
 export class ShuffleQueueResponse extends jspb.Message {
-  clearSongsList(): void;
-  getSongsList(): Array<Song>;
-  setSongsList(value: Array<Song>): void;
-  addSongs(value?: Song, index?: number): Song;
-
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): ShuffleQueueResponse.AsObject;
   static toObject(includeInstance: boolean, msg: ShuffleQueueResponse): ShuffleQueueResponse.AsObject;
@@ -285,7 +272,6 @@ export class ShuffleQueueResponse extends jspb.Message {
 
 export namespace ShuffleQueueResponse {
   export type AsObject = {
-    songsList: Array<Song.AsObject>,
   }
 }
 
@@ -320,11 +306,6 @@ export namespace ChangeSongPositionRequest {
 }
 
 export class ChangeSongPositionResponse extends jspb.Message {
-  clearSongsList(): void;
-  getSongsList(): Array<Song>;
-  setSongsList(value: Array<Song>): void;
-  addSongs(value?: Song, index?: number): Song;
-
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): ChangeSongPositionResponse.AsObject;
   static toObject(includeInstance: boolean, msg: ChangeSongPositionResponse): ChangeSongPositionResponse.AsObject;
@@ -337,7 +318,6 @@ export class ChangeSongPositionResponse extends jspb.Message {
 
 export namespace ChangeSongPositionResponse {
   export type AsObject = {
-    songsList: Array<Song.AsObject>,
   }
 }
 

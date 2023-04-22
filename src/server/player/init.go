@@ -16,7 +16,6 @@ import (
 // run before AddSongToQueue()
 func (p *Player) Activate(vc *discordgo.VoiceConnection) {
 	// set mutex
-	p.AudioMutex = &sync.RWMutex{}
 	p.QueueMutex = &sync.RWMutex{}
 
 	p.QueueMutex.Lock()
@@ -25,6 +24,7 @@ func (p *Player) Activate(vc *discordgo.VoiceConnection) {
 	p.MusicQueue = make([]*Song, 0)
 	p.PlaySignal = make(chan bool)
 	p.StopSignal = make(chan string)
+	p.QueueEvent = make(chan string)
 	p.VoiceConnection = vc
 	p.YoutubeClient = &ytdl.Client{Debug: os.Getenv("DEBUG") == "true"}
 
@@ -46,6 +46,7 @@ func (p *Player) Activate(vc *discordgo.VoiceConnection) {
 			select {
 			case guildId := <-p.StopSignal:
 				log.Println("Got StopSignal")
+				p.QueueEvent <- "StopSignal"
 				Resign(guildId)
 				log.Println("Resigned")
 				return
@@ -86,6 +87,9 @@ func (p *Player) AddSongToQueue(url string, applicant string) {
 
 	p.PlaySignal <- true
 	log.Println("PlaySignal sent")
+
+	p.QueueEvent <- "AddSongToQueue"
+	log.Println("QueueEvent sent")
 
 	return
 }
@@ -205,10 +209,10 @@ func Resign(guildID string) error {
 		delete(discord.SessionCredentials, key)
 	}
 	Players[guildID].VoiceConnection = nil
-	Players[guildID].AudioMutex = nil
 	Players[guildID].QueueMutex = nil
 	Players[guildID].PlaySignal = nil
 	Players[guildID].StopSignal = nil
+	Players[guildID].QueueEvent = nil
 	Players[guildID].YoutubeClient = nil
 	Players[guildID].MusicQueue = nil
 

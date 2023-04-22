@@ -32,7 +32,14 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type QueueServiceClient interface {
-	CurrentQueue(ctx context.Context, in *CurrentQueueRequest, opts ...grpc.CallOption) (*CurrentQueueResponse, error)
+	// *
+	// Streaming rpc.
+	// Respond when below rpcs are called.
+	// - SkipSong
+	// - RemoveSong
+	// - ShuffleQueue
+	// - ChangeSongPosition
+	CurrentQueue(ctx context.Context, in *CurrentQueueRequest, opts ...grpc.CallOption) (QueueService_CurrentQueueClient, error)
 	RemoveSong(ctx context.Context, in *RemoveSongRequest, opts ...grpc.CallOption) (*RemoveSongResponse, error)
 	SkipSong(ctx context.Context, in *SkipSongRequest, opts ...grpc.CallOption) (*SkipSongResponse, error)
 	RepeatSong(ctx context.Context, in *RepeatSongRequest, opts ...grpc.CallOption) (*RepeatSongResponse, error)
@@ -49,13 +56,36 @@ func NewQueueServiceClient(cc grpc.ClientConnInterface) QueueServiceClient {
 	return &queueServiceClient{cc}
 }
 
-func (c *queueServiceClient) CurrentQueue(ctx context.Context, in *CurrentQueueRequest, opts ...grpc.CallOption) (*CurrentQueueResponse, error) {
-	out := new(CurrentQueueResponse)
-	err := c.cc.Invoke(ctx, QueueService_CurrentQueue_FullMethodName, in, out, opts...)
+func (c *queueServiceClient) CurrentQueue(ctx context.Context, in *CurrentQueueRequest, opts ...grpc.CallOption) (QueueService_CurrentQueueClient, error) {
+	stream, err := c.cc.NewStream(ctx, &QueueService_ServiceDesc.Streams[0], QueueService_CurrentQueue_FullMethodName, opts...)
 	if err != nil {
 		return nil, err
 	}
-	return out, nil
+	x := &queueServiceCurrentQueueClient{stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+type QueueService_CurrentQueueClient interface {
+	Recv() (*CurrentQueueResponse, error)
+	grpc.ClientStream
+}
+
+type queueServiceCurrentQueueClient struct {
+	grpc.ClientStream
+}
+
+func (x *queueServiceCurrentQueueClient) Recv() (*CurrentQueueResponse, error) {
+	m := new(CurrentQueueResponse)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
 }
 
 func (c *queueServiceClient) RemoveSong(ctx context.Context, in *RemoveSongRequest, opts ...grpc.CallOption) (*RemoveSongResponse, error) {
@@ -104,7 +134,7 @@ func (c *queueServiceClient) ChangeSongPosition(ctx context.Context, in *ChangeS
 }
 
 func (c *queueServiceClient) TimeStamp(ctx context.Context, in *TimeStampRequest, opts ...grpc.CallOption) (QueueService_TimeStampClient, error) {
-	stream, err := c.cc.NewStream(ctx, &QueueService_ServiceDesc.Streams[0], QueueService_TimeStamp_FullMethodName, opts...)
+	stream, err := c.cc.NewStream(ctx, &QueueService_ServiceDesc.Streams[1], QueueService_TimeStamp_FullMethodName, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -139,7 +169,14 @@ func (x *queueServiceTimeStampClient) Recv() (*TimeStampResponse, error) {
 // All implementations must embed UnimplementedQueueServiceServer
 // for forward compatibility
 type QueueServiceServer interface {
-	CurrentQueue(context.Context, *CurrentQueueRequest) (*CurrentQueueResponse, error)
+	// *
+	// Streaming rpc.
+	// Respond when below rpcs are called.
+	// - SkipSong
+	// - RemoveSong
+	// - ShuffleQueue
+	// - ChangeSongPosition
+	CurrentQueue(*CurrentQueueRequest, QueueService_CurrentQueueServer) error
 	RemoveSong(context.Context, *RemoveSongRequest) (*RemoveSongResponse, error)
 	SkipSong(context.Context, *SkipSongRequest) (*SkipSongResponse, error)
 	RepeatSong(context.Context, *RepeatSongRequest) (*RepeatSongResponse, error)
@@ -153,8 +190,8 @@ type QueueServiceServer interface {
 type UnimplementedQueueServiceServer struct {
 }
 
-func (UnimplementedQueueServiceServer) CurrentQueue(context.Context, *CurrentQueueRequest) (*CurrentQueueResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method CurrentQueue not implemented")
+func (UnimplementedQueueServiceServer) CurrentQueue(*CurrentQueueRequest, QueueService_CurrentQueueServer) error {
+	return status.Errorf(codes.Unimplemented, "method CurrentQueue not implemented")
 }
 func (UnimplementedQueueServiceServer) RemoveSong(context.Context, *RemoveSongRequest) (*RemoveSongResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RemoveSong not implemented")
@@ -187,22 +224,25 @@ func RegisterQueueServiceServer(s grpc.ServiceRegistrar, srv QueueServiceServer)
 	s.RegisterService(&QueueService_ServiceDesc, srv)
 }
 
-func _QueueService_CurrentQueue_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CurrentQueueRequest)
-	if err := dec(in); err != nil {
-		return nil, err
+func _QueueService_CurrentQueue_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(CurrentQueueRequest)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
 	}
-	if interceptor == nil {
-		return srv.(QueueServiceServer).CurrentQueue(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: QueueService_CurrentQueue_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(QueueServiceServer).CurrentQueue(ctx, req.(*CurrentQueueRequest))
-	}
-	return interceptor(ctx, in, info, handler)
+	return srv.(QueueServiceServer).CurrentQueue(m, &queueServiceCurrentQueueServer{stream})
+}
+
+type QueueService_CurrentQueueServer interface {
+	Send(*CurrentQueueResponse) error
+	grpc.ServerStream
+}
+
+type queueServiceCurrentQueueServer struct {
+	grpc.ServerStream
+}
+
+func (x *queueServiceCurrentQueueServer) Send(m *CurrentQueueResponse) error {
+	return x.ServerStream.SendMsg(m)
 }
 
 func _QueueService_RemoveSong_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -324,10 +364,6 @@ var QueueService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*QueueServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "CurrentQueue",
-			Handler:    _QueueService_CurrentQueue_Handler,
-		},
-		{
 			MethodName: "RemoveSong",
 			Handler:    _QueueService_RemoveSong_Handler,
 		},
@@ -349,6 +385,11 @@ var QueueService_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams: []grpc.StreamDesc{
+		{
+			StreamName:    "CurrentQueue",
+			Handler:       _QueueService_CurrentQueue_Handler,
+			ServerStreams: true,
+		},
 		{
 			StreamName:    "TimeStamp",
 			Handler:       _QueueService_TimeStamp_Handler,

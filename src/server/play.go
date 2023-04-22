@@ -136,6 +136,13 @@ func (p *playerServer) Stop(_ context.Context, req *gen.StopRequest) (*gen.StopR
 		return nil, status.Errorf(codes.Internal, "I can't leave the voice channel in some unknown reason.")
 	}
 
+	// get player object.
+	playerObj, ok := player.Players[req.GetGuildId()]
+	if !ok {
+		return nil, status.Errorf(codes.Unavailable, "Player is not initialized.")
+	}
+	playerObj.QueueEvent <- "Stop"
+
 	// finally resign.
 	err = player.Resign(req.GetGuildId())
 	if err != nil {

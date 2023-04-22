@@ -45,20 +45,39 @@ func getQueueFromPosition(queue []*player.Song, order []uint32) ([]*player.Song,
 	return res, nil
 }
 
-func (q *queueServer) CurrentQueue(_ context.Context, req *gen.CurrentQueueRequest) (*gen.CurrentQueueResponse, error) {
+func (q *queueServer) CurrentQueue(req *gen.CurrentQueueRequest, stream gen.QueueService_CurrentQueueServer) error {
 	p, ok := player.Players[req.GuildId]
 	if !ok {
-		return nil, status.Errorf(codes.NotFound, "You have to check guild id.")
+		return status.Errorf(codes.NotFound, "You have to check guild id.")
 	}
 
-	songs := getSongs(p.MusicQueue)
+	go func() {
+		p.QueueEvent <- "CurrentQueue"
+	}()
 
-	return &gen.CurrentQueueResponse{
-		Songs:       songs[1:],
-		CurrentSong: songs[0],
-		Length:      uint32(len(songs)),
-		Timestamp:   p.CurrentTime,
-	}, nil
+	for {
+		select {
+		case <-stream.Context().Done():
+			return nil
+		case eventType := <-p.QueueEvent:
+			if eventType == "Stop" {
+				return nil
+			} else { // When queue is changed, send new queue to client.
+				if p == nil || len(p.MusicQueue) == 0 {
+					return nil
+				} else {
+					songs := getSongs(p.MusicQueue)
+					if err := stream.Send(&gen.CurrentQueueResponse{
+						Songs:       songs[1:],
+						CurrentSong: songs[0],
+						Timestamp:   p.CurrentTime,
+					}); err != nil {
+						return err
+					}
+				}
+			}
+		}
+	}
 }
 
 func (q *queueServer) RemoveSong(_ context.Context, req *gen.RemoveSongRequest) (*gen.RemoveSongResponse, error) {
@@ -71,10 +90,8 @@ func (q *queueServer) RemoveSong(_ context.Context, req *gen.RemoveSongRequest) 
 		return nil, status.Errorf(codes.OutOfRange, "You have to check index.")
 	}
 	p.MusicQueue = append(p.MusicQueue[:req.GetSongIndex()], p.MusicQueue[req.GetSongIndex()+1:]...)
-
-	return &gen.RemoveSongResponse{
-		Success: true, // just for assurance.
-	}, nil
+	p.QueueEvent <- "RemoveSong"
+	return &gen.RemoveSongResponse{}, nil
 }
 
 func (q *queueServer) SkipSong(_ context.Context, req *gen.SkipSongRequest) (*gen.SkipSongResponse, error) {
@@ -92,9 +109,8 @@ func (q *queueServer) SkipSong(_ context.Context, req *gen.SkipSongRequest) (*ge
 	if err, ok := <-err; ok {
 		return nil, status.Errorf(codes.Internal, "An error occurred with skipping song, error: %v", err)
 	} else {
-		return &gen.SkipSongResponse{
-			Success: true, // just for assurance.
-		}, nil
+		p.QueueEvent <- "SkipSong"
+		return &gen.SkipSongResponse{}, nil
 	}
 }
 
@@ -104,6 +120,7 @@ func (q *queueServer) RepeatSong(_ context.Context, req *gen.RepeatSongRequest) 
 		return nil, status.Errorf(codes.NotFound, "You have to check guild id.")
 	}
 	p.IsRepeat = !p.IsRepeat
+	p.QueueEvent <- "RepeatSong"
 	return &gen.RepeatSongResponse{Result: p.IsRepeat}, nil
 }
 
@@ -113,7 +130,8 @@ func (q *queueServer) ShuffleQueue(_ context.Context, req *gen.ShuffleQueueReque
 		return nil, status.Errorf(codes.NotFound, "You have to check guild id.")
 	}
 	p.Shuffle()
-	return &gen.ShuffleQueueResponse{Songs: getSongs(p.MusicQueue)[1:]}, nil
+	p.QueueEvent <- "ShuffleQueue"
+	return &gen.ShuffleQueueResponse{}, nil
 }
 
 func (q *queueServer) ChangeSongPosition(_ context.Context, req *gen.ChangeSongPositionRequest) (*gen.ChangeSongPositionResponse, error) {
@@ -126,7 +144,8 @@ func (q *queueServer) ChangeSongPosition(_ context.Context, req *gen.ChangeSongP
 		return nil, status.Errorf(codes.InvalidArgument, "You have to check song positions.")
 	} else {
 		p.MusicQueue = queue
-		return &gen.ChangeSongPositionResponse{Songs: getSongs(p.MusicQueue)}, nil
+		p.QueueEvent <- "ChangeSongPosition"
+		return &gen.ChangeSongPositionResponse{}, nil
 	}
 }
 

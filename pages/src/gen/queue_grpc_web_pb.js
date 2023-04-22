@@ -82,7 +82,7 @@ proto.queue.QueueServicePromiseClient =
  */
 const methodDescriptor_QueueService_CurrentQueue = new grpc.web.MethodDescriptor(
   '/queue.QueueService/CurrentQueue',
-  grpc.web.MethodType.UNARY,
+  grpc.web.MethodType.SERVER_STREAMING,
   proto.queue.CurrentQueueRequest,
   proto.queue.CurrentQueueResponse,
   /**
@@ -97,37 +97,32 @@ const methodDescriptor_QueueService_CurrentQueue = new grpc.web.MethodDescriptor
 
 
 /**
- * @param {!proto.queue.CurrentQueueRequest} request The
- *     request proto
- * @param {?Object<string, string>} metadata User defined
+ * @param {!proto.queue.CurrentQueueRequest} request The request proto
+ * @param {?Object<string, string>=} metadata User defined
  *     call metadata
- * @param {function(?grpc.web.RpcError, ?proto.queue.CurrentQueueResponse)}
- *     callback The callback function(error, response)
- * @return {!grpc.web.ClientReadableStream<!proto.queue.CurrentQueueResponse>|undefined}
+ * @return {!grpc.web.ClientReadableStream<!proto.queue.CurrentQueueResponse>}
  *     The XHR Node Readable Stream
  */
 proto.queue.QueueServiceClient.prototype.currentQueue =
-    function(request, metadata, callback) {
-  return this.client_.rpcCall(this.hostname_ +
+    function(request, metadata) {
+  return this.client_.serverStreaming(this.hostname_ +
       '/queue.QueueService/CurrentQueue',
       request,
       metadata || {},
-      methodDescriptor_QueueService_CurrentQueue,
-      callback);
+      methodDescriptor_QueueService_CurrentQueue);
 };
 
 
 /**
- * @param {!proto.queue.CurrentQueueRequest} request The
- *     request proto
+ * @param {!proto.queue.CurrentQueueRequest} request The request proto
  * @param {?Object<string, string>=} metadata User defined
  *     call metadata
- * @return {!Promise<!proto.queue.CurrentQueueResponse>}
- *     Promise that resolves to the response
+ * @return {!grpc.web.ClientReadableStream<!proto.queue.CurrentQueueResponse>}
+ *     The XHR Node Readable Stream
  */
 proto.queue.QueueServicePromiseClient.prototype.currentQueue =
     function(request, metadata) {
-  return this.client_.unaryCall(this.hostname_ +
+  return this.client_.serverStreaming(this.hostname_ +
       '/queue.QueueService/CurrentQueue',
       request,
       metadata || {},

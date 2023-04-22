@@ -9,11 +9,11 @@ import (
 // Player One player per guild.
 type Player struct {
 	QueueMutex      *sync.RWMutex
-	AudioMutex      *sync.RWMutex
 	MusicQueue      []*Song
 	IsRepeat        bool
 	PlaySignal      chan bool   // use when need to play next song.
 	StopSignal      chan string // use when need to stop player. value is guild id.
+	QueueEvent      chan string // use when need to update queue.
 	VoiceConnection *discordgo.VoiceConnection
 	YoutubeClient   *ytdl.Client
 	CredentialKey   []string // ["{guild_id}-{user_id}"]
