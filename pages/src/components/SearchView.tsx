@@ -96,7 +96,7 @@ export const SearchView = ({guildId, userId}) => {
                             videos.map((video, index) => {
                                 return (
                                     <VideoWrapper key={index}>
-                                        <a href={video.getUrl()} target="_blank">
+                                        <a href={video.getUrl()} target="_blank" rel="noopener noreferrer">
                                             <VideoImage src={video.getThumbnailUrl()} alt="thumbnail image"/>
                                             <VideoTitle>{video.getTitle()}</VideoTitle>
                                             <p>{secondsToHms(video.getDuration().getSeconds())}</p>
