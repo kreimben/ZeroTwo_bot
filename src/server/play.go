@@ -6,7 +6,7 @@ import (
 	"github.com/kreimben/ZeroTwo_bot/src/discord"
 	gen "github.com/kreimben/ZeroTwo_bot/src/gen"
 	"github.com/kreimben/ZeroTwo_bot/src/server/player"
-	"github.com/kreimben/youtube-info-extractor/video"
+	ytex "github.com/kreimben/youtube-info-extractor"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"log"
@@ -17,10 +17,10 @@ func (p *playerServer) Search(_ context.Context, req *gen.SearchRequest) (*gen.S
 		return nil, status.Errorf(codes.InvalidArgument, "You can only search 1 to 10 videos")
 	}
 
-	videoCh := make(chan *video.Video)
+	videoCh := make(chan *ytex.Video)
 
 	if req.GetKeyword() != "" {
-		go video.SearchVideoKeyword(req.GetKeyword(), int(req.GetAmount()), videoCh)
+		go ytex.SearchVideoKeyword(req.GetKeyword(), int(req.GetAmount()), videoCh)
 		var arr []*gen.VideoInfo
 		for i := 0; i < int(req.GetAmount()); i++ {
 			if v, ok := <-videoCh; ok {
@@ -36,7 +36,7 @@ func (p *playerServer) Search(_ context.Context, req *gen.SearchRequest) (*gen.S
 		}
 		return &gen.SearchResponse{VideoInfo: arr}, nil
 	} else if req.GetUrl() != "" {
-		go video.SearchOneVideoUrl(req.GetUrl(), videoCh)
+		go ytex.SearchOneVideoUrl(req.GetUrl(), videoCh)
 		if v, ok := <-videoCh; ok {
 			var arr []*gen.VideoInfo
 			arr = append(arr, &gen.VideoInfo{
