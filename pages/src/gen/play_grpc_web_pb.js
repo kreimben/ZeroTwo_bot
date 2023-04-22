@@ -320,5 +320,66 @@ proto.play.PlayServicePromiseClient.prototype.resume =
 };
 
 
+/**
+ * @const
+ * @type {!grpc.web.MethodDescriptor<
+ *   !proto.play.StopRequest,
+ *   !proto.play.StopResponse>}
+ */
+const methodDescriptor_PlayService_Stop = new grpc.web.MethodDescriptor(
+  '/play.PlayService/Stop',
+  grpc.web.MethodType.UNARY,
+  proto.play.StopRequest,
+  proto.play.StopResponse,
+  /**
+   * @param {!proto.play.StopRequest} request
+   * @return {!Uint8Array}
+   */
+  function(request) {
+    return request.serializeBinary();
+  },
+  proto.play.StopResponse.deserializeBinary
+);
+
+
+/**
+ * @param {!proto.play.StopRequest} request The
+ *     request proto
+ * @param {?Object<string, string>} metadata User defined
+ *     call metadata
+ * @param {function(?grpc.web.RpcError, ?proto.play.StopResponse)}
+ *     callback The callback function(error, response)
+ * @return {!grpc.web.ClientReadableStream<!proto.play.StopResponse>|undefined}
+ *     The XHR Node Readable Stream
+ */
+proto.play.PlayServiceClient.prototype.stop =
+    function(request, metadata, callback) {
+  return this.client_.rpcCall(this.hostname_ +
+      '/play.PlayService/Stop',
+      request,
+      metadata || {},
+      methodDescriptor_PlayService_Stop,
+      callback);
+};
+
+
+/**
+ * @param {!proto.play.StopRequest} request The
+ *     request proto
+ * @param {?Object<string, string>=} metadata User defined
+ *     call metadata
+ * @return {!Promise<!proto.play.StopResponse>}
+ *     Promise that resolves to the response
+ */
+proto.play.PlayServicePromiseClient.prototype.stop =
+    function(request, metadata) {
+  return this.client_.unaryCall(this.hostname_ +
+      '/play.PlayService/Stop',
+      request,
+      metadata || {},
+      methodDescriptor_PlayService_Stop);
+};
+
+
 module.exports = proto.play;
 

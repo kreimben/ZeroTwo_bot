@@ -11,6 +11,7 @@ service PlayService {
   rpc Play (PlayRequest) returns (PlayResponse) {}
   rpc Pause(PauseRequest) returns (PauseResponse) {}
   rpc Resume(ResumeRequest) returns (ResumeResponse) {}
+  rpc Stop(StopRequest) returns (StopResponse) {}
 }
 
 message PlayRequest {
@@ -60,3 +61,10 @@ message ResumeRequest {
 message ResumeResponse {
   bool is_repeat = 1;
 }
+
+message StopRequest {
+  string guild_id = 1;
+  string user_id = 2;
+}
+
+message StopResponse {}

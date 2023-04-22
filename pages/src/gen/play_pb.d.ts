@@ -4,6 +4,46 @@
 import * as jspb from "google-protobuf";
 import * as google_protobuf_duration_pb from "google-protobuf/google/protobuf/duration_pb";
 
+export class StopRequest extends jspb.Message {
+  getGuildId(): string;
+  setGuildId(value: string): void;
+
+  getUserId(): string;
+  setUserId(value: string): void;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): StopRequest.AsObject;
+  static toObject(includeInstance: boolean, msg: StopRequest): StopRequest.AsObject;
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+  static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+  static serializeBinaryToWriter(message: StopRequest, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): StopRequest;
+  static deserializeBinaryFromReader(message: StopRequest, reader: jspb.BinaryReader): StopRequest;
+}
+
+export namespace StopRequest {
+  export type AsObject = {
+    guildId: string,
+    userId: string,
+  }
+}
+
+export class StopResponse extends jspb.Message {
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): StopResponse.AsObject;
+  static toObject(includeInstance: boolean, msg: StopResponse): StopResponse.AsObject;
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+  static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+  static serializeBinaryToWriter(message: StopResponse, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): StopResponse;
+  static deserializeBinaryFromReader(message: StopResponse, reader: jspb.BinaryReader): StopResponse;
+}
+
+export namespace StopResponse {
+  export type AsObject = {
+  }
+}
+
 export class PlayRequest extends jspb.Message {
   getGuildId(): string;
   setGuildId(value: string): void;

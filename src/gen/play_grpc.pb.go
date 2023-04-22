@@ -23,6 +23,7 @@ const (
 	PlayService_Play_FullMethodName   = "/play.PlayService/Play"
 	PlayService_Pause_FullMethodName  = "/play.PlayService/Pause"
 	PlayService_Resume_FullMethodName = "/play.PlayService/Resume"
+	PlayService_Stop_FullMethodName   = "/play.PlayService/Stop"
 )
 
 // PlayServiceClient is the client API for PlayService service.
@@ -33,6 +34,7 @@ type PlayServiceClient interface {
 	Play(ctx context.Context, in *PlayRequest, opts ...grpc.CallOption) (*PlayResponse, error)
 	Pause(ctx context.Context, in *PauseRequest, opts ...grpc.CallOption) (*PauseResponse, error)
 	Resume(ctx context.Context, in *ResumeRequest, opts ...grpc.CallOption) (*ResumeResponse, error)
+	Stop(ctx context.Context, in *StopRequest, opts ...grpc.CallOption) (*StopResponse, error)
 }
 
 type playServiceClient struct {
@@ -79,6 +81,15 @@ func (c *playServiceClient) Resume(ctx context.Context, in *ResumeRequest, opts 
 	return out, nil
 }
 
+func (c *playServiceClient) Stop(ctx context.Context, in *StopRequest, opts ...grpc.CallOption) (*StopResponse, error) {
+	out := new(StopResponse)
+	err := c.cc.Invoke(ctx, PlayService_Stop_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // PlayServiceServer is the server API for PlayService service.
 // All implementations must embed UnimplementedPlayServiceServer
 // for forward compatibility
@@ -87,6 +98,7 @@ type PlayServiceServer interface {
 	Play(context.Context, *PlayRequest) (*PlayResponse, error)
 	Pause(context.Context, *PauseRequest) (*PauseResponse, error)
 	Resume(context.Context, *ResumeRequest) (*ResumeResponse, error)
+	Stop(context.Context, *StopRequest) (*StopResponse, error)
 	mustEmbedUnimplementedPlayServiceServer()
 }
 
@@ -105,6 +117,9 @@ func (UnimplementedPlayServiceServer) Pause(context.Context, *PauseRequest) (*Pa
 }
 func (UnimplementedPlayServiceServer) Resume(context.Context, *ResumeRequest) (*ResumeResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Resume not implemented")
+}
+func (UnimplementedPlayServiceServer) Stop(context.Context, *StopRequest) (*StopResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Stop not implemented")
 }
 func (UnimplementedPlayServiceServer) mustEmbedUnimplementedPlayServiceServer() {}
 
@@ -191,6 +206,24 @@ func _PlayService_Resume_Handler(srv interface{}, ctx context.Context, dec func(
 	return interceptor(ctx, in, info, handler)
 }
 
+func _PlayService_Stop_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(StopRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PlayServiceServer).Stop(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: PlayService_Stop_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PlayServiceServer).Stop(ctx, req.(*StopRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // PlayService_ServiceDesc is the grpc.ServiceDesc for PlayService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -213,6 +246,10 @@ var PlayService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "Resume",
 			Handler:    _PlayService_Resume_Handler,
+		},
+		{
+			MethodName: "Stop",
+			Handler:    _PlayService_Stop_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -115,3 +115,31 @@ func (p *playerServer) Resume(_ context.Context, req *gen.ResumeRequest) (*gen.R
 	}
 	return &gen.ResumeResponse{IsRepeat: playerObj.Resume()}, nil
 }
+
+func (p *playerServer) Stop(_ context.Context, req *gen.StopRequest) (*gen.StopResponse, error) {
+	// get a session from guild id and user id.
+	// if not exist, return error.
+	session, ok := discord.SessionCredentials[string(req.GetGuildId()+"-"+req.GetUserId())]
+	if !ok {
+		return nil, status.Errorf(codes.Unavailable, "Session is not initialized.")
+	}
+
+	// get a voice state from guild id and user id.
+	// if not exist, return error.
+	state, err := session.State.VoiceState(req.GetGuildId(), req.GetUserId())
+	if err != nil {
+		return nil, status.Errorf(codes.Unavailable, "Voice state is not initialized.")
+	}
+
+	// leave the voice channel.
+	if err := session.ChannelVoiceJoinManual(state.GuildID, "", false, false); err != nil {
+		return nil, status.Errorf(codes.Internal, "I can't leave the voice channel in some unknown reason.")
+	}
+
+	// finally resign.
+	err = player.Resign(req.GetGuildId())
+	if err != nil {
+		return nil, err
+	}
+	return &gen.StopResponse{}, nil
+}

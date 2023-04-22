@@ -46,6 +46,15 @@ PlayService.Resume = {
   responseType: play_pb.ResumeResponse
 };
 
+PlayService.Stop = {
+  methodName: "Stop",
+  service: PlayService,
+  requestStream: false,
+  responseStream: false,
+  requestType: play_pb.StopRequest,
+  responseType: play_pb.StopResponse
+};
+
 exports.PlayService = PlayService;
 
 function PlayServiceClient(serviceHost, options) {
@@ -151,6 +160,37 @@ PlayServiceClient.prototype.resume = function resume(requestMessage, metadata, c
     callback = arguments[1];
   }
   var client = grpc.unary(PlayService.Resume, {
+    request: requestMessage,
+    host: this.serviceHost,
+    metadata: metadata,
+    transport: this.options.transport,
+    debug: this.options.debug,
+    onEnd: function (response) {
+      if (callback) {
+        if (response.status !== grpc.Code.OK) {
+          var err = new Error(response.statusMessage);
+          err.code = response.status;
+          err.metadata = response.trailers;
+          callback(err, null);
+        } else {
+          callback(null, response.message);
+        }
+      }
+    }
+  });
+  return {
+    cancel: function () {
+      callback = null;
+      client.close();
+    }
+  };
+};
+
+PlayServiceClient.prototype.stop = function stop(requestMessage, metadata, callback) {
+  if (arguments.length === 2) {
+    callback = arguments[1];
+  }
+  var client = grpc.unary(PlayService.Stop, {
     request: requestMessage,
     host: this.serviceHost,
     metadata: metadata,
