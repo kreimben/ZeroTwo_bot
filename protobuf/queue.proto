@@ -11,6 +11,7 @@ service QueueService {
   rpc RepeatSong (RepeatSongRequest) returns (RepeatSongResponse) {}
   rpc ShuffleQueue (ShuffleQueueRequest) returns (ShuffleQueueResponse) {}
   rpc ChangeSongPosition (ChangeSongPositionRequest) returns (ChangeSongPositionResponse) {}
+  rpc TimeStamp (TimeStampRequest) returns (stream TimeStampResponse) {} // response every 0.5 seconds.
 }
 
 message CurrentQueueRequest {
@@ -88,4 +89,13 @@ message ChangeSongPositionRequest {
 
 message ChangeSongPositionResponse {
   repeated Song songs = 1; // as a results.
+}
+
+message TimeStampRequest {
+  string guild_id = 1;
+}
+
+message TimeStampResponse {
+  uint32 timestamp = 1; // current playing in seconds.
+  uint32 duration = 2; // current playing song's duration in seconds.
 }

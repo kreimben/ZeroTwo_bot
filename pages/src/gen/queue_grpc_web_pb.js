@@ -440,5 +440,61 @@ proto.queue.QueueServicePromiseClient.prototype.changeSongPosition =
 };
 
 
+/**
+ * @const
+ * @type {!grpc.web.MethodDescriptor<
+ *   !proto.queue.TimeStampRequest,
+ *   !proto.queue.TimeStampResponse>}
+ */
+const methodDescriptor_QueueService_TimeStamp = new grpc.web.MethodDescriptor(
+  '/queue.QueueService/TimeStamp',
+  grpc.web.MethodType.SERVER_STREAMING,
+  proto.queue.TimeStampRequest,
+  proto.queue.TimeStampResponse,
+  /**
+   * @param {!proto.queue.TimeStampRequest} request
+   * @return {!Uint8Array}
+   */
+  function(request) {
+    return request.serializeBinary();
+  },
+  proto.queue.TimeStampResponse.deserializeBinary
+);
+
+
+/**
+ * @param {!proto.queue.TimeStampRequest} request The request proto
+ * @param {?Object<string, string>=} metadata User defined
+ *     call metadata
+ * @return {!grpc.web.ClientReadableStream<!proto.queue.TimeStampResponse>}
+ *     The XHR Node Readable Stream
+ */
+proto.queue.QueueServiceClient.prototype.timeStamp =
+    function(request, metadata) {
+  return this.client_.serverStreaming(this.hostname_ +
+      '/queue.QueueService/TimeStamp',
+      request,
+      metadata || {},
+      methodDescriptor_QueueService_TimeStamp);
+};
+
+
+/**
+ * @param {!proto.queue.TimeStampRequest} request The request proto
+ * @param {?Object<string, string>=} metadata User defined
+ *     call metadata
+ * @return {!grpc.web.ClientReadableStream<!proto.queue.TimeStampResponse>}
+ *     The XHR Node Readable Stream
+ */
+proto.queue.QueueServicePromiseClient.prototype.timeStamp =
+    function(request, metadata) {
+  return this.client_.serverStreaming(this.hostname_ +
+      '/queue.QueueService/TimeStamp',
+      request,
+      metadata || {},
+      methodDescriptor_QueueService_TimeStamp);
+};
+
+
 module.exports = proto.queue;
 

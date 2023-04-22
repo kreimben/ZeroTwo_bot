@@ -58,6 +58,15 @@ type QueueServiceChangeSongPosition = {
   readonly responseType: typeof queue_pb.ChangeSongPositionResponse;
 };
 
+type QueueServiceTimeStamp = {
+  readonly methodName: string;
+  readonly service: typeof QueueService;
+  readonly requestStream: false;
+  readonly responseStream: true;
+  readonly requestType: typeof queue_pb.TimeStampRequest;
+  readonly responseType: typeof queue_pb.TimeStampResponse;
+};
+
 export class QueueService {
   static readonly serviceName: string;
   static readonly CurrentQueue: QueueServiceCurrentQueue;
@@ -66,6 +75,7 @@ export class QueueService {
   static readonly RepeatSong: QueueServiceRepeatSong;
   static readonly ShuffleQueue: QueueServiceShuffleQueue;
   static readonly ChangeSongPosition: QueueServiceChangeSongPosition;
+  static readonly TimeStamp: QueueServiceTimeStamp;
 }
 
 export type ServiceError = { message: string, code: number; metadata: grpc.Metadata }
@@ -154,5 +164,6 @@ export class QueueServiceClient {
     requestMessage: queue_pb.ChangeSongPositionRequest,
     callback: (error: ServiceError|null, responseMessage: queue_pb.ChangeSongPositionResponse|null) => void
   ): UnaryResponse;
+  timeStamp(requestMessage: queue_pb.TimeStampRequest, metadata?: grpc.Metadata): ResponseStream<queue_pb.TimeStampResponse>;
 }
 

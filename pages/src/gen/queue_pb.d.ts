@@ -341,3 +341,47 @@ export namespace ChangeSongPositionResponse {
   }
 }
 
+export class TimeStampRequest extends jspb.Message {
+  getGuildId(): string;
+  setGuildId(value: string): void;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): TimeStampRequest.AsObject;
+  static toObject(includeInstance: boolean, msg: TimeStampRequest): TimeStampRequest.AsObject;
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+  static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+  static serializeBinaryToWriter(message: TimeStampRequest, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): TimeStampRequest;
+  static deserializeBinaryFromReader(message: TimeStampRequest, reader: jspb.BinaryReader): TimeStampRequest;
+}
+
+export namespace TimeStampRequest {
+  export type AsObject = {
+    guildId: string,
+  }
+}
+
+export class TimeStampResponse extends jspb.Message {
+  getTimestamp(): number;
+  setTimestamp(value: number): void;
+
+  getDuration(): number;
+  setDuration(value: number): void;
+
+  serializeBinary(): Uint8Array;
+  toObject(includeInstance?: boolean): TimeStampResponse.AsObject;
+  static toObject(includeInstance: boolean, msg: TimeStampResponse): TimeStampResponse.AsObject;
+  static extensions: {[key: number]: jspb.ExtensionFieldInfo<jspb.Message>};
+  static extensionsBinary: {[key: number]: jspb.ExtensionFieldBinaryInfo<jspb.Message>};
+  static serializeBinaryToWriter(message: TimeStampResponse, writer: jspb.BinaryWriter): void;
+  static deserializeBinary(bytes: Uint8Array): TimeStampResponse;
+  static deserializeBinaryFromReader(message: TimeStampResponse, reader: jspb.BinaryReader): TimeStampResponse;
+}
+
+export namespace TimeStampResponse {
+  export type AsObject = {
+    timestamp: number,
+    duration: number,
+  }
+}
+

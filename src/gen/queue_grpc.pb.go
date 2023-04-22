@@ -25,6 +25,7 @@ const (
 	QueueService_RepeatSong_FullMethodName         = "/queue.QueueService/RepeatSong"
 	QueueService_ShuffleQueue_FullMethodName       = "/queue.QueueService/ShuffleQueue"
 	QueueService_ChangeSongPosition_FullMethodName = "/queue.QueueService/ChangeSongPosition"
+	QueueService_TimeStamp_FullMethodName          = "/queue.QueueService/TimeStamp"
 )
 
 // QueueServiceClient is the client API for QueueService service.
@@ -37,6 +38,7 @@ type QueueServiceClient interface {
 	RepeatSong(ctx context.Context, in *RepeatSongRequest, opts ...grpc.CallOption) (*RepeatSongResponse, error)
 	ShuffleQueue(ctx context.Context, in *ShuffleQueueRequest, opts ...grpc.CallOption) (*ShuffleQueueResponse, error)
 	ChangeSongPosition(ctx context.Context, in *ChangeSongPositionRequest, opts ...grpc.CallOption) (*ChangeSongPositionResponse, error)
+	TimeStamp(ctx context.Context, in *TimeStampRequest, opts ...grpc.CallOption) (QueueService_TimeStampClient, error)
 }
 
 type queueServiceClient struct {
@@ -101,6 +103,38 @@ func (c *queueServiceClient) ChangeSongPosition(ctx context.Context, in *ChangeS
 	return out, nil
 }
 
+func (c *queueServiceClient) TimeStamp(ctx context.Context, in *TimeStampRequest, opts ...grpc.CallOption) (QueueService_TimeStampClient, error) {
+	stream, err := c.cc.NewStream(ctx, &QueueService_ServiceDesc.Streams[0], QueueService_TimeStamp_FullMethodName, opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &queueServiceTimeStampClient{stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+type QueueService_TimeStampClient interface {
+	Recv() (*TimeStampResponse, error)
+	grpc.ClientStream
+}
+
+type queueServiceTimeStampClient struct {
+	grpc.ClientStream
+}
+
+func (x *queueServiceTimeStampClient) Recv() (*TimeStampResponse, error) {
+	m := new(TimeStampResponse)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
 // QueueServiceServer is the server API for QueueService service.
 // All implementations must embed UnimplementedQueueServiceServer
 // for forward compatibility
@@ -111,6 +145,7 @@ type QueueServiceServer interface {
 	RepeatSong(context.Context, *RepeatSongRequest) (*RepeatSongResponse, error)
 	ShuffleQueue(context.Context, *ShuffleQueueRequest) (*ShuffleQueueResponse, error)
 	ChangeSongPosition(context.Context, *ChangeSongPositionRequest) (*ChangeSongPositionResponse, error)
+	TimeStamp(*TimeStampRequest, QueueService_TimeStampServer) error
 	mustEmbedUnimplementedQueueServiceServer()
 }
 
@@ -135,6 +170,9 @@ func (UnimplementedQueueServiceServer) ShuffleQueue(context.Context, *ShuffleQue
 }
 func (UnimplementedQueueServiceServer) ChangeSongPosition(context.Context, *ChangeSongPositionRequest) (*ChangeSongPositionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ChangeSongPosition not implemented")
+}
+func (UnimplementedQueueServiceServer) TimeStamp(*TimeStampRequest, QueueService_TimeStampServer) error {
+	return status.Errorf(codes.Unimplemented, "method TimeStamp not implemented")
 }
 func (UnimplementedQueueServiceServer) mustEmbedUnimplementedQueueServiceServer() {}
 
@@ -257,6 +295,27 @@ func _QueueService_ChangeSongPosition_Handler(srv interface{}, ctx context.Conte
 	return interceptor(ctx, in, info, handler)
 }
 
+func _QueueService_TimeStamp_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(TimeStampRequest)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(QueueServiceServer).TimeStamp(m, &queueServiceTimeStampServer{stream})
+}
+
+type QueueService_TimeStampServer interface {
+	Send(*TimeStampResponse) error
+	grpc.ServerStream
+}
+
+type queueServiceTimeStampServer struct {
+	grpc.ServerStream
+}
+
+func (x *queueServiceTimeStampServer) Send(m *TimeStampResponse) error {
+	return x.ServerStream.SendMsg(m)
+}
+
 // QueueService_ServiceDesc is the grpc.ServiceDesc for QueueService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -289,6 +348,12 @@ var QueueService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _QueueService_ChangeSongPosition_Handler,
 		},
 	},
-	Streams:  []grpc.StreamDesc{},
+	Streams: []grpc.StreamDesc{
+		{
+			StreamName:    "TimeStamp",
+			Handler:       _QueueService_TimeStamp_Handler,
+			ServerStreams: true,
+		},
+	},
 	Metadata: "queue.proto",
 }

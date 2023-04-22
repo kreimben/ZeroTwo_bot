@@ -8,6 +8,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"log"
+	"time"
 )
 
 func getSongs(songs []*player.Song) []*gen.Song {
@@ -126,5 +127,28 @@ func (q *queueServer) ChangeSongPosition(_ context.Context, req *gen.ChangeSongP
 	} else {
 		p.MusicQueue = queue
 		return &gen.ChangeSongPositionResponse{Songs: getSongs(p.MusicQueue)}, nil
+	}
+}
+
+func (q *queueServer) TimeStamp(req *gen.TimeStampRequest, stream gen.QueueService_TimeStampServer) error {
+	p, ok := player.Players[req.GetGuildId()]
+	if !ok {
+		return status.Errorf(codes.NotFound, "Please command `/hey` in your voice channel.")
+	}
+	for {
+		select {
+		case <-stream.Context().Done():
+			return nil
+		default:
+			if len(p.MusicQueue) == 0 {
+				return nil
+			} else if err := stream.Send(&gen.TimeStampResponse{
+				Timestamp: p.CurrentTime,
+				Duration:  uint32(p.MusicQueue[0].Base.Duration.Seconds()),
+			}); err != nil {
+				return err
+			}
+			time.Sleep(time.Millisecond * 500)
+		}
 	}
 }

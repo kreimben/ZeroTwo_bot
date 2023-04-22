@@ -64,6 +64,15 @@ QueueService.ChangeSongPosition = {
   responseType: queue_pb.ChangeSongPositionResponse
 };
 
+QueueService.TimeStamp = {
+  methodName: "TimeStamp",
+  service: QueueService,
+  requestStream: false,
+  responseStream: true,
+  requestType: queue_pb.TimeStampRequest,
+  responseType: queue_pb.TimeStampResponse
+};
+
 exports.QueueService = QueueService;
 
 function QueueServiceClient(serviceHost, options) {
@@ -252,6 +261,45 @@ QueueServiceClient.prototype.changeSongPosition = function changeSongPosition(re
   return {
     cancel: function () {
       callback = null;
+      client.close();
+    }
+  };
+};
+
+QueueServiceClient.prototype.timeStamp = function timeStamp(requestMessage, metadata) {
+  var listeners = {
+    data: [],
+    end: [],
+    status: []
+  };
+  var client = grpc.invoke(QueueService.TimeStamp, {
+    request: requestMessage,
+    host: this.serviceHost,
+    metadata: metadata,
+    transport: this.options.transport,
+    debug: this.options.debug,
+    onMessage: function (responseMessage) {
+      listeners.data.forEach(function (handler) {
+        handler(responseMessage);
+      });
+    },
+    onEnd: function (status, statusMessage, trailers) {
+      listeners.status.forEach(function (handler) {
+        handler({ code: status, details: statusMessage, metadata: trailers });
+      });
+      listeners.end.forEach(function (handler) {
+        handler({ code: status, details: statusMessage, metadata: trailers });
+      });
+      listeners = null;
+    }
+  });
+  return {
+    on: function (type, handler) {
+      listeners[type].push(handler);
+      return this;
+    },
+    cancel: function () {
+      listeners = null;
       client.close();
     }
   };
