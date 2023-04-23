@@ -11,6 +11,9 @@ import {CurrentConnectedChannelInfo} from "./CurrentConnectedChannelInfo";
 import {CurrentChannelContext} from "../vars/contexts";
 import {MemberInfo} from "../gen/voice_channel_pb";
 import {useCookies} from "react-cookie";
+import {Queue} from "./Queue";
+import {TimeStamp} from "../api/TimeStamp";
+import {CurrentQueue} from "../api/CurrentQueue";
 
 class CurrentConnectedChannelInfoProps {
     channelName: string;
@@ -38,6 +41,8 @@ export const Connect = () => {
     const [currentChannelInfo, setCurrentChannelInfo] = useState<null | CurrentConnectedChannelInfoProps | string>(null);
 
     const [cookies, setCookie, removeCookie] = useCookies(['discord_access_token', 'redirect_to']);
+
+    const [showQueue, setShowQueue] = useState<boolean>(false);
 
     const is_valid_guild = (guildId: string) => {
         ValidateGuildId(guildId, (msg) => {
@@ -101,29 +106,56 @@ export const Connect = () => {
         }
     }, [])
 
+    const getButtonLabel = () => {
+        if (showQueue === true) {
+            return "Hide Queue"
+        } else {
+            return "Show Queue"
+        }
+    }
+
     return (
         <CurrentChannelContext.Provider value={currentChannelInfo}>
             <ConnectWrapper>
-                <CurrentConnectedChannelInfoWrapper>
-                    <CurrentConnectedChannelInfo/>
-                </CurrentConnectedChannelInfoWrapper>
+                <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded my-4"
+                        onClick={() => {
+                            setShowQueue(!showQueue)
+                        }}>{getButtonLabel()}</button>
                 {
-                    currentGuildInfo !== null ?
-                        <CurrentConnectedGuildInfoWrapper>
-                            <CurrentConnectedGuildInfo guildName={currentGuildInfo.getGuildInfo().getGuildName()}
-                                                       guildIcon={currentGuildInfo.getGuildInfo().getIcon()}/>
-                        </CurrentConnectedGuildInfoWrapper> :
-                        <h1>Please wait...</h1>
-                }
-                {
-                    validGuild === true && validUser === true ?
-                        <SearchView guildId={params.get("guild_id")} userId={params.get("user_id")}/> :
-                        <h1>Please wait...</h1>
+                    showQueue === true ?
+                        <QueueWrapper>
+                            <Queue guildId={params.get("guild_id")}
+                                   userId={params.get("user_id")}/>
+                        </QueueWrapper>
+                        :
+                        <ConnectInfoWrapper>
+                            <CurrentConnectedChannelInfoWrapper>
+                                <CurrentConnectedChannelInfo/>
+                            </CurrentConnectedChannelInfoWrapper>
+                            {
+                                currentGuildInfo !== null ?
+                                    <CurrentConnectedGuildInfoWrapper>
+                                        <CurrentConnectedGuildInfo
+                                            guildName={currentGuildInfo.getGuildInfo().getGuildName()}
+                                            guildIcon={currentGuildInfo.getGuildInfo().getIcon()}/>
+                                    </CurrentConnectedGuildInfoWrapper> :
+                                    <h1>Please wait...</h1>
+                            }
+                            {
+                                validGuild === true && validUser === true ?
+                                    <SearchView guildId={params.get("guild_id")} userId={params.get("user_id")}/> :
+                                    <h1>Please wait...</h1>
+                            }
+                        </ConnectInfoWrapper>
                 }
             </ConnectWrapper>
         </CurrentChannelContext.Provider>
     )
 }
+
+const ConnectWrapper = styled.div`
+  text-align: center;
+`;
 
 const CurrentConnectedChannelInfoWrapper = styled.div`
   display: flex;
@@ -137,7 +169,13 @@ const CurrentConnectedGuildInfoWrapper = styled.div`
   justify-content: center;
 `;
 
-const ConnectWrapper = styled.div`
+const ConnectInfoWrapper = styled.div`
+`;
+
+const QueueWrapper = styled.div`
+  margin-left: auto;
+  display: flex;
+  justify-content: center;
 `;
 
 export {CurrentConnectedChannelInfoProps, Member}
