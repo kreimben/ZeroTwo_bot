@@ -12,6 +12,7 @@ export const SearchView = ({guildId, userId}) => {
     const [userInput, setUserInput] = useState<string>("");
     const [isLoadingSearching, setIsLoadingSearching] = useState<boolean>(false);
     const [isLoadingPlaying, setIsLoadingPlaying] = useState<boolean>(false);
+    const [amount, setAmount] = useState<number>(1); // amount of videos in videos array.
 
     /**
      * Search for a video.
@@ -32,7 +33,7 @@ export const SearchView = ({guildId, userId}) => {
             keyword = userInput;
         }
 
-        Search(keyword, url, (videos) => {
+        Search(keyword, url, amount, (videos) => {
             setVideos(videos.getVideoinfoList());
             setIsLoadingSearching(false);
         }, (err) => {
@@ -82,9 +83,14 @@ export const SearchView = ({guildId, userId}) => {
             <input id="text_input" type="text" placeholder="Search for a video." onKeyUp={searchEnter}
                    className="mt-12 w-1/2 h-12 text-center border-4 border-b-red-500 hover:border-red-500"
                    value={userInput} onChange={e => setUserInput(e.target.value)}/>
+            <input type="number" className="ml-4 w-12 h-12 text-center inline-block"
+                   min={1} max={10}
+                   value={amount} onChange={e => setAmount((e.target.value as unknown as number))}
+            />
             <br/><br/>
             <button className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
-                    onClick={search} disabled={isLoadingSearching}>{isLoadingSearching && <i className="fa fa-refresh fa-spin"/>}Search
+                    onClick={search} disabled={isLoadingSearching}>{isLoadingSearching && <i className="fa fa-refresh fa-spin"/>}
+                Search {amount} Videos.
             </button>
             <br/><br/>
             {
