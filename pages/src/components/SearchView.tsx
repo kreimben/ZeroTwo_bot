@@ -67,7 +67,6 @@ export const SearchView = ({guildId, userId}) => {
     const play = (event) => {
         setIsLoadingPlaying(true);
         Play(guildId, userId, event.target.value, (msg) => {
-                console.log(msg);
                 setIsLoadingPlaying(false);
             }, (err) => {
                 // toast error message.
@@ -130,7 +129,6 @@ const SearchViewWrapper = styled.div`
 
 const VideosWrapper = styled.div`
   text-align: center;
-  display: inline-flex;
 `;
 
 const VideoImage = styled.img`
@@ -140,11 +138,12 @@ const VideoImage = styled.img`
 `;
 
 const VideoWrapper = styled.div`
-  //background-color: blue;
   text-align: center;
   margin-bottom: 12px;
   height: auto;
   width: 50vw;
+  margin-left: auto;
+  margin-right: auto;
 `;
 
 const VideoTitle = styled.p`
