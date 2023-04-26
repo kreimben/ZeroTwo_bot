@@ -174,27 +174,20 @@ func (p *Player) NowPlaying() (*Song, error) {
 	}
 }
 
-// MakeShuffle shuffle the MusicQueue.
-func (p *Player) MakeShuffle() error {
-	// Just shuffle the MusicQueue.
-	p.QueueMutex.Lock()
-	defer p.QueueMutex.RUnlock()
-	// https://stackoverflow.com/questions/12264789/shuffle-array-in-go
-	for i := range p.MusicQueue {
-		j := rand.Intn(i + 1)
-		p.MusicQueue[i], p.MusicQueue[j] = p.MusicQueue[j], p.MusicQueue[i]
-	}
-	return nil
-}
-
 // Shuffle cannot start from 0 cuz index 0 is the song that is currently playing.
 func (p *Player) Shuffle() {
-	for i := 1; i < len(p.MusicQueue); i++ {
+	// Just shuffle the MusicQueue.
+	p.QueueMutex.Lock()
+	defer p.QueueMutex.Unlock()
+
+	c := p.MusicQueue[1:]
+	for i := range c {
 		j := rand.Intn(i + 1)
-		if j != 0 {
-			p.MusicQueue[i], p.MusicQueue[j] = p.MusicQueue[j], p.MusicQueue[i]
-		}
+		c[i], c[j] = c[j], c[i]
 	}
+	c = append([]*Song{p.MusicQueue[0]}, c...)
+	copy(p.MusicQueue, c)
+	p.QueueEvent <- "Shuffle"
 }
 
 func Resign(guildID string) error {
