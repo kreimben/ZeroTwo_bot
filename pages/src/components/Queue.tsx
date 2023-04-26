@@ -157,13 +157,20 @@ export const Queue = ({guildId, userId}) => {
                                 }}>
                             Resume
                         </button>
-                        <a href={queue.getCurrentSong().getThumbnailUrl()} target="_blank">
-                            <div>Current Song / 현재 재생중인 곡</div>
-                            <div>{queue.getCurrentSong().getTitle()}</div>
-                            <div>{getTimeSet()}</div>
-                            <img src={queue.getCurrentSong().getThumbnailUrl()}
-                                 alt={queue.getCurrentSong().getThumbnailUrl()}/>
-                        </a>
+                        <br/>
+                        <div className="bg-gray-200 p-4 rounded-lg">
+                            <a href={queue.getCurrentSong().getThumbnailUrl()}
+                               target="_blank"
+                            >
+                                <div>Current Song / 현재 재생중인 곡</div>
+                                <div>{queue.getCurrentSong().getTitle()}</div>
+                                <div>{getTimeSet()}</div>
+                                <img src={queue.getCurrentSong().getThumbnailUrl()}
+                                     alt={queue.getCurrentSong().getThumbnailUrl()}
+                                     className="w-full"
+                                />
+                            </a>
+                        </div>
                         {
                             queue.getSongsList().map((song, index) => {
                                     return (
@@ -172,7 +179,9 @@ export const Queue = ({guildId, userId}) => {
                                                 <div>{song.getPosition()}. {song.getTitle()}</div>
                                                 <div>{getTimeString(song.getDuration())}</div>
                                                 <img src={song.getThumbnailUrl()}
-                                                     alt={song.getThumbnailUrl()}/>
+                                                     alt={song.getThumbnailUrl()}
+                                                     className="w-full"
+                                                />
                                             </a>
                                             <button
                                                 className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded m-4"
