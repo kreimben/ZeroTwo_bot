@@ -133,7 +133,7 @@ func (p *Player) _play() {
 
 			err := binary.Read(decoder, binary.LittleEndian, &buf)
 			if err == io.EOF || err == io.ErrUnexpectedEOF {
-				p.afterEOF(err)
+				go p.afterEOF(err) // should go routine cuz it's calling go channel inside of function.
 				break
 			} else if err != nil {
 				log.Println("Error reading from buffer:", err)
@@ -161,6 +161,7 @@ func (p *Player) afterEOF(err error) {
 	if len(p.MusicQueue) > 0 && !p.IsRepeat {
 		p.MusicQueue = p.MusicQueue[1:]
 		p.CurrentTime = 0
+		p.QueueEvent <- "PlayNextSong" // to give new queue info to client.
 		log.Println("Removed played song from MusicQueue")
 	}
 
