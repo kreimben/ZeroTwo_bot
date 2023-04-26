@@ -95,7 +95,13 @@ func (p *playerServer) Play(_ context.Context, req *gen.PlayRequest) (*gen.PlayR
 		player.Players[state.GuildID].CredentialKey = append(player.Players[state.GuildID].CredentialKey, string(state.GuildID+"-"+state.UserID))
 	}
 
-	go player.Players[state.GuildID].AddSongToQueue(req.GetPlayUrl(), req.GetUserId())
+	// to get username with user id.
+	user, err := session.User(req.GetUserId())
+	if err != nil {
+		return nil, status.Errorf(codes.Unavailable, "I can't get user name.")
+	}
+
+	go player.Players[state.GuildID].AddSongToQueue(req.GetPlayUrl(), user.Username)
 	return &gen.PlayResponse{Message: "Added to play queue."}, nil
 }
 
