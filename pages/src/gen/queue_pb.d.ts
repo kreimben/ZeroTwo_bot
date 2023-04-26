@@ -82,6 +82,9 @@ export class Song extends jspb.Message {
   getPosition(): number;
   setPosition(value: number): void;
 
+  getIsRepeat(): boolean;
+  setIsRepeat(value: boolean): void;
+
   serializeBinary(): Uint8Array;
   toObject(includeInstance?: boolean): Song.AsObject;
   static toObject(includeInstance: boolean, msg: Song): Song.AsObject;
@@ -100,6 +103,7 @@ export namespace Song {
     duration: number,
     applicant: string,
     position: number,
+    isRepeat: boolean,
   }
 }
 

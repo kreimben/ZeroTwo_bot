@@ -813,7 +813,8 @@ proto.queue.Song.toObject = function(includeInstance, msg) {
     thumbnailUrl: jspb.Message.getFieldWithDefault(msg, 3, ""),
     duration: jspb.Message.getFieldWithDefault(msg, 4, 0),
     applicant: jspb.Message.getFieldWithDefault(msg, 5, ""),
-    position: jspb.Message.getFieldWithDefault(msg, 6, 0)
+    position: jspb.Message.getFieldWithDefault(msg, 6, 0),
+    isRepeat: jspb.Message.getBooleanFieldWithDefault(msg, 7, false)
   };
 
   if (includeInstance) {
@@ -873,6 +874,10 @@ proto.queue.Song.deserializeBinaryFromReader = function(msg, reader) {
     case 6:
       var value = /** @type {number} */ (reader.readUint32());
       msg.setPosition(value);
+      break;
+    case 7:
+      var value = /** @type {boolean} */ (reader.readBool());
+      msg.setIsRepeat(value);
       break;
     default:
       reader.skipField();
@@ -942,6 +947,13 @@ proto.queue.Song.serializeBinaryToWriter = function(message, writer) {
   if (f !== 0) {
     writer.writeUint32(
       6,
+      f
+    );
+  }
+  f = message.getIsRepeat();
+  if (f) {
+    writer.writeBool(
+      7,
       f
     );
   }
@@ -1053,6 +1065,24 @@ proto.queue.Song.prototype.getPosition = function() {
  */
 proto.queue.Song.prototype.setPosition = function(value) {
   return jspb.Message.setProto3IntField(this, 6, value);
+};
+
+
+/**
+ * optional bool is_repeat = 7;
+ * @return {boolean}
+ */
+proto.queue.Song.prototype.getIsRepeat = function() {
+  return /** @type {boolean} */ (jspb.Message.getBooleanFieldWithDefault(this, 7, false));
+};
+
+
+/**
+ * @param {boolean} value
+ * @return {!proto.queue.Song} returns this
+ */
+proto.queue.Song.prototype.setIsRepeat = function(value) {
+  return jspb.Message.setProto3BooleanField(this, 7, value);
 };
 
 

@@ -41,6 +41,7 @@ message Song {
   uint32 duration = 4; // in seconds
   string applicant = 5;
   uint32 position = 6; // position in queue.
+  bool is_repeat = 7; // indicates if this song is repeated and useless to songs in queue.
 }
 
 message RemoveSongRequest {
