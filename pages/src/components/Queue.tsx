@@ -8,6 +8,7 @@ import {Pause} from "../api/Pause";
 import {Resume} from "../api/Resume";
 import {RemoveSong} from "../api/RemoveSong";
 import {SkipSong} from "../api/SkipSong";
+import {RepeatSong} from "../api/RepeatSong";
 
 export const Queue = ({guildId, userId}) => {
     const [queue, setQueue] = useState<CurrentQueueResponse | null>(null);
@@ -171,6 +172,15 @@ export const Queue = ({guildId, userId}) => {
                                      className="w-full"
                                 />
                             </a>
+                            <button
+                                className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded m-4"
+                                onClick={() => {
+                                    RepeatSong(guildId, userId,
+                                        (isRepeat) => alert(isRepeat ? "Repeat this song." : "Not Repeat"),
+                                        (err) => alert(err))
+                                }}>
+                                Repeat
+                            </button>
                         </div>
                         {
                             queue.getSongsList().map((song, index) => {
