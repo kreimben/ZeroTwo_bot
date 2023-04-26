@@ -104,6 +104,11 @@ func (q *queueServer) SkipSong(_ context.Context, req *gen.SkipSongRequest) (*ge
 	if !ok {
 		return nil, status.Errorf(codes.NotFound, "You have to check guild id.")
 	}
+
+	if p.IsRepeat {
+		return nil, status.Errorf(codes.FailedPrecondition, "You can't skip song when repeat mode is enabled.")
+	}
+
 	if len(p.MusicQueue)-1 < int(req.GetSongIndex()) || req.GetSongIndex() == 0 {
 		return nil, status.Errorf(codes.OutOfRange, "You have to check index.")
 	}
@@ -133,7 +138,7 @@ func (q *queueServer) ShuffleQueue(_ context.Context, req *gen.ShuffleQueueReque
 	if !ok {
 		return nil, status.Errorf(codes.NotFound, "You have to check guild id.")
 	}
-	p.Shuffle()
+	go p.Shuffle()
 	p.QueueEvent <- "ShuffleQueue"
 	return &gen.ShuffleQueueResponse{}, nil
 }
