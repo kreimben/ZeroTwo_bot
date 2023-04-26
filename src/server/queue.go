@@ -21,6 +21,7 @@ func getSongs(songs []*player.Song) []*gen.Song {
 			Duration:     uint32(song.Base.Duration.Seconds()),
 			ThumbnailUrl: song.Base.Thumbnails[0].URL,
 			Position:     uint32(index),
+			IsRepeat:     false,
 		})
 	}
 
@@ -67,6 +68,9 @@ func (q *queueServer) CurrentQueue(req *gen.CurrentQueueRequest, stream gen.Queu
 					return nil
 				} else {
 					songs := getSongs(p.MusicQueue)
+					if p.IsRepeat {
+						songs[0].IsRepeat = true
+					}
 					if err := stream.Send(&gen.CurrentQueueResponse{
 						Songs:       songs[1:],
 						CurrentSong: songs[0],
