@@ -52,6 +52,7 @@ func (p *Player) _play() {
 	for p.MusicQueue != nil && len(p.MusicQueue) > 0 {
 		videoId := p.MusicQueue[0].Base.ID
 		decoder := bytes.NewBuffer(nil)
+		p.CurrentTime = 0
 
 		// Create the FFmpeg command
 		ytCmd := exec.Command(
@@ -133,7 +134,7 @@ func (p *Player) _play() {
 
 			err := binary.Read(decoder, binary.LittleEndian, &buf)
 			if err == io.EOF || err == io.ErrUnexpectedEOF {
-				go p.afterEOF(err) // should go routine cuz it's calling go channel inside of function.
+				p.afterEOF(err) // should go routine cuz it's calling go channel inside of function.
 				break
 			} else if err != nil {
 				log.Println("Error reading from buffer:", err)
@@ -157,16 +158,19 @@ func (p *Player) afterEOF(err error) {
 	// Okay! There's nothing left, time to quit.
 	log.Println("song is end: ", err)
 
+	p.QueueMutex.Lock()
+	defer p.QueueMutex.Unlock()
+
 	// if not repeat mode, remove song from MusicQueue
 	if len(p.MusicQueue) > 0 && !p.IsRepeat {
 		p.MusicQueue = p.MusicQueue[1:]
-		p.CurrentTime = 0
 		p.QueueEvent <- "PlayNextSong" // to give new queue info to client.
 		log.Println("Removed played song from MusicQueue")
+		log.Println("next song: ", p.MusicQueue[0].Base.Title)
 	}
 
 	// print MusicQueue
-	log.Println("MusicQueue in after EOF: ", p.MusicQueue)
+	log.Println("MusicQueue in after EOF")
 
 	if len(p.MusicQueue) == 0 {
 		p.StopSignal <- p.VoiceConnection.GuildID
