@@ -9,6 +9,7 @@ import {Resume} from "../api/Resume";
 import {RemoveSong} from "../api/RemoveSong";
 import {SkipSong} from "../api/SkipSong";
 import {RepeatSong} from "../api/RepeatSong";
+import {ShuffleQueue} from "../api/ShuffleQueue";
 
 export const Queue = ({guildId, userId}) => {
     const [queue, setQueue] = useState<CurrentQueueResponse | null>(null);
@@ -159,18 +160,29 @@ export const Queue = ({guildId, userId}) => {
                                 }}>
                             Resume
                         </button>
+                        <button className="bg-emerald-500 hover:bg-emerald-700 text-white font-bold py-2 px-4 rounded m-4"
+                                onClick={() => {
+                                    ShuffleQueue(guildId, () => alert("Shuffled!"), (err) => alert(err))
+                                }}>
+                            Shuffle!
+                        </button>
                         <br/>
                         <div className="bg-gray-200 p-4 rounded-lg">
-                            <a href={queue.getCurrentSong().getThumbnailUrl()}
-                               target="_blank"
-                            >
+                            <a href={queue.getCurrentSong().getUrl()}
+                               target="_blank">
                                 <div>Current Song / 현재 재생중인 곡</div>
-                                <div>{queue.getCurrentSong().getTitle()}</div>
+                                <div className="font-bold">{queue.getCurrentSong().getTitle()}</div>
                                 <div>{getTimeSet()}</div>
+                                <p className="inline">playing by <p className="inline font-bold">{queue.getCurrentSong().getApplicant()}</p></p>
                                 <img src={queue.getCurrentSong().getThumbnailUrl()}
                                      alt={queue.getCurrentSong().getThumbnailUrl()}
                                      className="w-full"
                                 />
+                                {
+                                    queue.getCurrentSong().getIsRepeat() ?
+                                        <div className="font-bold mt-4">Repeating / 반복 중</div> :
+                                        <div></div>
+                                }
                             </a>
                             <button
                                 className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded m-4"
@@ -189,6 +201,7 @@ export const Queue = ({guildId, userId}) => {
                                             <a href={song.getUrl()} target="_blank">
                                                 <div>{song.getPosition()}. {song.getTitle()}</div>
                                                 <div>{getTimeString(song.getDuration())}</div>
+                                                <p className="inline">added by <p className="inline font-bold">#{song.getApplicant()}</p></p>
                                                 <img src={song.getThumbnailUrl()}
                                                      alt={song.getThumbnailUrl()}
                                                      className="w-full"
