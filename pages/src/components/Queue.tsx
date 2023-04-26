@@ -7,6 +7,7 @@ import {Stop} from "../api/Stop";
 import {Pause} from "../api/Pause";
 import {Resume} from "../api/Resume";
 import {RemoveSong} from "../api/RemoveSong";
+import {SkipSong} from "../api/SkipSong";
 
 export const Queue = ({guildId, userId}) => {
     const [queue, setQueue] = useState<CurrentQueueResponse | null>(null);
@@ -199,6 +200,15 @@ export const Queue = ({guildId, userId}) => {
                                                     )
                                                 }}>
                                                 Remove This Song
+                                            </button>
+                                            <button
+                                                className="bg-orange-300 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded m-4"
+                                                onClick={() => {
+                                                    SkipSong(guildId, userId, song.getPosition(),
+                                                        () => alert("Skipped!"),
+                                                        (err) => alert(err))
+                                                }}>
+                                                Skip to
                                             </button>
                                         </QueueNextSongsWrapper>
                                     )
