@@ -30,13 +30,22 @@ func getSongs(songs []*player.Song) []*gen.Song {
 
 func getQueueFromPosition(queue []*player.Song, order []uint32) ([]*player.Song, error) {
 	used := make([]bool, len(order))
-
 	for i := range order {
 		if used[i] {
 			return nil, errors.New("invalid order")
 		} else {
 			used[i] = true
 		}
+	}
+
+	for _, ele := range order {
+		if ele >= uint32(len(queue)) {
+			return nil, errors.New("invalid element")
+		}
+	}
+
+	if len(queue) != len(order) {
+		return nil, errors.New("invalid parameter counts")
 	}
 
 	res := make([]*player.Song, len(queue))
@@ -150,7 +159,7 @@ func (q *queueServer) ChangeSongPosition(_ context.Context, req *gen.ChangeSongP
 	}
 	queue, err := getQueueFromPosition(p.MusicQueue, req.GetSongPositions())
 	if err != nil {
-		return nil, status.Errorf(codes.InvalidArgument, "You have to check song positions.")
+		return nil, status.Errorf(codes.InvalidArgument, "You have to check song positions: "+err.Error())
 	} else {
 		p.MusicQueue = queue
 		p.QueueEvent <- "ChangeSongPosition"
