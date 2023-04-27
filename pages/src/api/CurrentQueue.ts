@@ -33,7 +33,6 @@ export class CurrentQueue {
         if (this._instance === null) {
             this._instance = new CurrentQueue(guildId, userId);
             this._instance.client.onMessage((res: CurrentQueueResponse) => {
-                console.log(`new queue list received.`);
                 this.lastSavedQueue = res;
             });
             this._instance.client.onEnd((code: grpc.Code, msg: string, _: grpc.Metadata) => {
