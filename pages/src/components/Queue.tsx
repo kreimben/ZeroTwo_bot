@@ -1,6 +1,6 @@
 import {useEffect, useState} from "react";
 import styled from "styled-components";
-import {CurrentQueueResponse, TimeStampResponse} from "../gen/queue_pb";
+import {CurrentQueueResponse, Song, TimeStampResponse} from "../gen/queue_pb";
 import {CurrentQueue} from "../api/CurrentQueue";
 import {TimeStamp} from "../api/TimeStamp";
 import {Stop} from "../api/Stop";
@@ -10,11 +10,14 @@ import {RemoveSong} from "../api/RemoveSong";
 import {SkipSong} from "../api/SkipSong";
 import {RepeatSong} from "../api/RepeatSong";
 import {ShuffleQueue} from "../api/ShuffleQueue";
+import {ReactSortable} from "react-sortablejs";
+import {SongItem} from "../types";
+import {ChangeSongPosition} from "../api/ChangeSongPosition";
 
 export const Queue = ({guildId, userId}) => {
-    const [queue, setQueue] = useState<CurrentQueueResponse | null>(null);
+    const [queueRes, setQueueRes] = useState<CurrentQueueResponse | null>(null);
+    const [queue, setQueue] = useState<Array<SongItem>>(null);
     const [timeStamp, setTimeStamp] = useState<TimeStampResponse | null>(null);
-    // const [whileCondition, setWhileCondition] = useState<boolean>(true);
     let whileCondition = false;
 
     const getTimeString = (seconds: number): string => {
@@ -95,37 +98,47 @@ export const Queue = ({guildId, userId}) => {
 
             await delay(500); // wait for 0.5 seconds. Due to network speed.
 
-            // console.log(`before get last saved queue: ${whileCondition}`);
+            // console.log(`before get last saved queueRes: ${whileCondition}`);
             const q = CurrentQueue.getLastSavedQueue()
             if (q !== null) {
                 // console.log(`q is set.`);
-                setQueue(q)
+                setQueueRes(q)
             } else {
-                console.log(`q is null. continue the loop.`)
                 CurrentQueue.dismiss()
-                setQueue(null)
+                setQueueRes(null)
             }
         }
     }
 
     useEffect(() => {
-        console.log(`use effect on initial`)
+        // console.log(`use effect on initial`)
         whileCondition = true;
         callCurrentQueue().then(() => null);
         callTimeStamp().then(() => null);
         return () => {
             // when components unmount.
-            console.log(`before use effect on unmount: ${whileCondition}`)
             // setWhileCondition(false);
             whileCondition = false;
-            console.log(`after use effect on unmount: ${whileCondition}`)
         }
     }, []);
+
+    useEffect(() => {
+        // When queueRes is changed.
+        // convert queueRes to queue.
+        if (queueRes !== null) {
+            setQueue(queueRes.getSongsList().map((song: Song, index: number) => {
+                return {
+                    id: song.getPosition(),
+                    song: song,
+                }
+            }))
+        }
+    }, [queueRes]);
 
     return (
         <div>
             {
-                queue === null ? <div>loading...</div> :
+                queueRes === null ? <div>Nothing in queue...</div> :
 
                     <EntireQueueWrapper>
                         <button className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded m-4"
@@ -137,7 +150,7 @@ export const Queue = ({guildId, userId}) => {
                                             const userInput = confirm("Stopped! You will be redirected to the home page.")
                                             if (userInput) window.location.href = "/"
                                             else {
-                                                setQueue(null);
+                                                setQueueRes(null);
                                                 setTimeStamp(null);
                                             }
                                         },
@@ -154,32 +167,35 @@ export const Queue = ({guildId, userId}) => {
                                 }}>
                             Pause
                         </button>
-                        <button className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded m-4"
-                                onClick={() => {
-                                    Resume(guildId, (_) => alert("Resumed!"), (err) => alert(err))
-                                }}>
+                        <button
+                            className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded m-4"
+                            onClick={() => {
+                                Resume(guildId, (_) => alert("Resumed!"), (err) => alert(err))
+                            }}>
                             Resume
                         </button>
-                        <button className="bg-emerald-500 hover:bg-emerald-700 text-white font-bold py-2 px-4 rounded m-4"
-                                onClick={() => {
-                                    ShuffleQueue(guildId, () => alert("Shuffled!"), (err) => alert(err))
-                                }}>
+                        <button
+                            className="bg-emerald-500 hover:bg-emerald-700 text-white font-bold py-2 px-4 rounded m-4"
+                            onClick={() => {
+                                ShuffleQueue(guildId, () => alert("Shuffled!"), (err) => alert(err))
+                            }}>
                             Shuffle!
                         </button>
                         <br/>
                         <div className="bg-gray-200 p-4 rounded-lg">
-                            <a href={queue.getCurrentSong().getUrl()}
+                            <a href={queueRes.getCurrentSong().getUrl()}
                                target="_blank">
                                 <div>Current Song / 현재 재생중인 곡</div>
-                                <div className="font-bold">{queue.getCurrentSong().getTitle()}</div>
+                                <div className="font-bold">{queueRes.getCurrentSong().getTitle()}</div>
                                 <div>{getTimeSet()}</div>
-                                <p className="inline">playing by <p className="inline font-bold">{queue.getCurrentSong().getApplicant()}</p></p>
-                                <img src={queue.getCurrentSong().getThumbnailUrl()}
-                                     alt={queue.getCurrentSong().getThumbnailUrl()}
+                                <p className="inline">playing by <p
+                                    className="inline font-bold">{queueRes.getCurrentSong().getApplicant()}</p></p>
+                                <img src={queueRes.getCurrentSong().getThumbnailUrl()}
+                                     alt={queueRes.getCurrentSong().getThumbnailUrl()}
                                      className="w-full"
                                 />
                                 {
-                                    queue.getCurrentSong().getIsRepeat() ?
+                                    queueRes.getCurrentSong().getIsRepeat() ?
                                         <div className="font-bold mt-4">Repeating / 반복 중</div> :
                                         <div></div>
                                 }
@@ -194,49 +210,69 @@ export const Queue = ({guildId, userId}) => {
                                 Repeat
                             </button>
                         </div>
-                        {
-                            queue.getSongsList().map((song, index) => {
-                                    return (
-                                        <QueueNextSongsWrapper key={index}>
-                                            <a href={song.getUrl()} target="_blank">
-                                                <div>{song.getPosition()}. {song.getTitle()}</div>
-                                                <div>{getTimeString(song.getDuration())}</div>
-                                                <p className="inline">added by <p className="inline font-bold">#{song.getApplicant()}</p></p>
-                                                <img src={song.getThumbnailUrl()}
-                                                     alt={song.getThumbnailUrl()}
-                                                     className="w-full"
-                                                />
-                                            </a>
-                                            <button
-                                                className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded m-4"
-                                                onClick={() => {
-                                                    RemoveSong(
-                                                        guildId,
-                                                        userId,
-                                                        song.getPosition(),
-                                                        (_) => {
-                                                            alert("Removed!")
-                                                        },
-                                                        (err) => {
-                                                            alert(err)
-                                                        }
-                                                    )
-                                                }}>
-                                                Remove This Song
-                                            </button>
-                                            <button
-                                                className="bg-orange-300 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded m-4"
-                                                onClick={() => {
-                                                    SkipSong(guildId, userId, song.getPosition(),
-                                                        () => alert("Skipped!"),
-                                                        (err) => alert(err))
-                                                }}>
-                                                Skip to
-                                            </button>
-                                        </QueueNextSongsWrapper>
+
+
+                        {queue !== null ?
+                            <ReactSortable list={queue} setList={(newState)=>{
+                                ChangeSongPosition(
+                                    guildId,
+                                    userId,
+                                    [0].concat(newState.map((song) => song.id)),
+                                    () => {
+                                    }, (err) => {
+                                        console.error(`got message (onEnd) ${err}`);
+                                    }
+                                )
+                            }}>
+                                {
+                                    queue.map((songItem, index) => {
+                                            let song = songItem.song;
+                                            return (
+                                                <QueueNextSongsWrapper key={index}>
+                                                    <a href={song.getUrl()} target="_blank">
+                                                        <div>{song.getPosition()}. {song.getTitle()}</div>
+                                                        <div>{getTimeString(song.getDuration())}</div>
+                                                        <p className="inline">added by <p
+                                                            className="inline font-bold">#{song.getApplicant()}</p></p>
+                                                        <img src={song.getThumbnailUrl()}
+                                                             alt={song.getThumbnailUrl()}
+                                                             className="w-full"
+                                                        />
+                                                    </a>
+                                                    <button
+                                                        className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded m-4"
+                                                        onClick={() => {
+                                                            RemoveSong(
+                                                                guildId,
+                                                                userId,
+                                                                song.getPosition(),
+                                                                (_) => {
+                                                                    alert("Removed!")
+                                                                },
+                                                                (err) => {
+                                                                    alert(err)
+                                                                }
+                                                            )
+                                                        }}>
+                                                        Remove This Song
+                                                    </button>
+                                                    <button
+                                                        className="bg-orange-300 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded m-4"
+                                                        onClick={() => {
+                                                            SkipSong(guildId, userId, song.getPosition(),
+                                                                () => alert("Skipped!"),
+                                                                (err) => alert(err))
+                                                        }}>
+                                                        Skip to
+                                                    </button>
+                                                </QueueNextSongsWrapper>
+                                            )
+                                        }
                                     )
                                 }
-                            )
+                            </ReactSortable>
+                            :
+                            <div></div>
                         }
                     </EntireQueueWrapper>
             }
