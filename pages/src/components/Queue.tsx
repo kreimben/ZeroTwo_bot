@@ -182,19 +182,18 @@ export const Queue = ({guildId, userId}) => {
                             Shuffle!
                         </button>
                         <button className="bg-orange-500 hover:bg-orange-700 py-2 px-4 rounded m-4"
-                            onClick={() => {
-                                alert(
-                                    "To change song's order, Just drag it. Not adjusted in current playing song.\n" +
-                                    "큐 순서를 바꾸려면 드래그 하세요. 현재 재생중인 곡은 적용 되지 않습니다."
-                                )
-                            }}
+                                onClick={() => {
+                                    alert(
+                                        "To change song's order, Just drag it. Not adjusted in current playing song.\n" +
+                                        "큐 순서를 바꾸려면 드래그 하세요. 현재 재생중인 곡은 적용 되지 않습니다."
+                                    )
+                                }}
                         >
                             <i className="fa-regular fa-circle-question fa-xl"></i>
                         </button>
                         <br/>
                         <div className="bg-gray-200 p-4 rounded-lg">
-                            <a href={queueRes.getCurrentSong().getUrl()}
-                               target="_blank">
+                            <a href={queueRes.getCurrentSong().getUrl()} rel="noopener noreferrer" target="_blank">
                                 <div>Current Song / 현재 재생중인 곡</div>
                                 <div className="font-bold">{queueRes.getCurrentSong().getTitle()}</div>
                                 <div>{getTimeSet()}</div>
@@ -223,7 +222,7 @@ export const Queue = ({guildId, userId}) => {
 
 
                         {queue !== null ?
-                            <ReactSortable list={queue} setList={(newState)=>{
+                            <ReactSortable list={queue} setList={(newState) => {
                                 ChangeSongPosition(
                                     guildId,
                                     userId,
@@ -239,7 +238,7 @@ export const Queue = ({guildId, userId}) => {
                                             let song = songItem.song;
                                             return (
                                                 <QueueNextSongsWrapper key={index}>
-                                                    <a href={song.getUrl()} target="_blank">
+                                                    <a href={song.getUrl()} target="_blank" rel="noopener noreferrer">
                                                         <div>{song.getPosition()}. {song.getTitle()}</div>
                                                         <div>{getTimeString(song.getDuration())}</div>
                                                         <p className="inline">added by <p
