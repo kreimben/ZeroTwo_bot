@@ -3,6 +3,7 @@ package db
 import (
 	"context"
 	"fmt"
+	"github.com/kreimben/ZeroTwo_bot/src/db/models"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -42,14 +43,14 @@ func DbInit() {
 
 	// Automatically migrate the schema
 	// It WON’T delete unused columns to protect your data.
-	//err = Migrate([]interface{}{
-	//	&models.CommandHistory{},
-	//	&models.YoutubeHistory{},
-	//})
-	//if err != nil {
-	//	fmt.Printf("failed to migrate database: %s", err)
-	//	panic("failed to migrate database")
-	//}
+	err = Migrate([]interface{}{
+		&models.CommandHistory{},
+		&models.YoutubeHistory{},
+	})
+	if err != nil {
+		fmt.Printf("failed to migrate database: %s", err)
+		panic("failed to migrate database")
+	}
 }
 
 func Migrate(models []interface{}) error {
