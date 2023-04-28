@@ -21,4 +21,4 @@ RUN bash ./install_grpcwebproxy.sh
 
 EXPOSE 5012
 
-CMD ["./install_grpcwebproxy.sh", "./run_server.sh"]
+CMD ["./run_server.sh"]
