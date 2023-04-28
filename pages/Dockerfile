@@ -14,5 +14,3 @@ RUN mv /prebuild/build/* /app/
 RUN rm -rf /prebuild
 
 EXPOSE 3000
-
-CMD ["pwd", "&&", "npx", "serve@latest", "-l", "3000"]
