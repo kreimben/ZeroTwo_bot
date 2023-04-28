@@ -1,4 +1,4 @@
-FROM ubuntu:20.04 as builder
+FROM ubuntu:22.04 as builder
 
 WORKDIR /app
 COPY . /app
@@ -18,4 +18,4 @@ RUN bash ./install_grpcwebproxy.sh
 
 EXPOSE 5012
 
-CMD ["./run_server.sh"]
+CMD ["./install_grpcwebproxy.sh", "./run_server.sh"]
