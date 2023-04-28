@@ -15,4 +15,4 @@ RUN rm -rf /prebuild
 
 EXPOSE 3000
 
-CMD ["npx", "serve@latest", "/app/ ", "-l", "3000"]
+CMD ["cd", "/app", "&&", "npx", "serve@latest", "-l", "3000"]
