@@ -1,6 +1,7 @@
 {
   "name": "zerotwo_bot",
   "version": "1.0.0",
+  "homepage": ".",
   "engines": {
     "node": ">=18"
   },
