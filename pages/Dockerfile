@@ -11,7 +11,8 @@ RUN npm run build
 
 WORKDIR /app
 RUN mv /prebuild/build/* /app/
+RUN rm -rf /prebuild
 
 EXPOSE 3000
 
-CMD ["serve", "-s", "app", "-l", "3000"]
+CMD ["npx", "serve@latest", "/app/ ", "-l", "3000"]
