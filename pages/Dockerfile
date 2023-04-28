@@ -1,4 +1,4 @@
-FROM node:20-bullseye as builder
+FROM node:20-bullseye
 
 WORKDIR /prebuild
 COPY . /prebuild
