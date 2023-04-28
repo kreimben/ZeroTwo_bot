@@ -7,6 +7,7 @@ import (
 	"github.com/kreimben/ZeroTwo_bot/src/db"
 	"github.com/kreimben/ZeroTwo_bot/src/discord"
 	"github.com/kreimben/ZeroTwo_bot/src/server"
+	"log"
 	"os"
 	"os/signal"
 )
@@ -26,7 +27,7 @@ func main() {
 	// Setting for dotenv
 	err := godotenv.Load()
 	if err != nil {
-		panic("Error loading .env file")
+		log.Println("Error loading .env file")
 	}
 
 	flag.Parse()
