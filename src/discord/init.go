@@ -55,7 +55,6 @@ func DiscordInit() {
 
 	// Register commands
 	RegisterHey(DiscordSession, guildId)
-	//commands.RegisterDance(DiscordSession, guildId)
-	//commands.RegisterVersion(DiscordSession, guildId)
-	//commands.RegisterTest(DiscordSession, guildId) // Just test for playing music
+	RegisterDance(DiscordSession, guildId)
+	RegisterVersion(DiscordSession, guildId)
 }

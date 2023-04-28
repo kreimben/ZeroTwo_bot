@@ -1,5 +1,4 @@
-#FROM ubuntu:20.04
-FROM golang:1.20-bullseye as builder
+FROM ubuntu:20.04 as builder
 
 WORKDIR /app
 COPY . /app
@@ -7,16 +6,16 @@ COPY . /app
 # Install dependencies
 RUN export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig/:$PKG_CONFIG_PATH
 
+ARG DEBIAN_FRONTEND=noninteractive
+
 RUN \
     apt update && \
     apt upgrade -y && \
-    apt install ffmpeg golang libopusfile-dev ca-certificates openssl git tzdata -y
+    apt install ffmpeg golang libopusfile-dev ca-certificates openssl git tzdata yt-dlp -y
 
-#RUN go mod download
-RUN go build -o main ./src/main.go
+RUN cd /app && chmod +x ./install_grpcwebproxy.sh && chmod +x ./run_server.sh
+RUN bash ./install_grpcwebproxy.sh
 
+EXPOSE 5012
 
-EXPOSE 5010
-EXPOSE 5011
-
-CMD ["/app/main"]
+CMD ["./run_server.sh"]
