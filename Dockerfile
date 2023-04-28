@@ -15,6 +15,8 @@ RUN \
 
 # set GOPATH as ubuntu's default.
 ENV GOPATH=/root/go
+# add go bin to PATH
+ENV PATH=$PATH:/usr/local/go/bin:$GOPATH/bin
 
 RUN cd /app && chmod +x ./install_grpcwebproxy.sh && chmod +x ./run_server.sh
 RUN bash ./install_grpcwebproxy.sh
