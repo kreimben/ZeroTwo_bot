@@ -4,5 +4,5 @@
 /.idea
 .env
 log.txt
-src/build/**/*
+**/build/**/*
 **/.vite/**/*
