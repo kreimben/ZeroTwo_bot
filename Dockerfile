@@ -13,6 +13,9 @@ RUN \
     apt upgrade -y && \
     apt install ffmpeg golang libopusfile-dev ca-certificates openssl git tzdata yt-dlp -y
 
+# set GOPATH as ubuntu's default.
+ENV GOPATH=/root/go
+
 RUN cd /app && chmod +x ./install_grpcwebproxy.sh && chmod +x ./run_server.sh
 RUN bash ./install_grpcwebproxy.sh
 
