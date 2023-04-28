@@ -1,7 +1,4 @@
-node_modules/
 .gitignore
-**/*.js
-log.txt
 *.sh
 pages/
 .env
