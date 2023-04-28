@@ -40,7 +40,7 @@
   },
   "scripts": {
     "dev": "HTTPS=true react-scripts start",
-    "build": "react-scripts build",
+    "build": "react-scripts --max_old_space_size=6000 build",
     "preview": "react-scripts preview"
   },
   "browserslist": {
