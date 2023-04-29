@@ -1,24 +1,13 @@
-import { grpc } from "@improbable-eng/grpc-web";
-import { UnaryOutput } from "@improbable-eng/grpc-web/dist/typings/unary";
-import {RemoveSongRequest, RemoveSongResponse} from "../gen/queue_pb";
-import {QueueService} from "../gen/queue_pb_service";
-import {host} from "./init";
+import {RemoveSongResponse} from "@/gen/queue";
+import {transport} from "./init";
+import {QueueServiceClient} from "@/gen/queue.client";
 
-export const RemoveSong = (guildId: string, userId: string, songIndex: number, completion: (res: RemoveSongResponse) => void, onError: (err: string) => void) => {
-    const req = new RemoveSongRequest();
-    req.setGuildId(guildId);
-    req.setUserId(userId);
-    req.setSongIndex(songIndex);
-    grpc.unary(QueueService.RemoveSong, {
-        request: req,
-        host: host,
-        onEnd: (res: UnaryOutput<RemoveSongResponse>) => {
-            const {status, statusMessage, headers, message, trailers} = res;
-            if (status === grpc.Code.OK && message) {
-                completion(message);
-            } else {
-                onError(statusMessage)
-            }
-        }
-    })
+export const RemoveSong = async (guildId: string, userId: string, songIndex: number, completion: (res: RemoveSongResponse) => void, onError: (err: string) => void) => {
+    const client = new QueueServiceClient(transport);
+    const res = await client.removeSong({guildId: guildId, userId: userId, songIndex: songIndex});
+    if (res.status.code === '200') {
+        completion(res.response);
+    } else {
+        onError(res.status.detail);
+    }
 }

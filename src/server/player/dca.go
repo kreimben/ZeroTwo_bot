@@ -165,8 +165,6 @@ func (p *Player) afterEOF(err error) {
 	if len(p.MusicQueue) > 0 && !p.IsRepeat {
 		p.MusicQueue = p.MusicQueue[1:]
 		p.QueueEvent <- "PlayNextSong" // to give new queue info to client.
-		log.Println("Removed played song from MusicQueue")
-		log.Println("next song: ", p.MusicQueue[0].Base.Title)
 	}
 
 	// print MusicQueue

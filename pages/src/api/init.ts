@@ -1,3 +1,6 @@
-const host = process.env.GRPC_HOST || "https://127.0.0.1:5012";
+import {GrpcWebFetchTransport} from "@protobuf-ts/grpcweb-transport";
 
-export {host}
+// @ts-ignore
+const host = import.meta.env.VITE_GRPC_HOST || "http://localhost:8080";
+const transport = new GrpcWebFetchTransport({baseUrl: host})
+export {host, transport}

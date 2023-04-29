@@ -29,7 +29,7 @@ type VoiceChannelServiceClient interface {
 	// response whenever the user changes channel.
 	// Client should use this rpc to update the user's current channel per 5 seconds.
 	// If the user is not in a voice channel, the response will return `NotFound` code.
-	WhereAmI(ctx context.Context, in *WhereAmIRequest, opts ...grpc.CallOption) (*WhereAmIResponse, error)
+	WhereAmI(ctx context.Context, in *WhereAmIRequest, opts ...grpc.CallOption) (VoiceChannelService_WhereAmIClient, error)
 }
 
 type voiceChannelServiceClient struct {
@@ -40,13 +40,36 @@ func NewVoiceChannelServiceClient(cc grpc.ClientConnInterface) VoiceChannelServi
 	return &voiceChannelServiceClient{cc}
 }
 
-func (c *voiceChannelServiceClient) WhereAmI(ctx context.Context, in *WhereAmIRequest, opts ...grpc.CallOption) (*WhereAmIResponse, error) {
-	out := new(WhereAmIResponse)
-	err := c.cc.Invoke(ctx, VoiceChannelService_WhereAmI_FullMethodName, in, out, opts...)
+func (c *voiceChannelServiceClient) WhereAmI(ctx context.Context, in *WhereAmIRequest, opts ...grpc.CallOption) (VoiceChannelService_WhereAmIClient, error) {
+	stream, err := c.cc.NewStream(ctx, &VoiceChannelService_ServiceDesc.Streams[0], VoiceChannelService_WhereAmI_FullMethodName, opts...)
 	if err != nil {
 		return nil, err
 	}
-	return out, nil
+	x := &voiceChannelServiceWhereAmIClient{stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+type VoiceChannelService_WhereAmIClient interface {
+	Recv() (*WhereAmIResponse, error)
+	grpc.ClientStream
+}
+
+type voiceChannelServiceWhereAmIClient struct {
+	grpc.ClientStream
+}
+
+func (x *voiceChannelServiceWhereAmIClient) Recv() (*WhereAmIResponse, error) {
+	m := new(WhereAmIResponse)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
 }
 
 // VoiceChannelServiceServer is the server API for VoiceChannelService service.
@@ -56,7 +79,7 @@ type VoiceChannelServiceServer interface {
 	// response whenever the user changes channel.
 	// Client should use this rpc to update the user's current channel per 5 seconds.
 	// If the user is not in a voice channel, the response will return `NotFound` code.
-	WhereAmI(context.Context, *WhereAmIRequest) (*WhereAmIResponse, error)
+	WhereAmI(*WhereAmIRequest, VoiceChannelService_WhereAmIServer) error
 	mustEmbedUnimplementedVoiceChannelServiceServer()
 }
 
@@ -64,8 +87,8 @@ type VoiceChannelServiceServer interface {
 type UnimplementedVoiceChannelServiceServer struct {
 }
 
-func (UnimplementedVoiceChannelServiceServer) WhereAmI(context.Context, *WhereAmIRequest) (*WhereAmIResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method WhereAmI not implemented")
+func (UnimplementedVoiceChannelServiceServer) WhereAmI(*WhereAmIRequest, VoiceChannelService_WhereAmIServer) error {
+	return status.Errorf(codes.Unimplemented, "method WhereAmI not implemented")
 }
 func (UnimplementedVoiceChannelServiceServer) mustEmbedUnimplementedVoiceChannelServiceServer() {}
 
@@ -80,22 +103,25 @@ func RegisterVoiceChannelServiceServer(s grpc.ServiceRegistrar, srv VoiceChannel
 	s.RegisterService(&VoiceChannelService_ServiceDesc, srv)
 }
 
-func _VoiceChannelService_WhereAmI_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(WhereAmIRequest)
-	if err := dec(in); err != nil {
-		return nil, err
+func _VoiceChannelService_WhereAmI_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(WhereAmIRequest)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
 	}
-	if interceptor == nil {
-		return srv.(VoiceChannelServiceServer).WhereAmI(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: VoiceChannelService_WhereAmI_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(VoiceChannelServiceServer).WhereAmI(ctx, req.(*WhereAmIRequest))
-	}
-	return interceptor(ctx, in, info, handler)
+	return srv.(VoiceChannelServiceServer).WhereAmI(m, &voiceChannelServiceWhereAmIServer{stream})
+}
+
+type VoiceChannelService_WhereAmIServer interface {
+	Send(*WhereAmIResponse) error
+	grpc.ServerStream
+}
+
+type voiceChannelServiceWhereAmIServer struct {
+	grpc.ServerStream
+}
+
+func (x *voiceChannelServiceWhereAmIServer) Send(m *WhereAmIResponse) error {
+	return x.ServerStream.SendMsg(m)
 }
 
 // VoiceChannelService_ServiceDesc is the grpc.ServiceDesc for VoiceChannelService service.
@@ -104,12 +130,13 @@ func _VoiceChannelService_WhereAmI_Handler(srv interface{}, ctx context.Context,
 var VoiceChannelService_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "queue.VoiceChannelService",
 	HandlerType: (*VoiceChannelServiceServer)(nil),
-	Methods: []grpc.MethodDesc{
+	Methods:     []grpc.MethodDesc{},
+	Streams: []grpc.StreamDesc{
 		{
-			MethodName: "WhereAmI",
-			Handler:    _VoiceChannelService_WhereAmI_Handler,
+			StreamName:    "WhereAmI",
+			Handler:       _VoiceChannelService_WhereAmI_Handler,
+			ServerStreams: true,
 		},
 	},
-	Streams:  []grpc.StreamDesc{},
 	Metadata: "voice_channel.proto",
 }

@@ -1,11 +1,10 @@
-import {grpc} from "@improbable-eng/grpc-web";
-import {CurrentQueueRequest, TimeStampRequest, TimeStampResponse} from "../gen/queue_pb";
-import {QueueService} from "../gen/queue_pb_service";
-import {host} from "./init";
+import {TimeStampRequest, TimeStampResponse} from "@/gen/queue";
+import {QueueServiceClient} from "@/gen/queue.client";
+import {transport} from "@/api/init";
+import {ServerStreamingCall} from "@protobuf-ts/runtime-rpc";
 
 export class TimeStamp {
-    private readonly req: TimeStampRequest;
-    private readonly client: grpc.Client<TimeStampRequest, TimeStampResponse>;
+    private readonly streamingCall: ServerStreamingCall<TimeStampRequest, TimeStampResponse>;
 
     private static _instance: TimeStamp | null = null;
 
@@ -16,31 +15,17 @@ export class TimeStamp {
     }
 
     constructor(guildId: string) {
-        this.req = new CurrentQueueRequest();
-        this.req.setGuildId(guildId);
-        this.client = grpc.client(QueueService.TimeStamp, {
-            host: host,
-        });
+        this.streamingCall = new QueueServiceClient(transport).timeStamp({guildId: guildId});
     }
 
-    public static register(
-        guildId: string,
-        onEnd: (msg: string) => void,
-        onError: (err: string) => void
-    ): string {
+    public static async register(
+        guildId: string
+    ): Promise<string | null> {
         if (this._instance === null) {
             this._instance = new TimeStamp(guildId);
-            this._instance.client.onMessage((res: TimeStampResponse) => {
-                this.lastSavedTimeStamp = res;
-            });
-            this._instance.client.onEnd((code: grpc.Code, msg: string, _: grpc.Metadata) => {
-                if (code != grpc.Code.OK) {
-                    onError(msg);
-                } else {
-                    onEnd(msg);
-                }
-            });
-            this._instance.startClient();
+            for await (let response of this._instance.streamingCall.responses) {
+                this.lastSavedTimeStamp = response;
+            }
             return null;
         } else {
             return "already have instance of TimeStamp"
@@ -48,15 +33,6 @@ export class TimeStamp {
     }
 
     public static dismiss() {
-        if (this._instance !== null && this._instance.client !== null) {
-            this._instance.client.finishSend()
-            this._instance.client.close();
-        }
         this._instance = null
-    }
-
-    private startClient() {
-        this.client.start();
-        this.client.send(this.req);
     }
 }

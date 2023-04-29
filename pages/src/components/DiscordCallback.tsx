@@ -1,5 +1,5 @@
 import {useEffect, useState} from "react";
-import {RunLoginWithDiscord} from "../api/LoginWithDiscord";
+import {RunLoginWithDiscord} from "@/api/LoginWithDiscord";
 import {useCookies} from "react-cookie";
 
 export const DiscordCallback = () => {
@@ -24,18 +24,18 @@ export const DiscordCallback = () => {
             const loc = window.location.toString();
             const redirect_uri = loc.substring(0, loc.indexOf("?"));
             RunLoginWithDiscord(code, redirect_uri, (msg) => {
-                if (msg.hasError()) {
+            }).then((msg) => {
+                if (msg.response.response.oneofKind === "error") {
                     setSuccess(false);
                     removeCookie("discord_access_token", {path: "/",});
-                } else if (msg.hasAccessToken()) {
+                } else if (msg.response.response.oneofKind === "accessToken") {
                     setSuccess(true);
-                    const d = new Date();
                     setCookie(
                         "discord_access_token",
-                        msg.getAccessToken().getAccessToken(),
+                        msg.response.response.accessToken.accessToken,
                         {
                             path: "/",
-                            expires: new Date(Date.now() + 3600 * 1000),
+                            expires: new Date(Date.now() + 3600 * 1000 * 2),
                             secure: true,
                             sameSite: "strict",
                         }
@@ -43,7 +43,7 @@ export const DiscordCallback = () => {
                     // redirect to home page
                     window.location.href = "/";
                 }
-            })
+            });
         }
     }, [code]);
 

@@ -3,7 +3,7 @@ import styled from "styled-components";
 import {UserInfo} from "./UserInfo";
 import Login from "./Login";
 
-const MenuElement = (props) => {
+const MenuElement = (props: any) => {
     return (
         <MenuElementWrapper>
             <a href={props.href} target={props.target}>{props.text}</a>

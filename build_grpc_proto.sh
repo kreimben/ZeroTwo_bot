@@ -11,10 +11,11 @@ protobuf/*.proto
 
 
 # typescript generating
-protoc \
-  -I=protobuf \
-  --plugin=protoc-gen-ts=./pages/node_modules/.bin/protoc-gen-ts \
-  --js_out=import_style=commonjs,binary:./pages/src/gen \
-  --ts_out=service=grpc-web:./pages/src/gen \
-  --grpc-web_out=import_style=commonjs,mode=grpcwebtext:./pages/src/gen \
-  protobuf/*.proto
+npx protoc --ts_out ./pages/src/gen --proto_path protobuf ./protobuf/*.proto
+#protoc \
+#  -I=protobuf \
+#  --plugin=protoc-gen-ts=./pages/node_modules/.bin/protoc-gen-ts \
+#  --js_out=import_style=commonjs,binary:./pages/src/gen \
+#  --ts_out=service=grpc-web:./pages/src/gen \
+#  --grpc-web_out=import_style=commonjs,mode=grpcwebtext:./pages/src/gen \
+#  protobuf/*.proto

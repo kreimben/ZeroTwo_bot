@@ -1,7 +1,7 @@
 import useCookies from "react-cookie/cjs/useCookies";
 import {useEffect, useState} from "react";
-import {GetMyInfo} from "../api/GetMyInfo";
-import {GetMyInfoResponse} from "../gen/auth_pb";
+import {GetMyInfo} from "@/api/GetMyInfo";
+import {GetMyInfoResponse} from "@/gen/auth";
 import styled from "styled-components";
 
 const UserInfo = () => {
@@ -19,12 +19,16 @@ const UserInfo = () => {
             console.error("no access token");
             return;
         }
-        GetMyInfo(cookies.discord_access_token, (res: GetMyInfoResponse) => {
-            const info = res.getMyInfo();
-            setUserName(info.getUserName());
-            setUserId(info.getUserId()); // need for getting avatar image.
-            setAvatar(info.getAvatar());
-            setDiscriminator(info.getDiscriminator());
+        GetMyInfo(cookies.discord_access_token).then(res => {
+            if (res.response.response.oneofKind === 'myInfo') {
+                const info = res.response.response.myInfo;
+                setUserName(info.userName);
+                setUserId(info.userId); // need for getting avatar image.
+                setAvatar(info.avatar);
+                setDiscriminator(info.discriminator);
+            } else if (res.response.response.oneofKind === 'error') {
+                console.error(res.response.response.error);
+            }
         })
     }, []);
 

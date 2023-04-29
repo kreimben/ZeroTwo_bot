@@ -1,54 +1,28 @@
-import {grpc} from "@improbable-eng/grpc-web";
-import { UnaryOutput } from "@improbable-eng/grpc-web/dist/typings/unary";
-import {WhereAmIRequest, WhereAmIResponse} from "../gen/voice_channel_pb";
-import {VoiceChannelService} from "../gen/voice_channel_pb_service";
-import {host} from "./init";
+import {transport} from "./init";
+import {WhereAmIRequest, WhereAmIResponse} from "@/gen/voice_channel";
+import {VoiceChannelServiceClient} from "@/gen/voice_channel.client";
+import {ServerStreamingCall} from "@protobuf-ts/runtime-rpc";
 
-const WhereAmI = (userId: string, guildId: string, completion: (res: WhereAmIResponse) => void, onError: (err: string) => void) => {
-    const req = new WhereAmIRequest()
-    req.setGuildId(guildId)
-    req.setUserId(userId)
-    grpc.unary(VoiceChannelService.WhereAmI, {
-        request: req,
-        host: host,
-        onEnd: (res: UnaryOutput<WhereAmIResponse>) => {
-            const {status, statusMessage, message} = res
-            if (status === grpc.Code.OK && message) {
-                completion(message)
-            } else {
-                onError(statusMessage)
-            }
-        }
-    })
-}
 
 class WhereAmIBackground {
-    private constructor() {
-    }
-
+    private readonly streamingCall: ServerStreamingCall<WhereAmIRequest, WhereAmIResponse>;
     private static _instance: WhereAmIBackground | null = null;
+    private static lastSavedBackground: WhereAmIResponse | null = null;
 
-    static getInstance(): WhereAmIBackground {
-        if (WhereAmIBackground._instance === null) {
-            WhereAmIBackground._instance = new WhereAmIBackground()
-        }
-        return WhereAmIBackground._instance;
+    public static getLastSavedBackground() {
+        return this.lastSavedBackground;
     }
 
-    private _interval: NodeJS.Timer | null = null;
+    constructor(userId: string, guildId: string) {
+        this.streamingCall = new VoiceChannelServiceClient(transport).whereAmI({userId, guildId});
+    }
 
-    /**
-     * This method is for the background service to call `WhereAmI` every 3 seconds.
-     */
-    public enrollService(userId: string, guildId: string, completion: (res: WhereAmIResponse) => void, onError: (err: string) => void) {
-        if (this._interval === null) {
-            this._interval = setInterval(() => {
-                WhereAmI(userId, guildId, (res) => {
-                    completion(res)
-                }, (err) => {
-                    onError(err)
-                })
-            }, 3000)
+    public static async enrollService(userId: string, guildId: string) {
+        if (this._instance === null) {
+            this._instance = new WhereAmIBackground(userId, guildId);
+            for await (let res of this._instance.streamingCall.responses) {
+                this.lastSavedBackground = res;
+            }
         }
     }
 }

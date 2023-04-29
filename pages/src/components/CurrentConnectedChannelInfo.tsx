@@ -1,10 +1,10 @@
 import {useContext} from "react";
 import styled from "styled-components";
-import {CurrentChannelContext} from "../vars/contexts";
+import {CurrentChannelContext} from "@/vars/contexts";
 import {CurrentConnectedChannelInfoProps} from "./Connect";
 
 export const CurrentConnectedChannelInfo = () => {
-    const context: CurrentConnectedChannelInfoProps = useContext(CurrentChannelContext);
+    const context: CurrentConnectedChannelInfoProps | string = useContext(CurrentChannelContext);
 
     const changeUnits = (bitrate: number) => {
         if (bitrate < 1000) {

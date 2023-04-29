@@ -1,6 +1,17 @@
 import styled from "styled-components";
+import React from "react";
 
-export const CurrentConnectedGuildInfo = ({guildName, guildIcon}) => {
+class CurrentConnectedGuildInfoProps {
+    guildName: string;
+    guildIcon: string;
+
+    constructor(guildName: string, guildIcon: string) {
+        this.guildName = guildName;
+        this.guildIcon = guildIcon;
+    }
+}
+
+export const CurrentConnectedGuildInfo: React.FC<CurrentConnectedGuildInfoProps> = ({guildName, guildIcon}) => {
     return (
         <CurrentConnectedGuildInfoWrapper>
             <GuildName>{guildName}</GuildName>

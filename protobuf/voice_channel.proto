@@ -12,7 +12,7 @@ service VoiceChannelService {
   // response whenever the user changes channel.
   // Client should use this rpc to update the user's current channel per 5 seconds.
   // If the user is not in a voice channel, the response will return `NotFound` code.
-  rpc WhereAmI (WhereAmIRequest) returns (WhereAmIResponse) {}
+  rpc WhereAmI (WhereAmIRequest) returns (stream WhereAmIResponse) {}
 }
 
 message WhereAmIRequest {
@@ -21,7 +21,10 @@ message WhereAmIRequest {
 }
 
 message WhereAmIResponse {
-  ChannelInfo channel = 1;
+  oneof response {
+    ChannelInfo channel = 1;
+    string error_message = 2;
+  }
 }
 
 message ChannelInfo {

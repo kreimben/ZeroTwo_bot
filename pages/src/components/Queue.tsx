@@ -1,22 +1,32 @@
-import {useEffect, useState} from "react";
+import React, {useEffect, useState} from "react";
 import styled from "styled-components";
-import {CurrentQueueResponse, Song, TimeStampResponse} from "../gen/queue_pb";
-import {CurrentQueue} from "../api/CurrentQueue";
-import {TimeStamp} from "../api/TimeStamp";
-import {Stop} from "../api/Stop";
-import {Pause} from "../api/Pause";
-import {Resume} from "../api/Resume";
-import {RemoveSong} from "../api/RemoveSong";
-import {SkipSong} from "../api/SkipSong";
-import {RepeatSong} from "../api/RepeatSong";
-import {ShuffleQueue} from "../api/ShuffleQueue";
+import {CurrentQueueResponse, Song, TimeStampResponse} from "@/gen/queue";
+import {CurrentQueue} from "@/api/CurrentQueue";
+import {TimeStamp} from "@/api/TimeStamp";
+import {Stop} from "@/api/Stop";
+import {Pause} from "@/api/Pause";
+import {Resume} from "@/api/Resume";
+import {RemoveSong} from "@/api/RemoveSong";
+import {SkipSong} from "@/api/SkipSong";
+import {RepeatSong} from "@/api/RepeatSong";
+import {ShuffleQueue} from "@/api/ShuffleQueue";
 import {ReactSortable} from "react-sortablejs";
-import {SongItem} from "../types";
-import {ChangeSongPosition} from "../api/ChangeSongPosition";
+import {SongItem} from "@/types";
+import {ChangeSongPosition} from "@/api/ChangeSongPosition";
 
-export const Queue = ({guildId, userId}) => {
+class QueueProps {
+    guildId: string;
+    userId: string;
+
+    constructor(guildId: string, userId: string) {
+        this.guildId = guildId;
+        this.userId = userId;
+    }
+}
+
+export const Queue: React.FC<QueueProps> = ({guildId, userId}) => {
     const [queueRes, setQueueRes] = useState<CurrentQueueResponse | null>(null);
-    const [queue, setQueue] = useState<Array<SongItem>>(null);
+    const [queue, setQueue] = useState<Array<SongItem> | null>(null);
     const [timeStamp, setTimeStamp] = useState<TimeStampResponse | null>(null);
     let whileCondition = false;
 
@@ -54,10 +64,10 @@ export const Queue = ({guildId, userId}) => {
         if (timeStamp === null) {
             return "N/A";
         }
-        return `${getTimeString(timeStamp.getTimestamp() / 1000)} / ${getTimeString(timeStamp.getDuration())}`;
+        return `${getTimeString(timeStamp.timestamp / 1000)} / ${getTimeString(timeStamp.duration)}`;
     }
 
-    function delay(milliseconds) {
+    function delay(milliseconds: number) {
         return new Promise(resolve => {
             setTimeout(resolve, milliseconds);
         });
@@ -65,17 +75,16 @@ export const Queue = ({guildId, userId}) => {
 
     const callTimeStamp = async () => {
         while (whileCondition) {
-            const _ = TimeStamp.register(
-                guildId,
-                (msg: string) => {
-                }, (err) => {
-                }
-            )
+            const _ = TimeStamp.register(guildId)
+                .catch((err) => {
+                    // may be out of broadcast.
+                    setTimeStamp(null);
+                })
 
             await delay(500); // wait for 0.5 seconds. Due to network speed.
 
             const t = TimeStamp.getLastSavedTimeStamp()
-            if (t !== null) {
+            if (t !== null && whileCondition) {
                 // console.log(`q is set.`);
                 setTimeStamp(t);
             } else {
@@ -87,20 +96,18 @@ export const Queue = ({guildId, userId}) => {
 
     const callCurrentQueue = async (): Promise<void> => {
         while (whileCondition) {
-            const _ = CurrentQueue.register(
-                guildId,
-                userId,
-                (msg: string) => {
-                },
-                (err) => {
-                }
-            )
+            const _ = CurrentQueue.register(guildId, userId)
+                .catch((err) => {
+                    // may be out of broadcast.
+                    setQueue(null);
+                    setQueueRes(null);
+                })
 
             await delay(500); // wait for 0.5 seconds. Due to network speed.
 
             // console.log(`before get last saved queueRes: ${whileCondition}`);
             const q = CurrentQueue.getLastSavedQueue()
-            if (q !== null) {
+            if (q !== null && whileCondition) {
                 // console.log(`q is set.`);
                 setQueueRes(q)
             } else {
@@ -117,7 +124,6 @@ export const Queue = ({guildId, userId}) => {
         callTimeStamp().then(() => null);
         return () => {
             // when components unmount.
-            // setWhileCondition(false);
             whileCondition = false;
         }
     }, []);
@@ -126,9 +132,9 @@ export const Queue = ({guildId, userId}) => {
         // When queueRes is changed.
         // convert queueRes to queue.
         if (queueRes !== null) {
-            setQueue(queueRes.getSongsList().map((song: Song, index: number) => {
+            setQueue(queueRes.songs.map((song: Song) => {
                 return {
-                    id: song.getPosition(),
+                    id: song.position,
                     song: song,
                 }
             }))
@@ -145,39 +151,35 @@ export const Queue = ({guildId, userId}) => {
                                 onClick={() => {
                                     Stop(
                                         guildId,
-                                        userId,
-                                        (_) => {
-                                            const userInput = confirm("Stopped! You will be redirected to the home page.")
-                                            if (userInput) window.location.href = "/"
-                                            else {
-                                                setQueueRes(null);
-                                                setTimeStamp(null);
-                                            }
-                                        },
-                                        (err: string) => {
-                                            console.error(`got message (onEnd) ${err}`)
+                                        userId
+                                    ).then(() => {
+                                        const userInput = confirm("Stopped! You will be redirected to the home page.")
+                                        if (userInput) window.location.href = "/"
+                                        else {
+                                            setQueueRes(null);
+                                            setTimeStamp(null);
                                         }
-                                    );
+                                    })
                                 }}>
                             Stop
                         </button>
                         <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded m-4"
                                 onClick={() => {
-                                    Pause(guildId, (_) => alert("Paused!"), (err) => alert(err))
+                                    Pause(guildId).then(() => alert("Paused!"))
                                 }}>
                             Pause
                         </button>
                         <button
                             className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded m-4"
                             onClick={() => {
-                                Resume(guildId, (_) => alert("Resumed!"), (err) => alert(err))
+                                Resume(guildId).then(() => alert("Resumed!"))
                             }}>
                             Resume
                         </button>
                         <button
                             className="bg-emerald-500 hover:bg-emerald-700 text-white font-bold py-2 px-4 rounded m-4"
                             onClick={() => {
-                                ShuffleQueue(guildId, () => alert("Shuffled!"), (err) => alert(err))
+                                ShuffleQueue(guildId).then(() => alert("Shuffled!"))
                             }}>
                             Shuffle!
                         </button>
@@ -193,18 +195,18 @@ export const Queue = ({guildId, userId}) => {
                         </button>
                         <br/>
                         <div className="bg-gray-200 p-4 rounded-lg">
-                            <a href={queueRes.getCurrentSong().getUrl()} rel="noopener noreferrer" target="_blank">
+                            <a href={queueRes.currentSong?.url} rel="noopener noreferrer" target="_blank">
                                 <div>Current Song / 현재 재생중인 곡</div>
-                                <div className="font-bold">{queueRes.getCurrentSong().getTitle()}</div>
+                                <div className="font-bold">{queueRes.currentSong?.title}</div>
                                 <div>{getTimeSet()}</div>
                                 <p className="inline">playing by <p
-                                    className="inline font-bold">{queueRes.getCurrentSong().getApplicant()}</p></p>
-                                <img src={queueRes.getCurrentSong().getThumbnailUrl()}
-                                     alt={queueRes.getCurrentSong().getThumbnailUrl()}
+                                    className="inline font-bold">{queueRes.currentSong?.applicant}</p></p>
+                                <img src={queueRes.currentSong?.thumbnailUrl}
+                                     alt={queueRes.currentSong?.thumbnailUrl}
                                      className="w-full"
                                 />
                                 {
-                                    queueRes.getCurrentSong().getIsRepeat() ?
+                                    queueRes.currentSong?.isRepeat ?
                                         <div className="font-bold mt-4">Repeating / 반복 중</div> :
                                         <div></div>
                                 }
@@ -212,9 +214,9 @@ export const Queue = ({guildId, userId}) => {
                             <button
                                 className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded m-4"
                                 onClick={() => {
-                                    RepeatSong(guildId, userId,
-                                        (isRepeat) => alert(isRepeat ? "Repeat this song." : "Not Repeat"),
-                                        (err) => alert(err))
+                                    RepeatSong(guildId, userId).then((res) => {
+                                        alert(res.response.result ? "Repeat this song." : "Not Repeat")
+                                    })
                                 }}>
                                 Repeat
                             </button>
@@ -226,25 +228,22 @@ export const Queue = ({guildId, userId}) => {
                                 ChangeSongPosition(
                                     guildId,
                                     userId,
-                                    [0].concat(newState.map((song) => song.id)),
-                                    () => {
-                                    }, (err) => {
-                                        console.error(`got message (onEnd) ${err}`);
-                                    }
-                                )
+                                    [0].concat(newState.map((song) => song.id))).then(res => {
+                                    if (res.status.code !== 'OK') console.log(`Error on change song position: ${res.status.code} ${res.status.detail}`)
+                                })
                             }}>
                                 {
                                     queue.map((songItem, index) => {
-                                            let song = songItem.song;
+                                            let song: Song = songItem.song;
                                             return (
                                                 <QueueNextSongsWrapper key={index}>
-                                                    <a href={song.getUrl()} target="_blank" rel="noopener noreferrer">
-                                                        <div>{song.getPosition()}. {song.getTitle()}</div>
-                                                        <div>{getTimeString(song.getDuration())}</div>
+                                                    <a href={song.url} target="_blank" rel="noopener noreferrer">
+                                                        <div>{song.position}. {song.title}</div>
+                                                        <div>{getTimeString(song.duration)}</div>
                                                         <p className="inline">added by <p
-                                                            className="inline font-bold">#{song.getApplicant()}</p></p>
-                                                        <img src={song.getThumbnailUrl()}
-                                                             alt={song.getThumbnailUrl()}
+                                                            className="inline font-bold">#{song.applicant}</p></p>
+                                                        <img src={song.thumbnailUrl}
+                                                             alt={song.thumbnailUrl}
                                                              className="w-full"
                                                         />
                                                     </a>
@@ -254,23 +253,25 @@ export const Queue = ({guildId, userId}) => {
                                                             RemoveSong(
                                                                 guildId,
                                                                 userId,
-                                                                song.getPosition(),
+                                                                song.position,
                                                                 (_) => {
-                                                                    alert("Removed!")
                                                                 },
                                                                 (err) => {
                                                                     alert(err)
                                                                 }
-                                                            )
+                                                            ).then(() => alert("Removed!"))
                                                         }}>
                                                         Remove This Song
                                                     </button>
                                                     <button
                                                         className="bg-orange-300 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded m-4"
                                                         onClick={() => {
-                                                            SkipSong(guildId, userId, song.getPosition(),
-                                                                () => alert("Skipped!"),
-                                                                (err) => alert(err))
+                                                            SkipSong(guildId, userId, song.position,
+                                                                () => {
+                                                                },
+                                                                (err) => alert(err)).then(() => {
+                                                                alert("Skipped!")
+                                                            })
                                                         }}>
                                                         Skip to
                                                     </button>

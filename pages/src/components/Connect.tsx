@@ -1,77 +1,89 @@
 import {useEffect, useState} from "react";
 import {useSearchParams} from "react-router-dom";
-import {ValidateGuildId} from "../api/ValidateGuildId";
-import {ValidateUserId} from "../api/ValidateUserId";
-import {ValidateGuildIdResponse, ValidateUserIdResponse} from "../gen/auth_pb";
+import {ValidateGuildId} from "@/api/ValidateGuildId";
+import {ValidateUserId} from "@/api/ValidateUserId";
+import {ValidateGuildIdResponse} from "@/gen/auth";
 import {SearchView} from "./SearchView";
 import {CurrentConnectedGuildInfo} from "./CurrentConnectedGuildInfo";
 import styled from "styled-components";
-import {WhereAmIBackground} from "../api/WhereAmI";
+import {WhereAmIBackground} from "@/api/WhereAmI";
 import {CurrentConnectedChannelInfo} from "./CurrentConnectedChannelInfo";
-import {CurrentChannelContext} from "../vars/contexts";
-import {MemberInfo} from "../gen/voice_channel_pb";
+import {CurrentChannelContext} from "@/vars/contexts";
+import {MemberInfo} from "@/gen/voice_channel";
 import {useCookies} from "react-cookie";
 import {Queue} from "./Queue";
-import {TimeStamp} from "../api/TimeStamp";
-import {CurrentQueue} from "../api/CurrentQueue";
 
 class CurrentConnectedChannelInfoProps {
     channelName: string;
     bitrate: number;
     members: Array<Member>;
+
+    constructor(channelName: string, bitrate: number, members: Array<Member>) {
+        this.channelName = channelName;
+        this.bitrate = bitrate;
+        this.members = members;
+    }
 }
 
 class Member {
     userId: string;
     userName: string;
     avatar: string; // actually avatar url.
+    constructor(userId: string, userName: string, avatar: string) {
+        this.userId = userId;
+        this.userName = userName;
+        this.avatar = avatar;
+    }
 }
 
 export const Connect = () => {
     const [validGuild, setValidGuild] = useState<boolean | null>(null);
     const [validUser, setValidUser] = useState<boolean | null>(null);
 
-    const [guildId, setGuildId] = useState<string>("");
-    const [userId, setUserId] = useState<string>("");
-
-    const [params, setParams] = useSearchParams();
+    const [params, _] = useSearchParams();
 
     const [currentGuildInfo, setCurrentGuildInfo] = useState<null | ValidateGuildIdResponse>(null);
 
     const [currentChannelInfo, setCurrentChannelInfo] = useState<null | CurrentConnectedChannelInfoProps | string>(null);
 
-    const [cookies, setCookie, removeCookie] = useCookies(['discord_access_token', 'redirect_to']);
+    const [cookies, setCookie] = useCookies(['discord_access_token', 'redirect_to']);
 
     const [showQueue, setShowQueue] = useState<boolean>(false);
 
     const is_valid_guild = (guildId: string) => {
-        ValidateGuildId(guildId, (msg) => {
-            setCurrentGuildInfo(msg);
-            setValidGuild(true)
-        }, (err) => {
-            console.error(`invalid guild: ${err}`);
-            // setValidGuild(false);
-        });
+        ValidateGuildId(guildId).then(res => {
+            if (res.status.code === 'OK') {
+                setCurrentGuildInfo(res.response);
+                setValidGuild(true);
+            } else {
+                console.error(`invalid guild: ${res.status.code}`);
+            }
+        })
     }
 
     const is_valid_user_in_guild = (guild_id: string, user_id: string) => {
-        ValidateUserId(guild_id, user_id, (msg: ValidateUserIdResponse) => {
-            // console.log(`valid user in guild: ${msg}`);
-            setValidUser(true);
-        }, (err) => {
-            console.error(`invalid user in guild: ${err}`);
-            // setValidUser(false);
-        });
+        ValidateUserId(guild_id, user_id).then(res => {
+            if (res.status.code === 'OK') {
+                setValidUser(true);
+            } else {
+                console.error(`invalid user in guild: ${res.status.code}`);
+                // setValidUser(false);
+            }
+        })
     }
 
     useEffect(() => {
         // console.log(`guild id: ${guildId} ${params.get("guild_id")}`)
-        if (params.get("guild_id") !== "") is_valid_guild(params.get("guild_id"));
+        if (params.get("guild_id") !== "") is_valid_guild(String(params.get("guild_id")));
     }, [validGuild]);
 
     useEffect(() => {
-        // console.log(`user id: ${userId} ${params.get("user_id")}`)
-        if (params.get("guild_id") !== "" && params.get("user_id") !== "") is_valid_user_in_guild(params.get("guild_id"), params.get("user_id"));
+        if (params.get("guild_id") !== "" && params.get("user_id") !== "") {
+            is_valid_user_in_guild(
+                String(params.get("guild_id")),
+                String(params.get("user_id"))
+            );
+        }
     }, [validUser]);
 
 
@@ -84,30 +96,36 @@ export const Connect = () => {
             alert("Login required. 로그인 먼저 해주세요.");
             window.location.href = '/';
         } else if (params.get("guild_id") !== "" && params.get("user_id") !== "") {
-            WhereAmIBackground.getInstance().enrollService(
-                params.get("user_id"),
-                params.get("guild_id"),
-                (res) => {
+            WhereAmIBackground.enrollService(
+                String(params.get("user_id")),
+                String(params.get("guild_id"))
+            ).then(_ => {
+            }).catch(err => {
+                // may be already enrolled.
+                console.error(`WhereAmIBackground: ${err}`);
+            })
+            setInterval(() => {
+                const background = WhereAmIBackground.getLastSavedBackground();
+                if (background && background.response.oneofKind === "channel") {
+                    const channel = background.response.channel;
                     setCurrentChannelInfo({
-                        channelName: res.getChannel().getChannelName(),
-                        bitrate: res.getChannel().getBitrate(),
-                        members: res.getChannel().getMembersList().map((member: MemberInfo) => {
+                        channelName: channel.channelName,
+                        bitrate: Number(channel.bitrate),
+                        members: channel.members?.map((member: MemberInfo) => {
                             return {
-                                userId: member.getUserId(),
-                                userName: member.getUserName(),
-                                avatar: member.getUserAvatar()
+                                userId: member.userId,
+                                userName: member.userName,
+                                avatar: member.userAvatar,
                             }
                         }),
                     })
-                }, (err) => {
-                    setCurrentChannelInfo(err);
                 }
-            );
+            }, 1000);
         }
     }, [])
 
     const getButtonLabel = () => {
-        if (showQueue === true) {
+        if (showQueue) {
             return "Hide Queue"
         } else {
             return "Show Queue"
@@ -122,10 +140,10 @@ export const Connect = () => {
                             setShowQueue(!showQueue)
                         }}>{getButtonLabel()}</button>
                 {
-                    showQueue === true ?
+                    showQueue ?
                         <QueueWrapper>
-                            <Queue guildId={params.get("guild_id")}
-                                   userId={params.get("user_id")}/>
+                            <Queue guildId={String(params.get("guild_id"))}
+                                   userId={String(params.get("user_id"))}/>
                         </QueueWrapper>
                         :
                         <ConnectInfoWrapper>
@@ -136,14 +154,15 @@ export const Connect = () => {
                                 currentGuildInfo !== null ?
                                     <CurrentConnectedGuildInfoWrapper>
                                         <CurrentConnectedGuildInfo
-                                            guildName={currentGuildInfo.getGuildInfo().getGuildName()}
-                                            guildIcon={currentGuildInfo.getGuildInfo().getIcon()}/>
+                                            guildName={String(currentGuildInfo.guildInfo!.guildName)}
+                                            guildIcon={String(currentGuildInfo.guildInfo!.icon)}/>
                                     </CurrentConnectedGuildInfoWrapper> :
                                     <h1>Please wait...</h1>
                             }
                             {
                                 validGuild === true && validUser === true ?
-                                    <SearchView guildId={params.get("guild_id")} userId={params.get("user_id")}/> :
+                                    <SearchView guildId={String(params.get("guild_id"))}
+                                                userId={String(params.get("user_id"))}/> :
                                     <h1>Please wait...</h1>
                             }
                         </ConnectInfoWrapper>

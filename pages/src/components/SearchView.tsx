@@ -1,13 +1,23 @@
 import styled from "styled-components";
-import {useState} from "react";
-import {VideoInfo} from "../gen/play_pb";
-import {Search} from "../api/Search";
-import {Play} from "../api/Play";
+import React, {useState} from "react";
+import {VideoInfo} from "@/gen/play";
+import {Search} from "@/api/Search";
+import {Play} from "@/api/Play";
+
+class SearchViewProps {
+    guildId: string;
+    userId: string;
+
+    constructor(guildId: string, userId: string) {
+        this.guildId = guildId;
+        this.userId = userId;
+    }
+}
 
 /**
  * In this view, the user can search for a specific video through gRPC backend server.
  */
-export const SearchView = ({guildId, userId}) => {
+export const SearchView: React.FC<SearchViewProps> = ({guildId, userId}) => {
     const [videos, setVideos] = useState<Array<VideoInfo>>([]);
     const [userInput, setUserInput] = useState<string>("");
     const [isLoadingSearching, setIsLoadingSearching] = useState<boolean>(false);
@@ -33,12 +43,15 @@ export const SearchView = ({guildId, userId}) => {
             keyword = userInput;
         }
 
-        Search(keyword, url, amount, (videos) => {
-            setVideos(videos.getVideoinfoList());
-            setIsLoadingSearching(false);
-        }, (err) => {
-            // toast error message.
-            alert(err);
+        Search(keyword, url, amount).then(res => {
+            // @ts-ignore
+            if (res.status.code === "OK") {
+                // @ts-ignore
+                setVideos(res.response.videoInfo)
+            } else {
+                // @ts-ignore
+                alert(`${res.status.code} ${res.status.detail}`);
+            }
             setIsLoadingSearching(false);
         })
     }
@@ -47,7 +60,7 @@ export const SearchView = ({guildId, userId}) => {
      * Just event wrapper for filtering enter key.
      * @param event
      */
-    const searchEnter = (event) => {
+    const searchEnter = (event: React.KeyboardEvent<HTMLInputElement>) => {
         if (event.key === 'Enter') {
             search();
         }
@@ -57,23 +70,19 @@ export const SearchView = ({guildId, userId}) => {
      * Convert seconds to h:m:s format.
      * @param d: play time as seconds.
      */
-    const secondsToHms = (d) => {
+    const secondsToHms = (d: number) => {
         const h = Math.floor(d / 3600);
         const m = Math.floor(d % 3600 / 60);
         const s = Math.floor(d % 3600 % 60);
         return ((h > 0 ? h + ":" + (m < 10 ? "0" : "") : "") + m + ":" + (s < 10 ? "0" : "") + s);
     }
 
-    const play = (event) => {
+    const play = (event: any) => {
         setIsLoadingPlaying(true);
-        Play(guildId, userId, event.target.value, (msg) => {
-                setIsLoadingPlaying(false);
-            }, (err) => {
-                // toast error message.
-                alert(err);
-                setIsLoadingPlaying(false);
-            }
-        )
+        Play(guildId, userId, event.target.value).then((res) => {
+            if (res.status.code !== 'OK') alert(res.status.detail);
+            setIsLoadingPlaying(false);
+        })
     }
 
 
@@ -88,25 +97,26 @@ export const SearchView = ({guildId, userId}) => {
             />
             <br/><br/>
             <button className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
-                    onClick={search} disabled={isLoadingSearching}>{isLoadingSearching && <i className="fa fa-refresh fa-spin"/>}
+                    onClick={search} disabled={isLoadingSearching}>{isLoadingSearching &&
+                <i className="fa fa-refresh fa-spin"/>}
                 Search {amount} Videos.
             </button>
             <br/><br/>
             {
                 isLoadingSearching ?
-                    <i className="fa-solid fa-magnifying-glass fa-shake fa-2xl"></i>:
+                    <i className="fa-solid fa-magnifying-glass fa-shake fa-2xl"></i> :
                     <VideosWrapper>
                         {
                             // show the search results in videos array.
                             videos.map((video, index) => {
                                 return (
                                     <VideoWrapper key={index}>
-                                        <a href={video.getUrl()} target="_blank" rel="noopener noreferrer">
-                                            <VideoImage src={video.getThumbnailUrl()} alt="thumbnail image"/>
-                                            <VideoTitle>{video.getTitle()}</VideoTitle>
-                                            <p>{secondsToHms(video.getDuration().getSeconds())}</p>
+                                        <a href={video.url} target="_blank" rel="noopener noreferrer">
+                                            <VideoImage src={video.thumbnailUrl} alt="thumbnail image"/>
+                                            <VideoTitle>{video.title}</VideoTitle>
+                                            <p>{secondsToHms(Number(video.duration!.seconds))}</p>
                                         </a>
-                                        <button onClick={play} value={video.getUrl()} key={index + "button"}
+                                        <button onClick={play} value={video.url} key={index + "button"}
                                                 className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
                                                 disabled={isLoadingPlaying}>
                                             {isLoadingPlaying && <i className="fa fa-refresh fa-spin"/>}Play on Discord

@@ -1,4 +1,3 @@
-import { ProtobufMessage } from "@improbable-eng/grpc-web/dist/typings/message";
 import {useEffect, useState} from "react";
 import styled from "styled-components";
 import {GetOAuthUrl} from "../api/GetOAuthUrl";
@@ -10,14 +9,14 @@ const Login = () => {
         const loc = window.location.toString();
         // cut after main domain
         const url = loc.substring(0, loc.indexOf('/', 8));
-        GetOAuthUrl(url + '/discord/callback',(msg) => {
-            setOauthUrl(msg.getUrl().toString());
+        GetOAuthUrl(url + '/discord/callback').then(r => {
+            setOauthUrl(r.response.url);
         })
     }, []);
 
     return (
         <LoginWrapper>
-            <button onClick={() => window.open(oauthUrl,"_parent")}>Login with Discord!</button>
+            <button onClick={() => window.open(oauthUrl, "_parent")}>Login with Discord!</button>
         </LoginWrapper>
     )
 }
