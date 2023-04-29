@@ -160,12 +160,18 @@ export const Queue: React.FC<QueueProps> = ({guildId, userId}) => {
                                             setTimeStamp(null);
                                         }
                                     })
+                                        .catch((err) => {
+                                            console.error(`Error occurred while stopping: ${err}`)
+                                        })
                                 }}>
                             Stop
                         </button>
                         <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded m-4"
                                 onClick={() => {
                                     Pause(guildId).then(() => alert("Paused!"))
+                                        .catch((err) => {
+                                            console.error(`Error occurred while pausing: ${err}`)
+                                        });
                                 }}>
                             Pause
                         </button>
@@ -173,6 +179,9 @@ export const Queue: React.FC<QueueProps> = ({guildId, userId}) => {
                             className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded m-4"
                             onClick={() => {
                                 Resume(guildId).then(() => alert("Resumed!"))
+                                    .catch((err) => {
+                                        console.error(`Error occurred while resuming: ${err}`)
+                                    });
                             }}>
                             Resume
                         </button>
@@ -180,6 +189,9 @@ export const Queue: React.FC<QueueProps> = ({guildId, userId}) => {
                             className="bg-emerald-500 hover:bg-emerald-700 text-white font-bold py-2 px-4 rounded m-4"
                             onClick={() => {
                                 ShuffleQueue(guildId).then(() => alert("Shuffled!"))
+                                    .catch((err) => {
+                                        console.error(`Error occurred while shuffling: ${err}`)
+                                    });
                             }}>
                             Shuffle!
                         </button>
@@ -217,6 +229,9 @@ export const Queue: React.FC<QueueProps> = ({guildId, userId}) => {
                                     RepeatSong(guildId, userId).then((res) => {
                                         alert(res.response.result ? "Repeat this song." : "Not Repeat")
                                     })
+                                        .catch((err) => {
+                                            console.error(`Error occurred while repeating: ${err}`)
+                                        });
                                 }}>
                                 Repeat
                             </button>
@@ -231,6 +246,9 @@ export const Queue: React.FC<QueueProps> = ({guildId, userId}) => {
                                     [0].concat(newState.map((song) => song.id))).then(res => {
                                     if (res.status.code !== 'OK') console.log(`Error on change song position: ${res.status.code} ${res.status.detail}`)
                                 })
+                                    .catch((err) => {
+                                        console.error(`Error occurred while changing song position: ${err}`)
+                                    });
                             }}>
                                 {
                                     queue.map((songItem, index) => {
@@ -260,6 +278,9 @@ export const Queue: React.FC<QueueProps> = ({guildId, userId}) => {
                                                                     alert(err)
                                                                 }
                                                             ).then(() => alert("Removed!"))
+                                                                .catch((err) => {
+                                                                    console.error(`Error occurred while removing: ${err}`)
+                                                                });
                                                         }}>
                                                         Remove This Song
                                                     </button>
@@ -272,6 +293,9 @@ export const Queue: React.FC<QueueProps> = ({guildId, userId}) => {
                                                                 (err) => alert(err)).then(() => {
                                                                 alert("Skipped!")
                                                             })
+                                                                .catch((err) => {
+                                                                    console.error(`Error occurred while skipping: ${err}`)
+                                                                });
                                                         }}>
                                                         Skip to
                                                     </button>

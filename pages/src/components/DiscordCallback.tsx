@@ -43,7 +43,12 @@ export const DiscordCallback = () => {
                     // redirect to home page
                     window.location.href = "/";
                 }
-            });
+            })
+                .catch((err) => {
+                    console.error(err);
+                    setSuccess(false);
+                    removeCookie("discord_access_token", {path: "/",});
+                });
         }
     }, [code]);
 

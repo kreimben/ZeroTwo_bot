@@ -1,6 +1,6 @@
 import {useEffect, useState} from "react";
 import styled from "styled-components";
-import {GetOAuthUrl} from "../api/GetOAuthUrl";
+import {GetOAuthUrl} from "@/api/GetOAuthUrl";
 
 const Login = () => {
     const [oauthUrl, setOauthUrl] = useState<string>("");
@@ -12,6 +12,9 @@ const Login = () => {
         GetOAuthUrl(url + '/discord/callback').then(r => {
             setOauthUrl(r.response.url);
         })
+            .catch(e => {
+                console.error(`Error while getting OAuth URL: ${e}`);
+            })
     }, []);
 
     return (

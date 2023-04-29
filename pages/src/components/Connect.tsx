@@ -59,6 +59,9 @@ export const Connect = () => {
                 console.error(`invalid guild: ${res.status.code}`);
             }
         })
+            .catch(err => {
+                console.error(`invalid guild: ${err}`);
+            });
     }
 
     const is_valid_user_in_guild = (guild_id: string, user_id: string) => {
@@ -70,6 +73,9 @@ export const Connect = () => {
                 // setValidUser(false);
             }
         })
+            .catch(err => {
+                console.error(`invalid user in guild: ${err}`);
+            });
     }
 
     useEffect(() => {

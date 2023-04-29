@@ -54,6 +54,10 @@ export const SearchView: React.FC<SearchViewProps> = ({guildId, userId}) => {
             }
             setIsLoadingSearching(false);
         })
+            .catch(err => {
+                console.error(`Error on search: ${err}`);
+                setIsLoadingSearching(false);
+            })
     }
 
     /**
@@ -83,6 +87,10 @@ export const SearchView: React.FC<SearchViewProps> = ({guildId, userId}) => {
             if (res.status.code !== 'OK') alert(res.status.detail);
             setIsLoadingPlaying(false);
         })
+            .catch((err) => {
+                console.error(`Error on play: ${err}`);
+                setIsLoadingPlaying(false);
+            });
     }
 
 

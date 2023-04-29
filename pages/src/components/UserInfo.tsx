@@ -1,7 +1,6 @@
 import useCookies from "react-cookie/cjs/useCookies";
 import {useEffect, useState} from "react";
 import {GetMyInfo} from "@/api/GetMyInfo";
-import {GetMyInfoResponse} from "@/gen/auth";
 import styled from "styled-components";
 
 const UserInfo = () => {
@@ -30,6 +29,9 @@ const UserInfo = () => {
                 console.error(res.response.response.error);
             }
         })
+            .catch(err => {
+                console.error(`Error on get my info: ${err}`);
+            });
     }, []);
 
     return (
