@@ -1,16 +1,12 @@
 FROM node:20-bullseye
 
-WORKDIR /prebuild
-COPY . /prebuild
+WORKDIR /app
+COPY . /app
 
 RUN npm install -g typescript
 
 # build react app
 RUN npm install
 RUN npm run build
-
-WORKDIR /app
-RUN mv /prebuild/build/* /app/
-RUN rm -rf /prebuild
 
 EXPOSE 3000
