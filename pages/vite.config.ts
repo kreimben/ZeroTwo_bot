@@ -3,7 +3,6 @@ import react from '@vitejs/plugin-react';
 import viteTsconfigPaths from 'vite-tsconfig-paths';
 import path from 'path';
 import dts from 'vite-plugin-dts';
-import basicSsl from '@vitejs/plugin-basic-ssl'
 
 
 
@@ -17,7 +16,6 @@ export default ({mode}) => {
             react(),
             viteTsconfigPaths(),
             dts(),
-            // basicSsl(),
         ],
         resolve: {
             alias: {
@@ -26,7 +24,6 @@ export default ({mode}) => {
         },
         server: {
             port: 3000,
-            // https: true,
             hmr: {
                 overlay: false,
             }
