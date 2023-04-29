@@ -18,9 +18,10 @@ ENV GOPATH=/root/go
 # add go bin to PATH
 ENV PATH=$PATH:/usr/local/go/bin:$GOPATH/bin
 
-RUN cd /app && chmod +x ./install_grpcwebproxy.sh && chmod +x ./run_server.sh
+RUN cd /app && chmod +x ./run_server.sh #&& chmod +x ./install_grpcwebproxy.sh
 RUN bash ./install_grpcwebproxy.sh
 
-EXPOSE 5012
+EXPOSE 5011
+#EXPOSE 5012
 
 CMD ["./run_server.sh"]
