@@ -3,7 +3,7 @@ FROM node:20-bullseye
 WORKDIR /prebuild
 COPY . /prebuild
 
-RUN npm install -g serve typescript
+RUN npm install -g typescript
 
 # build react app
 RUN npm install
