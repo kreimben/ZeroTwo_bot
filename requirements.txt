@@ -3,4 +3,14 @@ python-dotenv
 yt-dlp
 asyncio
 django
-django-cors-headers
+mysqlclient
+fontawesomefree
+daphne
+Twisted[tls,http2]
+django-storages
+boto3
+django-debug-toolbar
+redis
+hiredis
+channels
+channels_redis

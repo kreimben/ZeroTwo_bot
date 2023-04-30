@@ -1,0 +1,99 @@
+import os
+from threading import Thread
+
+import discord
+
+from discord_bot.Helper import players, Player
+from discord_bot.bot import bot
+from discord_bot.buttons import PlayerView
+
+
+def m():
+    def p(a: any):
+        if os.getenv('ZEROTWO_VERSION') == 'develop':
+            print(a)
+
+    @bot.event
+    async def on_ready():
+        print('on_ready zerotwo!')
+
+    @bot.slash_command(name='dance', description='Dance zerotwo.')
+    async def dance(context: discord.ApplicationContext):
+        # For logging.
+        print('Command: dance')
+        print(f'who: {context.author.name}')
+        await context.respond('https://tenor.com/b0dImIdP0BN.gif')
+
+    @bot.slash_command(name='zerotwo',
+                       description='Search keyword or Use URL. (To add more songs in queue, Just use this command)')
+    async def zerotwo(context: discord.ApplicationContext, url_or_keyword: str):
+        # For logging.
+        print('Command: play')
+        print(f'who: {context.author.name}')
+        print(f'message: {url_or_keyword}')
+
+        await context.defer()
+
+        if not context.author.voice:
+            return await context.respond(content='You have to join VC first!')
+        voice_channel = context.author.voice.channel
+
+        if not context.voice_client:
+            await voice_channel.connect()
+        else:
+            await context.voice_client.move_to(channel=voice_channel)
+
+        # Play the song!
+        try:
+            player = players.get(context.guild_id)
+            if not player and not hasattr(player, 'play_queue'):
+                p(f'creating player in players!')
+                player = Player(context)
+                players[context.guild_id] = player
+
+            view = PlayerView(context, player)
+
+            # Fetch first song of added to queue.
+            song = await players[context.guild_id].play(url_or_keyword, context.author.id)
+            if not song:
+                return await context.respond(content='cannot fetch song.')
+
+            embed = discord.Embed()
+            embed.add_field(name='Added to queue 🎧', value=f"[{song.title}]({song.webpage_url}) - {song.duration}")
+            embed.set_image(url=song.thumbnail_url)
+
+            return await context.respond(embed=embed, view=view)
+        except Exception as e:
+            await context.voice_client.disconnect(force=True)
+            if players.get(context.guild_id):
+                del players[context.guild_id]
+            return await context.respond(content=str(e))
+
+    @bot.slash_command(name='help')
+    async def _help(context: discord.ApplicationContext):
+        # For logging.
+        print('Command: help')
+        print(f'who: {context.author.name}')
+
+        embed = discord.Embed(title='Help', description='to help you')
+
+        content = 'aksidion@kreimben.com\n'
+        content += '[kreimben.com](https://kreimben.com)\n'
+        content += '[instagram](https://instagram.com/kreimben)\n'
+        content += '[paypal](https://paypal.me/kreimben)\n'
+        content += '[github](https://github.com/kreimben)\n'
+        embed.add_field(name='Contact to Kreimben#7005', value=content)
+
+        embed.add_field(name='Report to', value='[github](https://github.com/kreimben/ZeroTwo_bot/issues)')
+
+        return await context.respond(embed=embed)
+
+    try:
+        bot.run(os.getenv('DISCORD_TOKEN'))
+    except Exception as e:
+        print(str(e))
+
+
+async def run_bot():
+    thread = Thread(target=m)
+    thread.start()

@@ -7,7 +7,7 @@ from urllib.parse import urlparse
 import discord
 import yt_dlp
 
-from bot import bot
+from discord_bot.bot import bot
 
 
 def p(a: any):
