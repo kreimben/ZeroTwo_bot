@@ -1,6 +1,6 @@
 ZeroTwo_bot: Discord App Music Bot.
 
-Copyright (C) 2022 Aksidion Kreimben 
+Copyright (C) 2022 - 2023 Aksidion Kreimben
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by

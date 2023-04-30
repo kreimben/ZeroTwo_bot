@@ -1,5 +1,6 @@
 py-cord[voice]
 python-dotenv
 yt-dlp
-ujson
 asyncio
+django
+django-cors-headers
