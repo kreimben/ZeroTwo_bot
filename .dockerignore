@@ -1,4 +1,0 @@
-.gitignore
-build_grpc_proto.sh
-.github/
-**/node_modules/**

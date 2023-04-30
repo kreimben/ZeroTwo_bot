@@ -1,9 +1,3 @@
-**/node_modules/**/*
-**/deno.lock
-**/yarn.lock
 /.idea
 .env
 log.txt
-**/build/**/*
-**/.vite/**/*
-main
