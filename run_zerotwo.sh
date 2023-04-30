@@ -1,3 +1,3 @@
 #!/bin/sh -x
-./run_server.sh&
+./run_grpcwebproxy.sh&
 yarn serve
