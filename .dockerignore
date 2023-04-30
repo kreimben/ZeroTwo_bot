@@ -1,2 +1,4 @@
 .gitignore
-pages/
+build_grpc_proto.sh
+.github/
+**/node_modules/**

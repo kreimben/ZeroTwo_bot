@@ -1,4 +1,4 @@
-name: Deploy frontend server
+name: Deploy server
 
 # This workflow uses actions that are not certified by GitHub.
 # They are provided by a third-party and are governed by
@@ -12,7 +12,7 @@ on:
 
 env:
   REGISTRY: registry.kreimben.com
-  IMAGE_NAME: zerotwo_bot_frontend
+  IMAGE_NAME: zerotwo_bot
 
 
 jobs:

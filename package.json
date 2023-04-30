@@ -1,9 +1,0 @@
-{
-  "dependencies": {
-    "@protobuf-ts/plugin": "^2.9.0",
-    "serve": "^14.2.0"
-  },
-  "devDependencies": {
-    "@vitejs/plugin-basic-ssl": "^1.0.1"
-  }
-}
