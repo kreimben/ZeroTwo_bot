@@ -2,8 +2,8 @@ FROM node:bullseye as builder1
 FROM golang:bullseye as builder2
 
 WORKDIR /app
-COPY *.sh /app/
 COPY . /app
+RUN ls -hal
 
 # Install dependencies
 RUN export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig/:$PKG_CONFIG_PATH
@@ -16,7 +16,7 @@ RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && apt-get install
 
 RUN apt update && apt upgrade -y
 
-RUN chmod +x install_grpcwebproxy.sh && bash ./install_grpcwebproxy.sh
+RUN chmod +x install_grpcwebproxy.sh && chmod +x run_zerotwo.sh && bash ./install_grpcwebproxy.sh
 
 RUN npm install -g typescript yarn -y
 
