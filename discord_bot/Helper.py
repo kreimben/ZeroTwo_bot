@@ -118,7 +118,7 @@ class Player:
         self.is_repeating = False
         self.previous_song: Song | None = None
 
-    def _add_song(self, arg: str, applicant: any, source: MyAudio) -> [Song]:
+    def _add_song(self, arg: str, applicant: any) -> [Song]:
         """
         Add song to `self.queue`.
         """
@@ -159,16 +159,14 @@ class Player:
                                         title=entry['title'],
                                         thumbnail_url=entry['thumbnail'],
                                         applicant=applicant,
-                                        duration=entry['duration'],
-                                        source=source))
+                                        duration=entry['duration']))
             else:
                 results.append(Song(webpage_url=info['webpage_url'],
                                     audio_url=info['url'],
                                     title=info['title'],
                                     thumbnail_url=info['thumbnail'],
                                     applicant=applicant,
-                                    duration=info['duration'],
-                                    source=source))
+                                    duration=info['duration']))
             self.play_queue += results
             p(f'add_song {results=}')
             return results
@@ -234,9 +232,9 @@ class Player:
 
         self._event.set()
 
-    async def play(self, arg: str, applicant: any, source: MyAudio) -> Song:
+    async def play(self, arg: str, applicant: any) -> Song:
         # Add song to queue
-        song: [Song] = self._add_song(arg, applicant, source)
+        song: [Song] = self._add_song(arg, applicant)
         return song[0]
 
     async def get_queue(self) -> (Song | None, [Song]):
@@ -300,4 +298,5 @@ class Player:
         self._current_playing = None
 
 
-players: dict[int, Player] = {}
+players: dict[int, Player] = {}  # players[guild_id] = Player
+contexts: dict[str, discord.ApplicationContext] = {}  # contexts[guild_id - user_id] = context

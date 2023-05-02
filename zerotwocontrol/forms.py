@@ -16,3 +16,8 @@ class CurrentQueueForm(GuildAndUserForm):
 class SearchForm(forms.Form):
     keyword = forms.CharField(max_length=100, min_length=1)
     amount = forms.IntegerField(min_value=1, max_value=20)
+
+
+class PlayForm(GuildAndUserForm):
+    song_url = forms.CharField(max_length=1000, min_length=1)
+    applicant = forms.CharField(max_length=100, min_length=1)

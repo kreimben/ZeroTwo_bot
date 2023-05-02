@@ -1,13 +1,17 @@
 from allauth.socialaccount.models import SocialAccount
-from django.contrib.auth.models import AnonymousUser
+from django.contrib.auth.models import User
 from django.views.generic.base import TemplateView
 
 
 class BaseMenuView(TemplateView):
+    view_is_async = True
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        if isinstance(self.request.user, AnonymousUser):
+        users = User.objects.all()
+
+        if self.request.user not in users:  # isinstance(user, AnonymousUser)
             context['user'] = None
             return context
         else:
@@ -26,7 +30,3 @@ class BaseMenuView(TemplateView):
 
 class HomeView(BaseMenuView):
     template_name = 'home.html'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        return context

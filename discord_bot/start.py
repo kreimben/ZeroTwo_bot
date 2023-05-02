@@ -3,9 +3,8 @@ from threading import Thread
 
 import discord
 
-from discord_bot.Helper import players, Player
+from discord_bot.Helper import contexts
 from discord_bot.bot import bot
-from discord_bot.buttons import PlayerView
 
 
 def m():
@@ -26,12 +25,12 @@ def m():
 
     @bot.slash_command(name='hey', description='Respond with webpage. 제로투를 실행 시킬 수 있는 웹페이지를 보여줍니다.')
     async def hey(context: discord.ApplicationContext):
+        contexts[f'{context.guild_id}-{context.me.id}'] = context
         await context.respond(
             os.getenv('FRONTEND_URL') +
             '/connect/?guild_id=' + str(context.guild_id) +
             '&user_id=' + str(context.me.id)
-        , ephemeral=True)
-
+            , ephemeral=True)
 
     # @bot.slash_command(name='zerotwo',
     #                    description='Search keyword or Use URL. (To add more songs in queue, Just use this command)')

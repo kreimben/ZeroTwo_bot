@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.discord',
+    'django_extensions',
 
     # django built-in apps
     'django.contrib.admin',
@@ -190,4 +191,5 @@ SOCIALACCOUNT_PROVIDERS = {
     # discord provider not need
 }
 
-SOCIALACCOUNT_ADAPTER = "connect.adaptor.DiscordSocialAccountAdapter"
+SOCIALACCOUNT_ADAPTER = "ZeroTwo_bot.adaptor.DiscordSocialAccountAdapter"
+LOGIN_REDIRECT_URL = '/'
