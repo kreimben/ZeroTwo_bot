@@ -1,9 +1,11 @@
+from allauth.socialaccount.models import SocialAccount
 from django.db import models
 
 
 class CommandHistory(models.Model):
-    guild_id = models.CharField(max_length=20)
-    user_id = models.CharField(max_length=20)
+    user = models.ForeignKey(SocialAccount, on_delete=models.CASCADE)  # social account
+    discord_guild_id = models.CharField(max_length=20)  # discord guild id
+    discord_user_id = models.CharField(max_length=20)  # discord user id
     command = models.CharField(choices=(
         ('play', 'play'),
         ('pause', 'pause'),
