@@ -7,7 +7,7 @@ from discord_bot.start import run_bot
 
 load_dotenv()
 
-run_bot()
+# run_bot()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -25,6 +25,13 @@ ALLOWED_HOSTS = ['*']
 
 # Application definition
 
+AUTHENTICATION_BACKENDS = [
+    # Needed to log in by username in Django admin, regardless of `allauth`
+    'django.contrib.auth.backends.ModelBackend',
+    # `allauth` specific authentication methods, such as login by e-mail
+    'allauth.account.auth_backends.AuthenticationBackend',
+]
+
 INSTALLED_APPS = [
     # apps that I made
     'home.apps.HomeConfig',
@@ -36,6 +43,10 @@ INSTALLED_APPS = [
     'debug_toolbar',
     'daphne',
     'channels',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.discord',
 
     # django built-in apps
     'django.contrib.admin',
@@ -170,3 +181,12 @@ INTERNAL_IPS = [
 DATA_UPLOAD_MAX_MEMORY_SIZE = None
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Allauth settings
+SITE_ID = 1
+
+SOCIALACCOUNT_PROVIDERS = {
+    # discord provider not need
+}
+
+SOCIALACCOUNT_ADAPTER = "connect.adaptor.DiscordSocialAccountAdapter"

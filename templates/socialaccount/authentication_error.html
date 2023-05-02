@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block menu %}
+    {% include 'menu.html' %}
+{% endblock %}
+
+{% block content %}
+    <p>
+        Code: {{ auth_error.code }}, Error: {{ auth_error.exception }}
+    </p>
+{% endblock %}

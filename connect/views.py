@@ -1,10 +1,9 @@
-from django.views.generic.base import TemplateView
+from home.views import BaseMenuView
 
 
-class ConnectView(TemplateView):
+class ConnectView(BaseMenuView):
     template_name = 'connect.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['title'] = 'Home'
         return context

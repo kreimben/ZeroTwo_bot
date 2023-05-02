@@ -1,3 +1,17 @@
-<header class="">
-    this is menu
+<header class="h-16 bg-black flex content-center">
+    <img src="https://i.pinimg.com/236x/34/15/c4/3415c4fdb37cbce123afcda913c52a74.jpg" alt="logo"
+         class="h-14 w-14 rounded-full m-1"/>
+    <div class="text-white text-2xl mx-4 mt-3"><a href="/">Home</a></div>
+
+    <!-- right side -->
+    <div class="flex-grow"></div>
+    {% if user %}
+        <div class="text-white text-2xl mx-4 mt-3">Logout</div>
+        {{ user }}
+    {% else %}
+        {% load socialaccount %}
+        <div class="text-white text-2xl mx-4 mt-3">
+            <a href="{% provider_login_url 'discord' %}">Login with Discord</a>
+        </div>
+    {% endif %}
 </header>

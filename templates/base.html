@@ -8,9 +8,8 @@
     </title>
     {% include 'head.html' %}
 </head>
-<body class="mb-3 text-center">
-{% csrf_token %}
-{% include 'menu.html' %}
+<body>
+{% block menu %}{% endblock %}
 {% block content %}{% endblock %}
 {% include 'footer.html' %}
 </body>

@@ -14,3 +14,4 @@ redis
 hiredis
 channels
 channels_redis
+django-allauth[discord]
