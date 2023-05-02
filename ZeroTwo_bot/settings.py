@@ -36,6 +36,7 @@ INSTALLED_APPS = [
     # apps that I made
     'home.apps.HomeConfig',
     'connect.apps.ConnectConfig',
+    'zerotwocontrol.apps.ZerotwocontrolConfig',
 
     # apps that I installed
     'fontawesomefree',

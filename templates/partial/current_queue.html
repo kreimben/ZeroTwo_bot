@@ -1,0 +1,24 @@
+<div>
+    {% if current_song is not None %}
+        <div class="m-12 text-center">
+            <p>Current Song: <a href={{ current_song.webpage_url }}>{{ current_song.title }}</a></p>
+            <p>({{ duration | date:"h:i a" }})</p>
+            <img href={{ current_song.thumbnail_url }} alt='thumbnail'/>
+        </div>
+    {% else %}
+        <div class="m-12 text-center">
+            <p>Nothing is playing now.</p>
+        </div>
+    {% endif %}
+    {% for song in queue %}
+        <div class="m-12 text-center">
+            <p><a href={{ song.webpage_url }}>{{ song.title }}</a></p>
+            <p>({{ duration | date:"h:i a" }})</p>
+            <img href={{ song.thumbnail_url }} alt='thumbnail'/>
+        </div>
+    {% empty %}
+        <div class="m-12 text-center">
+            <p>Queue is empty</p>
+        </div>
+    {% endfor %}
+</div>

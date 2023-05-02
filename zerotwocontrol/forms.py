@@ -7,3 +7,7 @@ class GuildAndUserForm(forms.Form):
     """
     guild_id = forms.CharField(max_length=20, min_length=5)
     user_id = forms.CharField(max_length=20, min_length=5)
+
+
+class CurrentQueueForm(GuildAndUserForm):
+    pass
