@@ -1,5 +1,8 @@
 {% extends 'base.html' %}
-{% include 'menu.html' %}
+
+{% block menu %}
+    {% include 'menu.html' %}
+{% endblock %}
 
 {% block content %}
     <div>This is connect view</div>
