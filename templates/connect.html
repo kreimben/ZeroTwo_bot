@@ -10,10 +10,7 @@
     <!-- current queue -->
     <form class="hidden">
         {% csrf_token %}
-        <!-- text input for guild id and user id -->
-        <label for="guild_id">Guild ID</label>
         <input type="text" id="guild_id" name="guild_id" placeholder="Guild ID" value={{ guild_id }}>
-        <label for="user_id">User ID</label>
         <input type="text" id="user_id" name="user_id" placeholder="User ID" value={{ user_id }}>
         <button hx-trigger="every 500ms"
                 hx-target="#current_queue"
