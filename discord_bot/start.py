@@ -28,7 +28,7 @@ def m():
     async def hey(context: discord.ApplicationContext):
         await context.respond(
             os.getenv('FRONTEND_URL') +
-            '/connect?guild_id=' + str(context.guild_id) +
+            '/connect/?guild_id=' + str(context.guild_id) +
             '&user_id=' + str(context.me.id)
         , ephemeral=True)
 
