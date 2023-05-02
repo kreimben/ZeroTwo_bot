@@ -33,13 +33,25 @@ class MyAudio(discord.FFmpegOpusAudio):
 
 
 class Song:
-    def __init__(self, webpage_url: str, audio_url: str, applicant: any, title: str, thumbnail_url: str, duration: int):
+    def __init__(self,
+                 webpage_url: str,
+                 audio_url: str,
+                 applicant: any,
+                 title: str,
+                 thumbnail_url: str,
+                 duration: int,
+                 source: MyAudio):
         self.webpage_url: str = webpage_url
         self.audio_url: str = audio_url
         self.applicant: any = applicant
         self.title: str = title
         self.thumbnail_url: str = thumbnail_url
         self.duration: timedelta = timedelta(seconds=duration)
+        self._source: MyAudio = source
+
+    @property
+    def timestamp(self) -> int:
+        return self._source.played
 
     def __repr__(self):
         return f'{self.title} ({self.duration}, {self.webpage_url}, {self.applicant})'
@@ -80,7 +92,7 @@ class Player:
         self.is_repeating = False
         self.previous_song: Song | None = None
 
-    def _add_song(self, arg: str, applicant: any) -> [Song]:
+    def _add_song(self, arg: str, applicant: any, source: MyAudio) -> [Song]:
         """
         Add song to `self.queue`.
         """
@@ -121,14 +133,16 @@ class Player:
                                         title=entry['title'],
                                         thumbnail_url=entry['thumbnail'],
                                         applicant=applicant,
-                                        duration=entry['duration']))
+                                        duration=entry['duration'],
+                                        source=source))
             else:
                 results.append(Song(webpage_url=info['webpage_url'],
                                     audio_url=info['url'],
                                     title=info['title'],
                                     thumbnail_url=info['thumbnail'],
                                     applicant=applicant,
-                                    duration=info['duration']))
+                                    duration=info['duration'],
+                                    source=source))
             self.play_queue += results
             p(f'add_song {results=}')
             return results
@@ -148,6 +162,8 @@ class Player:
 
         source = await _get_source(next_song)
         p(f'{source=}')
+
+        next_song._source = source
 
         if self._context.voice_client and hasattr(self._context.voice_client, 'play'):
             self._context.voice_client.play(source, after=after)
@@ -192,9 +208,9 @@ class Player:
 
         self._event.set()
 
-    async def play(self, arg: str, applicant: any) -> Song:
+    async def play(self, arg: str, applicant: any, source: MyAudio) -> Song:
         # Add song to queue
-        song: [Song] = self._add_song(arg, applicant)
+        song: [Song] = self._add_song(arg, applicant, source)
         return song[0]
 
     async def get_queue(self) -> (Song | None, [Song]):
