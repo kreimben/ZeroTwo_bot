@@ -11,3 +11,8 @@ class GuildAndUserForm(forms.Form):
 
 class CurrentQueueForm(GuildAndUserForm):
     pass
+
+
+class SearchForm(forms.Form):
+    keyword = forms.CharField(max_length=100, min_length=1)
+    amount = forms.IntegerField(min_value=1, max_value=20)

@@ -19,5 +19,20 @@
             Submit
         </button>
     </form>
+
+    <!-- search -->
+    <form>
+        {% csrf_token %}
+        <label for="keyword">Keyword:</label>
+        <input type="text" id="keyword" name="keyword" placeholder="Keyword">
+        <input type="number" id="amount" name="amount" min="1" max="20" value="10"/>
+        <button hx-target="#search_result"
+                hx-swap="outerHTML"
+                hx-post={% url 'search' %}>
+            Submit
+        </button>
+    </form>
+
     <div id="current_queue"></div>
+    <div id="search_result"></div>
 {% endblock %}

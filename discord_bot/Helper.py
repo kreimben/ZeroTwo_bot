@@ -40,7 +40,7 @@ class Song:
                  title: str,
                  thumbnail_url: str,
                  duration: int,
-                 source: MyAudio):
+                 source: MyAudio = None):
         self.webpage_url: str = webpage_url
         self.audio_url: str = audio_url
         self.applicant: any = applicant
@@ -75,6 +75,32 @@ async def _get_source(song: Song) -> MyAudio:
             raise CommonException("Source is not ready.")
     except Exception as e:
         print(e)
+
+
+def get_video_info(keyword: str, amount: int) -> [Song]:
+    # write code that search from YouTube and return list of Song
+    ydl_options = {
+        'format': 'bestaudio',
+        'noplaylist': True
+    }
+    with yt_dlp.YoutubeDL(ydl_options) as ydl:
+        try:
+            info = ydl.extract_info(f'ytsearch{amount}:{keyword}', download=False)
+        except Exception as e:
+            print(f'{e=}')
+
+        if 'entries' in info:
+            info = info['entries']
+        else:
+            info = [info]
+        return [Song(
+            webpage_url=entry['webpage_url'],
+            audio_url=entry['url'],
+            applicant=None,
+            title=entry['title'],
+            thumbnail_url=entry['thumbnail'],
+            duration=entry['duration']
+        ) for entry in info]
 
 
 class Player:

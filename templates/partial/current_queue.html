@@ -2,7 +2,7 @@
     {% if current_song is not None %}
         <div class="m-12 text-center">
             <p>Current Song: <a href={{ current_song.webpage_url }}>{{ current_song.title }}</a></p>
-            <p>({{ current_song.timestamp | date:"h:i a" }} / {{ current_song.duration | date:"h:i a" }})</p>
+            <p>({{ current_song.timestamp | date:"h:i:s" }} / {{ current_song.duration | date:"h:i:s" }})</p>
             <img href={{ current_song.thumbnail_url }} alt='thumbnail'/>
         </div>
     {% else %}
@@ -13,7 +13,7 @@
     {% for song in queue %}
         <div class="m-12 text-center">
             <p><a href={{ song.webpage_url }}>{{ song.title }}</a></p>
-            <p>({{ duration | date:"h:i a" }})</p>
+            <p>({{ duration | date:"h:i:s" }})</p>
             <img href={{ song.thumbnail_url }} alt='thumbnail'/>
         </div>
     {% empty %}

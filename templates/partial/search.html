@@ -1,0 +1,13 @@
+<div class="grid justify-items-center text-center bg-red-300">
+    {% for song in search_result %}
+        <div class="my-4 py-4 block bg-blue-300">
+            <a href={{ song.webpage_url }}>
+                <p>{{ song.title }}</p>
+            </a>
+            <p>({{ song.duration }})</p>
+            <img class="w-1/2 block m-auto" src={{ song.thumbnail_url }} alt={{ song.title }}/>
+        </div>
+    {% empty %}
+        <p>no result.</p>
+    {% endfor %}
+</div>
