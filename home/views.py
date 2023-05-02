@@ -13,6 +13,10 @@ class BaseMenuView(TemplateView):
         else:
             try:
                 context['user'] = SocialAccount.objects.get(user=self.request.user)
+                context['user_avatar'] = context['user'].get_avatar_url()
+                context['user_name'] = context['user'].extra_data['username']
+                context['user_discriminator'] = context['user'].extra_data['discriminator']
+                context['user_avatar'] = context['user'].get_avatar_url()
             except SocialAccount.DoesNotExist:
                 # not registered.
                 context['user'] = None

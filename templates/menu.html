@@ -1,16 +1,17 @@
 <header class="h-16 bg-black flex content-center">
     <img src="https://i.pinimg.com/236x/34/15/c4/3415c4fdb37cbce123afcda913c52a74.jpg" alt="logo"
          class="h-14 w-14 rounded-full m-1"/>
-    <div class="text-white text-2xl mx-4 mt-3"><a href="/">Home</a></div>
+    <div class="text-white text-xl mx-4 mt-4"><a href="/">Home</a></div>
 
     <!-- right side -->
     <div class="flex-grow"></div>
     {% if user %}
-        <div class="text-white text-2xl mx-4 mt-3">Logout</div>
-        {{ user }}
+        <div class="text-white text-xl mx-4 mt-4">Logout</div>
+        <div class="text-white text-xl mx-4 mt-4">{{ user_name }}@{{ user_discriminator }}</div>
+        <img src={{ user_avatar }} alt="avatar" class="h-14 w-14 rounded-full m-1"/>
     {% else %}
         {% load socialaccount %}
-        <div class="text-white text-2xl mx-4 mt-3">
+        <div class="text-white text-xl mx-4 mt-4">
             <a href="{% provider_login_url 'discord' %}">Login with Discord</a>
         </div>
     {% endif %}
