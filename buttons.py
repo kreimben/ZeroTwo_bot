@@ -4,7 +4,7 @@ import discord.ui
 from discord import Interaction
 from discord.ui import Item
 
-from discord_bot.Helper import Player, players, MyAudio, Song
+from Helper import Player, players, MyAudio, Song
 
 
 class PlayerView(discord.ui.View):

@@ -7,7 +7,7 @@ from urllib.parse import urlparse
 import discord
 import yt_dlp
 
-from discord_bot.bot import bot
+from bot import bot
 
 
 def p(a: any):
@@ -33,25 +33,13 @@ class MyAudio(discord.FFmpegOpusAudio):
 
 
 class Song:
-    def __init__(self,
-                 webpage_url: str,
-                 audio_url: str,
-                 applicant: any,
-                 title: str,
-                 thumbnail_url: str,
-                 duration: int,
-                 source: MyAudio = None):
+    def __init__(self, webpage_url: str, audio_url: str, applicant: any, title: str, thumbnail_url: str, duration: int):
         self.webpage_url: str = webpage_url
         self.audio_url: str = audio_url
         self.applicant: any = applicant
         self.title: str = title
         self.thumbnail_url: str = thumbnail_url
         self.duration: timedelta = timedelta(seconds=duration)
-        self._source: MyAudio = source
-
-    @property
-    def timestamp(self) -> int:
-        return self._source.played
 
     def __repr__(self):
         return f'{self.title} ({self.duration}, {self.webpage_url}, {self.applicant})'
@@ -75,32 +63,6 @@ async def _get_source(song: Song) -> MyAudio:
             raise CommonException("Source is not ready.")
     except Exception as e:
         print(e)
-
-
-def get_video_info(keyword: str, amount: int) -> [Song]:
-    # write code that search from YouTube and return list of Song
-    ydl_options = {
-        'format': 'bestaudio',
-        'noplaylist': True
-    }
-    with yt_dlp.YoutubeDL(ydl_options) as ydl:
-        try:
-            info = ydl.extract_info(f'ytsearch{amount}:{keyword}', download=False)
-        except Exception as e:
-            print(f'{e=}')
-
-        if 'entries' in info:
-            info = info['entries']
-        else:
-            info = [info]
-        return [Song(
-            webpage_url=entry['webpage_url'],
-            audio_url=entry['url'],
-            applicant=None,
-            title=entry['title'],
-            thumbnail_url=entry['thumbnail'],
-            duration=entry['duration']
-        ) for entry in info]
 
 
 class Player:
@@ -186,8 +148,6 @@ class Player:
 
         source = await _get_source(next_song)
         p(f'{source=}')
-
-        next_song._source = source
 
         if self._context.voice_client and hasattr(self._context.voice_client, 'play'):
             self._context.voice_client.play(source, after=after)
@@ -298,5 +258,4 @@ class Player:
         self._current_playing = None
 
 
-players: dict[int, Player] = {}  # players[guild_id] = Player
-contexts: dict[str, discord.ApplicationContext] = {}  # contexts[guild_id - user_id] = context
+players: dict[int, Player] = {}
