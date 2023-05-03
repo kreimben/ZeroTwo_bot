@@ -3,7 +3,7 @@ import os
 import discord
 from dotenv import load_dotenv
 
-from Helper import Player, players
+from Helper import Player, players, Song
 from bot import bot
 from buttons import PlayerView
 
@@ -39,7 +39,7 @@ async def ping(context: discord.ApplicationContext):
     embed = discord.Embed(title='Ping Pong 무한 Repeat! 🏓')
 
     if context.voice_client:
-        embed.add_field(name=f'', value=f'`{bot.latency * 1000:.2f}ms`')
+        embed.add_field(name=f'Latency', value=f'`{bot.latency * 1000:.2f}`ms')
         await context.respond(content='https://tenor.com/bI3bh.gif')
         return await context.respond(embed=embed)
     else:
@@ -93,6 +93,50 @@ async def zerotwo(context: discord.ApplicationContext, url_or_keyword: str):
         return await context.respond(content=str(e))
 
 
+@bot.slash_command(name='hey', description='Just say hey! 다시 위로 올라가기 귀찮을 때 불러보세요.')
+async def hey(context: discord.ApplicationContext):
+    # For logging.
+    print('Command: hey')
+    print(f'who: {context.author.name}')
+
+    await context.defer()
+
+    if not context.author.voice:
+        return await context.respond(content='You have to join VC first!')
+    voice_channel = context.author.voice.channel
+
+    if not context.voice_client:
+        await voice_channel.connect()
+    else:
+        await context.voice_client.move_to(channel=voice_channel)
+
+    # Play the song!
+    try:
+        player = players.get(context.guild_id)
+        if not player and not hasattr(player, 'play_queue'):
+            p(f'creating player in players!')
+            player = Player(context)
+            players[context.guild_id] = player
+
+        view = PlayerView(context, player)
+
+        # Fetch first song of added to queue.
+        song: Song = await player.get_current_playing_song()
+        if not song:
+            return await context.respond(content='cannot fetch song.')
+
+        embed = discord.Embed()
+        embed.add_field(name='Current Playing Song 🎧', value=f"[{song.title}]({song.webpage_url}) - {song.duration}")
+        embed.set_image(url=song.thumbnail_url)
+
+        return await context.respond(embed=embed, view=view)
+    except Exception as e:
+        await context.voice_client.disconnect(force=True)
+        if players.get(context.guild_id):
+            del players[context.guild_id]
+        return await context.respond(content=str(e))
+
+
 @bot.slash_command(name='force_quit', description='this require password')
 async def force_quit(context: discord.ApplicationContext, password: str):
     # For logging.
@@ -125,6 +169,8 @@ async def version(context: discord.ApplicationContext):
     content += '7. Add repeat mode.\n'
     content += '8. Support playlist.\n'
     content += '9. Re-Implemented with new UI/UX.\n'
+    content += '10. Add `hey` command to get control panel.\n'
+    content += '11. Change `dance` gif image.\n'
 
     embed.add_field(name='Features', value=content)
 
