@@ -20,7 +20,7 @@
         {% csrf_token %}
         <input type="text" id="guild_id" name="guild_id" value={{ guild_id }}>
         <input type="text" id="user_id" name="user_id" value={{ user_id }}>
-        <button hx-trigger="every 500ms"
+        <button hx-trigger="every 5s"
                 hx-target="#current_queue"
                 hx-post={% url 'current_queue' %}>
             Submit

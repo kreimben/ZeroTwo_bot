@@ -7,7 +7,7 @@ from discord_bot.start import run_bot
 
 load_dotenv()
 
-# run_bot()
+run_bot()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent

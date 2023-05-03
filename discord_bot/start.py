@@ -1,3 +1,4 @@
+import asyncio
 import os
 from threading import Thread
 
@@ -7,7 +8,7 @@ from discord_bot.Helper import contexts
 from discord_bot.bot import bot
 
 
-def m():
+async def m():
     def p(a: any):
         if os.getenv('ZEROTWO_VERSION') == 'develop':
             print(a)
@@ -97,11 +98,13 @@ def m():
         return await context.respond(embed=embed)
 
     try:
-        bot.run(os.getenv('DISCORD_TOKEN'))
+        await bot.start(os.getenv('DISCORD_TOKEN'))
     except Exception as e:
         print(str(e))
 
 
 def run_bot():
-    thread = Thread(target=m)
-    thread.start()
+    loop = asyncio.get_event_loop()
+    loop.create_task(m())
+    bot_thread = Thread(target=loop.run_forever)
+    bot_thread.start()
