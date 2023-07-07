@@ -127,7 +127,7 @@ class QueueButton(discord.ui.Button):
                     end = str(timedelta(seconds=end))
 
                     # display if I'm listening in this chapter
-                    if current_song.chapters[i].start_time <= source.played <= current_song.chapters[i].end_time:
+                    if current_song.chapters[i].start_time <= played.total_seconds() <= current_song.chapters[i].end_time:
                         chapters += f'**{i + 1}. {current_song.chapters[i].title} ({start} ~ {end})**\n'
                     else:
                         chapters += f'{i + 1}. {current_song.chapters[i].title} ({start} ~ {end})\n'
