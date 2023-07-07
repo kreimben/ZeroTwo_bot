@@ -127,7 +127,8 @@ class QueueButton(discord.ui.Button):
                     end = str(timedelta(seconds=end))
 
                     # display if I'm listening in this chapter
-                    if current_song.chapters[i].start_time <= played.total_seconds() <= current_song.chapters[i].end_time:
+                    if current_song.chapters[i].start_time <= played.total_seconds() <= current_song.chapters[
+                        i].end_time:
                         chapters += f'**{i + 1}. {current_song.chapters[i].title} ({start} ~ {end})**\n'
                     else:
                         chapters += f'{i + 1}. {current_song.chapters[i].title} ({start} ~ {end})\n'
@@ -154,9 +155,10 @@ class QueueButton(discord.ui.Button):
         except Exception as e:
             return interaction.response.send_message(f'{e}')
 
-        await interaction.response.send_message(embed=queue_embed, ephemeral=True)
         if current_song.chapters:
-            await interaction.response.send_message(embed=chapter_embed, ephemeral=True)
+            await interaction.response.send_message(embeds=[queue_embed, chapter_embed], ephemeral=True)
+        else:
+            await interaction.response.send_message(embed=queue_embed, ephemeral=True)
 
 
 class SkipButton(discord.ui.Button):
