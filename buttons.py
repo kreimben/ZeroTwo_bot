@@ -15,6 +15,7 @@ class PlayerView(discord.ui.View):
             PauseResumeButton(emoji='⏯️', style=discord.ButtonStyle.primary, context=context, player=player))
         self.add_item(RepeatButton(emoji='🔂', style=discord.ButtonStyle.primary, context=context, player=player))
         self.add_item(QueueButton(emoji='🛤️', style=discord.ButtonStyle.primary, context=context, player=player))
+        self.add_item(ChapterButton(emoji='🔖', style=discord.ButtonStyle.primary, context=context, player=player))
         self.add_item(SkipButton(emoji='⏭️', style=discord.ButtonStyle.primary, context=context, player=player))
         self.add_item(RemoveButton(emoji='❌', style=discord.ButtonStyle.primary, context=context, player=player))
         self.add_item(
@@ -114,26 +115,6 @@ class QueueButton(discord.ui.Button):
                 v += f' ***(repeating)***'
             queue_embed.add_field(name='Now Playing 🎧', value=v)
 
-            # Chapter
-            chapter_embed = discord.Embed(title='Chapters 📋', description='')
-            if current_song.chapters:
-                chapters = ''
-                for i in range(len(current_song.chapters)):
-                    start = current_song.chapters[i].start_time
-                    end = current_song.chapters[i].end_time
-
-                    # seconds to hh:mm:ss
-                    start = str(timedelta(seconds=start))
-                    end = str(timedelta(seconds=end))
-
-                    # display if I'm listening in this chapter
-                    if current_song.chapters[i].start_time <= played.total_seconds() <= current_song.chapters[
-                        i].end_time:
-                        chapters += f'**{i + 1}. {current_song.chapters[i].title} ({start} ~ {end})**\n'
-                    else:
-                        chapters += f'{i + 1}. {current_song.chapters[i].title} ({start} ~ {end})\n'
-                chapter_embed.add_field(name='', value=chapters)
-
             # Queue
             if not play_queue:
                 queue_embed.add_field(name='Queue', value='empty!')
@@ -155,10 +136,68 @@ class QueueButton(discord.ui.Button):
         except Exception as e:
             return interaction.response.send_message(f'{e}')
 
-        if current_song.chapters:
-            await interaction.response.send_message(embeds=[queue_embed, chapter_embed], ephemeral=True)
-        else:
-            await interaction.response.send_message(embed=queue_embed, ephemeral=True)
+        await interaction.response.send_message(embed=queue_embed, ephemeral=True)
+
+
+class ChapterButton(discord.ui.Button):
+    def __init__(self, **kwargs):
+        self.context = kwargs.pop('context')
+        self.player = kwargs.pop('player')
+        super().__init__(**kwargs)
+
+    async def callback(self, interaction: Interaction):
+        try:
+            current_song, play_queue = await players[self.context.guild_id].get_queue()
+            is_playing = hasattr(self.context.voice_client, 'is_playing')
+
+            if not current_song and is_playing:
+                return await self.context.respond('cannot fetch current song.')
+            elif not current_song and not is_playing:
+                return await self.context.respond(
+                    'not playing now! But if you see this message, something is going to wrong!')
+
+            source: MyAudio = self.context.voice_client.source
+            if hasattr(source, 'played'):
+                played = timedelta(seconds=source.played // 1000)
+            else:
+                return await self.context.respond('Player is having deadlock. Please report to kreimben.')
+
+            chapter_embed = discord.Embed(title='Chapters 📋', description='')
+
+            # Chapter
+            cs = []
+            current_index = 0
+            if current_song.chapters:
+                res = ''
+                for i, chapter in enumerate(current_song.chapters):
+                    start = chapter.start_time
+                    end = chapter.end_time
+
+                    # seconds to hh:mm:ss
+                    start = str(timedelta(seconds=start))
+                    end = str(timedelta(seconds=end))
+
+                    # display if I'm listening in this chapter
+                    if chapter.start_time <= played.total_seconds() <= \
+                            chapter.end_time:
+                        cs.append(f'**{i + 1}. {chapter.title} ({start} ~ {end})**\n')
+                        current_index = i
+                    else:
+                        cs.append(f'{i + 1}. {chapter.title} ({start} ~ {end})\n')
+
+                while len(res) + len(cs[current_index]) < 1024 and current_index < len(cs):
+                    res += cs[current_index]
+                    current_index += 1
+
+                while len(res) + len(cs[current_index]) < 1024 and current_index >= 0:
+                    res = cs[current_index] + res
+                    current_index -= 1
+
+                chapter_embed.add_field(name='', value=res)
+        except Exception as e:
+            return interaction.response.send_message(f'{e}')
+
+        await interaction.response.send_message(embed=chapter_embed, ephemeral=True)
 
 
 class SkipButton(discord.ui.Button):
