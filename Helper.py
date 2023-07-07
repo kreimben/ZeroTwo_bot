@@ -2,6 +2,7 @@ import asyncio
 import os
 from copy import copy
 from datetime import timedelta
+from typing import Optional
 from urllib.parse import urlparse
 
 import discord
@@ -32,14 +33,42 @@ class MyAudio(discord.FFmpegOpusAudio):
         return super().read()
 
 
+class Chapter:
+    def __init__(self, start_time: int, end_time: int, title: str):
+        self.start_time = start_time
+        self.end_time = end_time
+        self.title = title
+
+    def __repr__(self):
+        return f'{self.title} ({self.start_time} ~ {self.end_time})'
+
+
+class ChapterExtractor:
+    @classmethod
+    def extract_chapter_info(cls, raw_info: [dict]) -> [Chapter]:
+        if raw_info is None:
+            return []
+
+        chapters = []
+        for chapter in raw_info:
+            chapters.append(
+                Chapter(start_time=int(chapter['start_time']),
+                        end_time=int(chapter['end_time']),
+                        title=chapter['title'])
+            )
+        return chapters
+
+
 class Song:
-    def __init__(self, webpage_url: str, audio_url: str, applicant: any, title: str, thumbnail_url: str, duration: int):
+    def __init__(self, webpage_url: str, audio_url: str, applicant: any, title: str, thumbnail_url: str, duration: int,
+                 chapters: Optional[list[Chapter]] = None):
         self.webpage_url: str = webpage_url
         self.audio_url: str = audio_url
         self.applicant: any = applicant
         self.title: str = title
         self.thumbnail_url: str = thumbnail_url
         self.duration: timedelta = timedelta(seconds=duration)
+        self.chapters: Optional[list[Chapter]] = chapters
 
     def __repr__(self):
         return f'{self.title} ({self.duration}, {self.webpage_url}, {self.applicant})'
@@ -132,14 +161,16 @@ class Player:
                                     title=entry['title'],
                                     thumbnail_url=entry['thumbnail'],
                                     applicant=applicant,
-                                    duration=entry['duration']))
+                                    duration=entry['duration'],
+                                    chapters=ChapterExtractor.extract_chapter_info(entry.get('chapters', None))))
         else:
             results.append(Song(webpage_url=info['webpage_url'],
                                 audio_url=info['url'],
                                 title=info['title'],
                                 thumbnail_url=info['thumbnail'],
                                 applicant=applicant,
-                                duration=info['duration']))
+                                duration=info['duration'],
+                                chapters=ChapterExtractor.extract_chapter_info(info.get('chapters', None))))
         self.play_queue += results
         p(f'add_song {results=}')
         return results
