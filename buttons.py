@@ -105,17 +105,17 @@ class QueueButton(discord.ui.Button):
             else:
                 return await self.context.respond('Player is having deadlock. Please report to kreimben.')
 
-            embed = discord.Embed(title='Queue', description='')
+            queue_embed = discord.Embed(title='Queue', description='')
 
             # Now Playing
             v = f"[{current_song.title}]({current_song.webpage_url}) <@{current_song.applicant}> "
             v += f"{played}/{current_song.duration}"
             if players[self.context.guild_id].is_repeating:
                 v += f' ***(repeating)***'
-            embed.add_field(name='Now Playing 🎧', value=v)
+            queue_embed.add_field(name='Now Playing 🎧', value=v)
 
             # Chapter
-            current_song: Song
+            chapter_embed = discord.Embed(title='Chapters 📋', description='')
             if current_song.chapters:
                 chapters = ''
                 for i in range(len(current_song.chapters)):
@@ -131,11 +131,11 @@ class QueueButton(discord.ui.Button):
                         chapters += f'**{i + 1}. {current_song.chapters[i].title} ({start} ~ {end})**\n'
                     else:
                         chapters += f'{i + 1}. {current_song.chapters[i].title} ({start} ~ {end})\n'
-                embed.add_field(name='Chapters', value=chapters)
+                chapter_embed.add_field(name='', value=chapters)
 
             # Queue
             if not play_queue:
-                embed.add_field(name='Queue', value='empty!')
+                queue_embed.add_field(name='Queue', value='empty!')
             else:
                 contents = []
                 content = ''
@@ -150,11 +150,13 @@ class QueueButton(discord.ui.Button):
                         content += contents[i]
 
                 content += f'total: `{len(play_queue)} songs.`'
-                embed.add_field(name='Queue', value=content)
+                queue_embed.add_field(name='Queue', value=content)
         except Exception as e:
             return interaction.response.send_message(f'{e}')
 
-        await interaction.response.send_message(embed=embed, ephemeral=True)
+        await interaction.response.send_message(embed=queue_embed, ephemeral=True)
+        if current_song.chapters:
+            await interaction.response.send_message(embed=chapter_embed, ephemeral=True)
 
 
 class SkipButton(discord.ui.Button):
