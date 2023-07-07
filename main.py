@@ -171,6 +171,7 @@ async def version(context: discord.ApplicationContext):
     content += '9. Re-Implemented with new UI/UX.\n'
     content += '10. Add `hey` command to get control panel.\n'
     content += '11. Change `dance` gif image.\n'
+    content += '12. Add chapters info in queue.\n'
 
     embed.add_field(name='Features', value=content)
 
