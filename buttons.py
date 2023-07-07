@@ -106,12 +106,34 @@ class QueueButton(discord.ui.Button):
                 return await self.context.respond('Player is having deadlock. Please report to kreimben.')
 
             embed = discord.Embed(title='Queue', description='')
+
+            # Now Playing
             v = f"[{current_song.title}]({current_song.webpage_url}) <@{current_song.applicant}> "
             v += f"{played}/{current_song.duration}"
             if players[self.context.guild_id].is_repeating:
                 v += f' ***(repeating)***'
             embed.add_field(name='Now Playing 🎧', value=v)
 
+            # Chapter
+            current_song: Song
+            if current_song.chapters:
+                chapters = ''
+                for i in range(len(current_song.chapters)):
+                    start = current_song.chapters[i].start_time
+                    end = current_song.chapters[i].end_time
+
+                    # seconds to hh:mm:ss
+                    start = str(timedelta(seconds=start))
+                    end = str(timedelta(seconds=end))
+
+                    # display if I'm listening in this chapter
+                    if current_song.chapters[i].start_time <= source.played <= current_song.chapters[i].end_time:
+                        chapters += f'**{i + 1}. {current_song.chapters[i].title} ({start} ~ {end})**\n'
+                    else:
+                        chapters += f'{i + 1}. {current_song.chapters[i].title} ({start} ~ {end})\n'
+                embed.add_field(name='Chapters', value=chapters)
+
+            # Queue
             if not play_queue:
                 embed.add_field(name='Queue', value='empty!')
             else:
