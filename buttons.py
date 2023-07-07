@@ -27,7 +27,7 @@ class PlayerView(discord.ui.View):
         print('on_error on PlayView')
         print(f'{error}')
         print(f'{item}')
-        interaction.response.send_message(f'Error Occurred! {error}')
+        await interaction.response.send_message(f'Error Occurred! {error}')
 
     def disable(self):
         self.disable_all_items()
