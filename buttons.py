@@ -134,7 +134,7 @@ class QueueButton(discord.ui.Button):
                 content += f'total: `{len(play_queue)} songs.`'
                 queue_embed.add_field(name='Queue', value=content)
         except Exception as e:
-            return interaction.response.send_message(f'{e}')
+            return await interaction.response.send_message(f'{e}')
 
         await interaction.response.send_message(embed=queue_embed, ephemeral=True)
 
@@ -185,17 +185,19 @@ class ChapterButton(discord.ui.Button):
                     else:
                         cs.append(f'{i + 1}. {chapter.title} ({start} ~ {end})\n')
 
-                while len(res) + len(cs[current_index]) < 1024 and current_index < len(cs):
+                prev = current_index
+                while current_index < len(cs) and len(res) + len(cs[current_index]) < 1024:
                     res += cs[current_index]
                     current_index += 1
 
-                while len(res) + len(cs[current_index]) < 1024 and current_index >= 0:
+                current_index = prev - 1
+                while current_index >= 0 and len(res) + len(cs[current_index]) < 1024:
                     res = cs[current_index] + res
                     current_index -= 1
 
                 chapter_embed.add_field(name='', value=res)
         except Exception as e:
-            return interaction.response.send_message(f'{e}')
+            return await interaction.response.send_message(f'{e}')
 
         await interaction.response.send_message(embed=chapter_embed, ephemeral=True)
 
