@@ -65,24 +65,13 @@ async def _get_source(song: Song) -> MyAudio:
         print(e)
 
 
-class Player:
-    def __init__(self, context: discord.ApplicationContext):
-        self.play_queue: list = []
-        self._instance = None
-        self._is_loop_running = False
-        self._current_playing: Song | None = None
-        self._is_paused = False
-        self._event = asyncio.Event()
-
-        self._context = copy(context)
-        self._task = bot.loop.create_task(self._loop())
-
-        self.is_repeating = False
-        self.previous_song: Song | None = None
-
-    def _add_song(self, arg: str, applicant: any) -> [Song]:
+class YoutubeExtractor:
+    @classmethod
+    def extract(cls, arg: str) -> dict:
         """
-        Add song to `self.queue`.
+        Extract info from YouTube.
+        :param arg: YouTube link or search query.
+        :return: json which contains info.
         """
         ydl_options = {
             'format': 'bestaudio/best',
@@ -111,27 +100,49 @@ class Player:
             else:
                 ready = f'ytsearch:{arg}'
 
-            info = ydl.extract_info(ready, download=False)
+            return ydl.extract_info(ready, download=False)
 
-            results = []
-            if 'entries' in info:
-                for entry in info['entries']:
-                    results.append(Song(webpage_url=entry['webpage_url'],
-                                        audio_url=entry['url'],
-                                        title=entry['title'],
-                                        thumbnail_url=entry['thumbnail'],
-                                        applicant=applicant,
-                                        duration=entry['duration']))
-            else:
-                results.append(Song(webpage_url=info['webpage_url'],
-                                    audio_url=info['url'],
-                                    title=info['title'],
-                                    thumbnail_url=info['thumbnail'],
+
+class Player:
+    def __init__(self, context: discord.ApplicationContext):
+        self.play_queue: list = []
+        self._instance = None
+        self._is_loop_running = False
+        self._current_playing: Song | None = None
+        self._is_paused = False
+        self._event = asyncio.Event()
+
+        self._context = copy(context)
+        self._task = bot.loop.create_task(self._loop())
+
+        self.is_repeating = False
+        self.previous_song: Song | None = None
+
+    def _add_song(self, arg: str, applicant: any) -> [Song]:
+        """
+        Add song to `self.queue`.
+        """
+        info = YoutubeExtractor.extract(arg)
+
+        results = []
+        if 'entries' in info:
+            for entry in info['entries']:
+                results.append(Song(webpage_url=entry['webpage_url'],
+                                    audio_url=entry['url'],
+                                    title=entry['title'],
+                                    thumbnail_url=entry['thumbnail'],
                                     applicant=applicant,
-                                    duration=info['duration']))
-            self.play_queue += results
-            p(f'add_song {results=}')
-            return results
+                                    duration=entry['duration']))
+        else:
+            results.append(Song(webpage_url=info['webpage_url'],
+                                audio_url=info['url'],
+                                title=info['title'],
+                                thumbnail_url=info['thumbnail'],
+                                applicant=applicant,
+                                duration=info['duration']))
+        self.play_queue += results
+        p(f'add_song {results=}')
+        return results
 
     async def _play(self, after) -> None:
         """
