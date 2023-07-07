@@ -162,7 +162,7 @@ class ChapterButton(discord.ui.Button):
             else:
                 return await self.context.respond('Player is having deadlock. Please report to kreimben.')
 
-            chapter_embed = discord.Embed(title='Chapters 📋', description='')
+            chapter_embed = discord.Embed(title='Chapters', description=f'{played}/{current_song.duration}')
 
             # Chapter
             cs = []
