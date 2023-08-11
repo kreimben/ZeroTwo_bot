@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 from Helper import Player, players, Song
 from bot import bot
 from buttons import PlayerView
+from db.Command import RecommandSongCommand
 
 load_dotenv()
 
@@ -136,6 +137,11 @@ async def hey(context: discord.ApplicationContext):
             del players[context.guild_id]
         return await context.respond(content=str(e))
 
+
+@bot.slash_command(name='recommand_song', description='Play recommand song by ZeroTwo_bot.')
+async def recommand_song(context: discord.ApplicationContext, anything_to_tell: str):
+    # TODO: Connect with Llama-2
+    RecommandSongCommand.create(etc=anything_to_tell, user_id=context.author.id)
 
 @bot.slash_command(name='force_quit', description='this require password')
 async def force_quit(context: discord.ApplicationContext, password: str):
