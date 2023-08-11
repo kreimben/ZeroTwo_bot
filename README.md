@@ -1,5 +1,10 @@
 # ZeroTwo Discord Music Bot
 
+## This is fullstack version of ZeroTwo_bot!
+* react.js for frontend
+* golang for backend
+* use pure golang and self-made youtube info extractor library
+
 ![zerotwo_dance](https://i.pinimg.com/736x/a5/04/05/a504058784154e306894c82ac23a2b01.jpg)
 
 ## Open Source Discord Music Bot
