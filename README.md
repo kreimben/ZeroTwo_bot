@@ -2,6 +2,7 @@
 # ZeroTwo Bot
 
 ZeroTwo Bot은 Discord용 오픈 소스 음악 봇입니다. 
+
 이 봇은 Python으로 작성되었으며, 사용자가 Discord 서버에서 음악을 쉽게 재생할 수 있도록 다양한 기능을 제공합니다. 
 
 <img width="517" alt="image" src="https://github.com/kreimben/ZeroTwo_bot/assets/20333172/b5d4775b-9948-4cb7-a2cc-cccc8c0001ee">
