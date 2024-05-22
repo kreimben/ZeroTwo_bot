@@ -35,7 +35,9 @@ ZeroTwo Bot은 Discord용 오픈 소스 음악 봇입니다.
 
 ## 구조도
 ![image](https://github.com/kreimben/ZeroTwo_bot/assets/20333172/10781f77-4f00-4a9a-b057-0e1a432c6192)
-![image](https://github.com/kreimben/ZeroTwo_bot/assets/20333172/96e5400b-a16d-4632-8f1c-6b430508fb11)
+
+![image](https://github.com/kreimben/ZeroTwo_bot/assets/20333172/a809da87-9f5d-46d6-9af0-712cdcde8f93)
+
 
 
 ## `Helper.py` 코드
