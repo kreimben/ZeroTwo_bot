@@ -33,6 +33,11 @@ ZeroTwo Bot은 Discord용 오픈 소스 음악 봇입니다.
 
 `ZeroTwo_bot` 프로젝트에서 `Helper.py` 파일의 비동기 함수와 이벤트 루프 사용 예제를 기반으로 설명합니다. 이 봇은 Python의 `discord.py` 라이브러리와 비동기 프로그래밍을 사용하여 음악 재생 기능을 구현합니다.
 
+## 구조도
+![image](https://github.com/kreimben/ZeroTwo_bot/assets/20333172/10781f77-4f00-4a9a-b057-0e1a432c6192)
+![image](https://github.com/kreimben/ZeroTwo_bot/assets/20333172/96e5400b-a16d-4632-8f1c-6b430508fb11)
+
+
 ## `Helper.py` 코드
 
 ```python
