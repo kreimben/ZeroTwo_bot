@@ -7,7 +7,7 @@ ZeroTwo Bot은 Discord용 오픈 소스 음악 봇입니다.
 <img width="517" alt="image" src="https://github.com/kreimben/ZeroTwo_bot/assets/20333172/b5d4775b-9948-4cb7-a2cc-cccc8c0001ee">
 
 ## 54개 서버에서 실사용되고 있는 서비스 입니다.
-- <img width="339" alt="image" src="https://github.com/kreimben/ZeroTwo_bot/assets/20333172/17c22e3d-9cc1-4f65-80a9-e4fc765bbb09">
+<img width="339" alt="image" src="https://github.com/kreimben/ZeroTwo_bot/assets/20333172/17c22e3d-9cc1-4f65-80a9-e4fc765bbb09">
 
 ### 이 프로젝트는 여러 기능을 포함하고 있으며, 그 주요 기능과 구조는 다음과 같습니다.
 
